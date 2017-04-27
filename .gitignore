@@ -1,2 +1,4 @@
 vendor/
 logs/
+env
+public/static
