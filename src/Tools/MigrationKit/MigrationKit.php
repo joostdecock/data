@@ -42,6 +42,10 @@ class MigrationKit
             $user->setPicture($avatarKit->createFromMmp(json_decode($this->account->picture), $user->getHandle(), 'user')); 
         }
 
+        // Mark user as migrated
+        $user->setMigrated(date("Y-m-d H:i:s", $this->account->created));
+
+        // Save user
         $user->save();
 
         // Migrating models

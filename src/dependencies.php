@@ -44,6 +44,10 @@ $container['MigrationKit'] = function ($container) {
     return new \App\Tools\MigrationKit($container);
 };
 
+$container['MailKit'] = function ($container) {
+    return new \App\Tools\MailKit($container);
+};
+
 $container['User'] = function ($container) {
     return new \App\Data\User($container);
 };

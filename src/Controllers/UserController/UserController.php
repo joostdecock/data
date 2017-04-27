@@ -60,7 +60,10 @@ class UserController
                 'message' => 'Thank you for signing up. Please check your '.$signup_data['email'].' mailbox for the activation email',
             ]);
         }
-        
+
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->signup($user);
+
         return $response;
     }
 }

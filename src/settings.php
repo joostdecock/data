@@ -24,6 +24,12 @@ return [
             'password' => getenv('FREESEWING_DATA_DB_PASSWORD', true),
         ],
         
+        // Mailgun
+        'mailgun' => [
+            'api_key' => getenv('FREESEWING_MAILGUN_API_KEY', true),
+            'template_path' => dirname(__DIR__) . '/templates/email',
+        ],
+
         // Storage settings
         'storage' => [
             'static_path' => dirname(__DIR__) . '/public/static',

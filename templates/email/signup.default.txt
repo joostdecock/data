@@ -1,0 +1,22 @@
+Welcome __USERNAME__ (*)
+
+Thank you for signing up. 
+Before we get started, you need to confirm your account. Just click the link below:
+
+__LINK__
+
+If that doesn't work, you can copy and paste the link in your browser.
+
+
+If you have any questions, just reply to this email — I'm always happy to help out.
+
+Love,
+
+Joost from Freesewing
+
+(*) You-are-not-just-a-number tip: Change your username to something more… you.
+
+
+--
+You received this email because you just signed up for a new account.
+Freesewing is an open source platform for made-to-measure sewing patterns.
