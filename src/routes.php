@@ -1,8 +1,8 @@
 <?php
 // Routes
 
-$app->post('/user/signup', 'UserController:signup');
-$app->get('/user/activate/{handle}/{token}', 'UserController:activate');
+$app->post('/signup', 'UserController:signup');
+$app->get('/activate/{handle}/{token}', 'UserController:activate');
 
 
 
