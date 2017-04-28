@@ -44,10 +44,10 @@ class MailKit
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
         switch($template) {
         default:
-            $search = ['__PICTURE__','__USERNAME__'];
+            $search = ['__LINK__','__USERNAME__'];
             $h = $user->getHandle();
             $replace = [
-                'http://joost.freesewing.org:8081/static/users/'.substr($h,0,1)."/$h/".$user->getPicture(), 
+                $this->container['settings']['app']['site'].'/account/confirm#'.$user->getActivationToken(), 
                 $user->getUsername()
             ];
         }

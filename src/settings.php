@@ -37,6 +37,8 @@ return [
 
         // App settings
         'app' => [
+            'api' => 'http://joost.freesewing.org:8081',
+            'site' => 'http://joost.freesewing.org:8080',
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],

@@ -70,6 +70,11 @@ class User
         return $this->initial;
     } 
 
+    public function getCreated() 
+    {
+        return $this->created;
+    } 
+
     private function setHandle($handle) 
     {
         $this->handle = $handle;
@@ -341,6 +346,19 @@ class User
         
         if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
         else return false;
+    }
+
+    /** 
+     * Generates an activation token for a user account
+     *
+     * Note that actication tokens never expire
+     *
+     * @return string The activation token
+     */
+    public function getActivationToken() 
+    {
+        // Stringing together userid, username, and hashed password 
+        return hash('sha256',$this->getId().$this->getUsername().$this->getHandle().$this->getCreated());
     }
 
    
