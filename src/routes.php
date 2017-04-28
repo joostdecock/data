@@ -2,6 +2,7 @@
 // Routes
 
 $app->post('/user/signup', 'UserController:signup');
+$app->get('/user/activate/{handle}/{token}', 'UserController:activate');
 
 
 

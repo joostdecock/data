@@ -26,7 +26,6 @@ class UserController
      * Expects email and password in request params
      */
     public function signup($request, $response, $args) {
-
         // Handle request data 
         $data = $request->getParsedBody();
         $signup_data = [
@@ -39,31 +38,95 @@ class UserController
         
         // Get a user instance from the container
         $user = $this->container->get('User');
-
-        // Does this user already exist?
         $user->loadFromEmail($signup_data['email']);
 
-        if ($user->getId() != '') { // Yes, user is already signed-up 
+        // Does this user already exist?
+        if ($user->getId() != '') { 
             $logger->info("Signup rejected: ".$signup_data['email']." already has an account");
-            // FIXME: Handle return better
             echo json_encode([
                 'result' => 'error', 
                 'reason' => 'account_exists', 
-                'message' => 'We already have a user account with address '.$signup_data['email']
+                'message' => 'signup/account-exists',
             ]);
-        } else { // No, creating new user
-            $user->create($signup_data['email'], $signup_data['password']);
-            $logger->info("Signup: ".$signup_data['email']." is user ".$user->getId());
-            echo json_encode([
-                'result' => 'sucess', 
-                'reason' => 'signup_complete', 
-                'message' => 'Thank you for signing up. Please check your '.$signup_data['email'].' mailbox for the activation email',
-            ]);
-        }
+
+            return $response->withHeader('Access-Control-Allow-Origin', '*');
+        } 
+        
+        // Create new user
+        $user->create($signup_data['email'], $signup_data['password']);
+        $logger->info("Signup: ".$signup_data['email']." is user ".$user->getId());
+        echo json_encode([
+            'result' => 'ok', 
+            'reason' => 'signup_complete', 
+            'message' => 'signup/success',
+        ]);
 
         $mailKit = $this->container->get('MailKit');
         $mailKit->signup($user);
 
-        return $response;
+        return $response->withHeader('Access-Control-Allow-Origin', '*');
+    }
+    
+    /** User activation */
+    public function activate($request, $response, $args) {
+
+        // Handle request data 
+        $activation_data = [
+            'handle' => filter_var($args['handle'], FILTER_SANITIZE_STRING),
+            'token' => filter_var($args['token'], FILTER_SANITIZE_STRING),
+        ];
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        $user = $this->container->get('User');
+        $user->loadFromHandle($activation_data['handle']);
+
+        // Does the user exist?
+        if ($user->getId() == '') { 
+            $logger->info("Activation rejected: User handle ".$activation_data['handle']." does not exist");
+            echo json_encode([
+                'result' => 'error', 
+                'reason' => 'no_such_account', 
+                'message' => 'activation/no-such-account'
+            ]);
+            
+            return $response->withHeader('Access-Control-Allow-Origin', '*');
+        }
+
+        // Is the user blocked? 
+        if($user->getStatus() === 'blocked') {
+            $logger->info('Activation rejected: User '.$user->getId().' is blocked');
+            echo json_encode([
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'account/blocked'
+            ]);
+            
+            return $response->withHeader('Access-Control-Allow-Origin', '*');
+        }
+
+        // Is there a token mismatch? 
+        if($activation_data['token'] != $user->getActivationToken()) {
+            $logger->info("Activation rejected: Token mismatch for user ".$user->getId());
+            echo json_encode([
+                'result' => 'error', 
+                'reason' => 'token_mismatch', 
+                'message' => 'activation/token-mismatch'
+            ]);
+            
+            return $response->withHeader('Access-Control-Allow-Origin', '*');
+        }
+
+        // Activate user
+        $user->setStatus('active');
+        $user->save();
+        $logger->info("Activation: User ".$user->getId()." is now active");
+        echo json_encode([
+            'result' => 'ok', 
+            'reason' => 'signup_complete', 
+        ]);
+        
+        return $response->withHeader('Access-Control-Allow-Origin', '*');
     }
 }

@@ -47,7 +47,7 @@ class MailKit
             $search = ['__LINK__','__USERNAME__'];
             $h = $user->getHandle();
             $replace = [
-                $this->container['settings']['app']['site'].'/account/confirm#'.$user->getActivationToken(), 
+                $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken(), 
                 $user->getUsername()
             ];
         }
