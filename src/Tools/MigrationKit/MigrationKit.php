@@ -34,7 +34,7 @@ class MigrationKit
         if(!is_object($this->account)) return false; // Nope
 
         // Migrate username
-        $user->setUsername($this->account->username);
+        if(!$user->usernameTaken($this->account->username)) $user->setUsername($this->account->username);
         
         // Migrate user picture
         $avatarKit = $this->container->get('AvatarKit');

@@ -303,8 +303,8 @@ class User
         // Retrieve user ID
         $id = $db->lastInsertId();
 
-        // Set username to #ID to encourage people to change it
-        $sql = "UPDATE `users` SET `username` = '#$id' WHERE `users`.`id` = '$id';";
+        // Set username to 'user ID' to encourage people to change it
+        $sql = "UPDATE `users` SET `username` = 'user $id' WHERE `users`.`id` = '$id';";
         $db->exec($sql);
 
         // Update instance from database
@@ -315,6 +315,33 @@ class User
         $migrationKit->migrate($this);
     }
 
+    /** 
+     * Checks whether a email address is used by a user
+     *
+     * @return bool true if it's free, false if not
+     */
+    public function emailTaken($email) 
+    {
+        $db = $this->container->get('db');
+        $sql = 'SELECT `email` FROM `users` WHERE  `email` = '.$db->quote($email).' LIMIT 1';
+        
+        if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
+        else return false;
+    }
+
+    /** 
+     * Checks whether a username address is used by a user
+     *
+     * @return bool true if it's free, false if not
+     */
+    public function usernameTaken($email) 
+    {
+        $db = $this->container->get('db');
+        $sql = 'SELECT `username` FROM `users` WHERE  `username` = '.$db->quote($email).' LIMIT 1';
+        
+        if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
+        else return false;
+    }
 
    
     /** Saves the user to the database */
