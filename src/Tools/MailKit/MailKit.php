@@ -31,11 +31,27 @@ class MailKit
         else $template = 'default';
 
         return $mg->messages()->send('mg.freesewing.org', [
-          'from'    => 'Joost at Freesewing <bot@freesewing.org>', 
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Confirm your freesewing account', 
+          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
           'text'    => $this->loadTemplate("signup.$template.txt", $user),
           'html'    => $this->loadTemplate("signup.$template.html", $user),
+        ]);
+    }
+
+    public function recover($user) 
+    {
+        // Mailgun API instance
+        $mg = $this->initApi();
+        
+        return $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $user->getEmail(), 
+          'subject' => 'Regain access to your acount', 
+          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
+          'text'    => $this->loadTemplate("recover.txt", $user),
+          'html'    => $this->loadTemplate("recover.html", $user),
         ]);
     }
 
@@ -43,9 +59,16 @@ class MailKit
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
         switch($template) {
+        case 'recover.txt':
+        case 'recover.html':
+            $search = ['__LINK__','__USERNAME__'];
+            $replace = [
+                $this->container['settings']['app']['site'].'/account/reset#'.$user->getHandle().'.'.$user->getResetToken(), 
+                $user->getUsername()
+            ];
+            break;
         default:
             $search = ['__LINK__','__USERNAME__'];
-            $h = $user->getHandle();
             $replace = [
                 $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken(), 
                 $user->getUsername()

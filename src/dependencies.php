@@ -48,6 +48,10 @@ $container['MailKit'] = function ($container) {
     return new \App\Tools\MailKit($container);
 };
 
+$container['TokenKit'] = function ($container) {
+    return new \App\Tools\TokenKit($container);
+};
+
 $container['User'] = function ($container) {
     return new \App\Data\User($container);
 };

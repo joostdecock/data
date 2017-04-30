@@ -42,6 +42,8 @@ return [
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
+            'jwt_secret' => getenv('FREESEWING_JWT_SECRET', true),
+            'origin' => 'http://joost.freesewing.org:8080',
         ],
 
         // Migration settings

@@ -65,6 +65,11 @@ class User
         return $this->id;
     } 
 
+    public function getPepper() 
+    {
+        return $this->pepper;
+    } 
+
     public function getInitial() 
     {
         return $this->initial;
@@ -291,7 +296,8 @@ class User
             `role`,
             `picture`,
             `password`,
-            `initial`
+            `initial`,
+            `pepper`
              ) VALUES (
             ".$db->quote($this->getEmail()).",
             ".$db->quote($this->getHandle()).",
@@ -301,7 +307,8 @@ class User
             'user',
             ".$db->quote($this->getPicture()).",
             ".$db->quote($this->getPassword()).",
-            ".$db->quote($this->getEmail())."
+            ".$db->quote($this->getEmail()).",
+            ".$db->quote(hash('sha256', random_bytes(256)))."
             );";
         $db->exec($sql);
 
@@ -357,8 +364,28 @@ class User
      */
     public function getActivationToken() 
     {
-        // Stringing together userid, username, and hashed password 
-        return hash('sha256',$this->getId().$this->getUsername().$this->getHandle().$this->getCreated());
+        return hash('sha256',$this->getId().$this->getUsername().$this->getHandle().$this->getCreated().$this->getPepper());
+    }
+
+    /** 
+     * Generates an password reset token for a user account
+     *
+     * Note that reset tokens do expire
+     *
+     * @return string The activation token
+     */
+    public function getResetToken() 
+    {
+        // Days since epoch
+        $dse = round(time()/(24*3600));
+        
+        return hash('sha256',$dse.$this->getId().$this->getUsername().$this->getHandle().$this->getCreated().$this->getPepper());
+    }
+
+    /** Verifies the user's password */
+    public function checkPassword($password)
+    {
+        return(password_verify($password, $this->password));
     }
 
    
