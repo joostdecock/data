@@ -1,7 +1,6 @@
 <?php
 // Application middleware
 
-
 $jwtOptions = [
     "secure" => false,
     'path' => '/',

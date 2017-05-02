@@ -84,7 +84,7 @@ class MigrationKit
         $newModel = $this->container->get('Model');
 
         // Create new model
-        $newModel->create($user->getId());
+        $newModel->create($user);
 
         // Set basic info
         $newModel->setName($oldModel->title);
@@ -94,7 +94,7 @@ class MigrationKit
         // Migrate model picture
         $avatarKit = $this->container->get('AvatarKit');
         if(isset($oldModel->picture) && $oldModel->picture != '') {
-            $newModel->setPicture($avatarKit->createFromMmp(json_decode($oldModel->picture), $newModel->getHandle(), 'model')); 
+            $newModel->setPicture($avatarKit->createFromMmp(json_decode($oldModel->picture), $user->getHandle(), 'model', $newModel->getHandle())); 
         }
         
         // Migrate measurements

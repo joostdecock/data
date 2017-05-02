@@ -409,4 +409,47 @@ class User
 
         return $db->exec($sql);
     }
+    
+    /** Removes the user */
+    public function remove() 
+    {
+        // Remove from storage
+        shell_exec("rm -rf ".$this->container['settings']['storage']['static_path']."/users/".substr($this->getHandle(),0,1).'/'.$this->getHandle());
+        
+        // Remove from database
+        $db = $this->container->get('db');
+        $sql = "
+            DELETE from `models` WHERE `user` = ".$db->quote($this->getId()).";
+            DELETE from `users` WHERE `id` = ".$db->quote($this->getId()).";
+        ";
+
+        return $db->exec($sql);
+    }
+    
+    /**
+     * Loads all models for a given user id
+     *
+     * @param int $id
+     *
+     * @return object|false A model object or false if user does not exist
+     */
+    public function getModels() 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT * from `models` WHERE `user` =".$db->quote($this->getId());
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        if(!$result) return false;
+        else {
+            foreach($result as $key => $val) {
+                $models[$val->id] = $val;
+                $models[$val->id]->pictureSrc = $avatarKit->getWebDir($this->getHandle(), 'model', $val->handle).'/'.$val->picture;
+            }
+        } 
+        return $models;
+    }
+   
 }

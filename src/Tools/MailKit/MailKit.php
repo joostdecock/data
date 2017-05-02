@@ -55,6 +55,21 @@ class MailKit
         ]);
     }
 
+    public function goodbye($user) 
+    {
+        // Mailgun API instance
+        $mg = $this->initApi();
+        
+        return $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $user->getEmail(), 
+          'subject' => 'Goodbye', 
+          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
+          'text'    => $this->loadTemplate("goodbye.txt", $user),
+          'html'    => $this->loadTemplate("goodbye.html", $user),
+        ]);
+    }
+
     private function loadTemplate($template, $user)
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);

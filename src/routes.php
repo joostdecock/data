@@ -29,6 +29,12 @@ $app->get('/auth', function ($request, $response) {
 // Login
 $app->post('/login', 'UserController:login');
 
+// Load account data
+$app->get('/account', 'UserController:account');
+
+// Delete account
+$app->get('/account/delete', 'UserController:removeAccount');
+
 
 // Catch-all GET requests that don't match anything
 $app->get('/[{name}]', function ($request, $response, $args) {

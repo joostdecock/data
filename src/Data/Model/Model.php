@@ -189,7 +189,7 @@ class Model
     }
    
     /**
-     * Loads a user model on their handle
+     * Loads a model based on their handle
      *
      * @param string $handle
      *
@@ -203,14 +203,14 @@ class Model
     /**
      * Creates a new model and stores it in database
      *
-     * @param int $user The ID of the user owning the model
-     *
+     * @param User $user The user object     
+     * 
      * @return int The id of the newly created model
      */
     public function create($user) 
     {
         // Set basic info    
-        $this->setUser($user);
+        $this->setUser($user->getId());
         
         // Get the HandleKit to create the handle
         $handleKit = $this->container->get('HandleKit');
@@ -218,7 +218,7 @@ class Model
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
-        $this->setPicture($avatarKit->create($this->getHandle(), 'model'));
+        $this->setPicture($avatarKit->create($user->getHandle(), 'model', $this->getHandle()));
         
         // Store in database
         $db = $this->container->get('db');

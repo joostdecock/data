@@ -172,7 +172,7 @@ class UserController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'login_failed_FIXME_AddedToKnowDifferenceBetweenWrongPasswordWhileDeveloping', 
-                'message' => 'login/login-failed',
+                'message' => 'login/failed',
             ]);
         }
 
@@ -203,7 +203,7 @@ class UserController
                 'user' => print_r($user,1),
                 'result' => 'error', 
                 'reason' => 'login_failed', 
-                'message' => 'login/login-failed',
+                'message' => 'login/failed',
             ]);
         }
 
@@ -390,4 +390,63 @@ class UserController
             'token' => $TokenKit->create($user->getId()),
         ]);
     }
+    
+    /** User account */
+    public function account($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        return $this->prepResponse($response, [
+            'account' => [
+                'id' => $user->getId(), 
+                'email' => $user->getEmail(), 
+                'username' => $user->getUsername(), 
+                'handle' => $user->getHandle(), 
+                'status' => $user->getStatus(), 
+                'created' => $user->getCreated(), 
+                'migrated' => $user->getMigrated(), 
+                'login' => $user->getLogin(), 
+                'picture' => $user->getPicture(), 
+                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
+                'data' => $user->getData(), 
+            ],
+            'models' => $user->getModels(),
+        ]);
+    } 
+
+    /** Remove account */
+    public function removeAccount($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->goodbye($user);
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        $logger->info("User removed: ".$user->getId()." (".$user->getEmail().")is no more");
+        
+        $user->remove();
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'user_removed', 
+        ]);
+    } 
+
 }

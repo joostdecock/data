@@ -20,6 +20,28 @@ class AvatarKit
         $this->container = $container;
     }
 
+    public function getDir($userHandle, $type='user', $typeHandle=null)
+    {
+        $base = '/users/'.substr($userHandle,0,1).'/'.$userHandle;
+        switch($type) {
+        case 'model':
+            return $base.'/'.$type.'s/'.$typeHandle;
+        break;
+        default:
+            return $base.'/account';
+        }
+    }
+    
+    public function getDiskDir($userHandle, $type='user', $typeHandle=null)
+    {
+        return $this->container['settings']['storage']['static_path'].$this->getDir($userHandle, $type, $typeHandle);
+    }
+    
+    public function getWebDir($userHandle, $type='user', $typeHandle=null)
+    {
+        return $this->container['settings']['app']['static_path'].$this->getDir($userHandle, $type, $typeHandle);
+    }
+
     /** 
      * Creates and stores an avatar
      *
@@ -30,16 +52,17 @@ class AvatarKit
      *
      * @return string|false The filename of the avatar, or false of there's a problem
      */
-    public function create($handle, $type) 
+    public function create($userHandle,$type='user', $typeHandle=null) 
     {
         // Load avatar with random colours
         $svg = str_replace(
             ['000000','FFFFFF'], 
             [dechex(rand(0x000000, 0xFFFFFF)), dechex(rand(0x000000, 0xFFFFFF))], 
-            file_get_contents($this->container['settings']['renderer']['template_path'].'/avatar.svg')
+            file_get_contents($this->container['settings']['renderer']['template_path'].'avatar.svg')
         );
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
 
-        return $this->saveAvatar("$handle.svg", $svg, $handle, $type);
+        return $this->saveAvatar("$handle.svg", $svg, $userHandle, $type, $typeHandle);
     }
 
     /**
@@ -53,9 +76,9 @@ class AvatarKit
      *
      * @return string The avatar filename
      */
-    public function createFromMmp($img,$handle,$type) 
+    public function createFromMmp($img,$userHandle,$type='user', $typeHandle=null) 
     {
-        return $this->createFromUri($this->container['settings']['mmp']['public_path'].substr($img->uri,8), $handle, $type);
+        return $this->createFromUri($this->container['settings']['mmp']['public_path'].substr($img->uri,8), $userHandle, $type, $typeHandle);
     }
 
     /**
@@ -67,7 +90,7 @@ class AvatarKit
      *
      * @return string The avatar filename
      */
-    public function createFromUri($uri, $handle, $type) 
+    public function createFromUri($uri, $userHandle,$type='user', $typeHandle=null) 
     {
         // Imagick instance with the user's picture
         $imagick = new \Imagick($uri);
@@ -95,16 +118,17 @@ class AvatarKit
             default:
                 $ext = '.jpg';
         }
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
         // Save avatar and return filename
-        return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $handle, $type);
+        return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
     }
 
-    private function saveAvatar($filename, $data, $handle, $type) 
+    private function saveAvatar($filename, $data, $userHandle, $type='user', $typeHandle=null) 
     {
-        // Create directory. If handle is joost, directory is static/[type]s/j/joost
-        $dir = $this->container['settings']['storage']['static_path'].'/'.$type.'s/'.substr($handle,0,1).'/'.$handle;
+        // Create directory. If handle is joost, directory is static/users/j/joost
+        $dir = $this->getDiskDir( $userHandle, $type, $typeHandle);
         if(!is_dir($dir)) mkdir($dir, 0755, true);
-        
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
         $filepath = $dir."/$filename";
         if ($handle = fopen($filepath, 'w')) {
             if (fwrite($handle, $data)) {

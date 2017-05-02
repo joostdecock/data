@@ -44,6 +44,7 @@ return [
             'handle_type' => ['user', 'model', 'draft'],
             'jwt_secret' => getenv('FREESEWING_JWT_SECRET', true),
             'origin' => 'http://joost.freesewing.org:8080',
+            'static_path' => '/static',
         ],
 
         // Migration settings
