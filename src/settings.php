@@ -12,21 +12,21 @@ return [
         // Monolog settings
         'logger' => [
             'name' => 'slim-app',
-            'path' => dirname(__DIR__) . '/logs/app.log',
+            'path' => getenv('LOG'),
             'level' => \Monolog\Logger::DEBUG,
         ],
         
         // Database
         'db' => [
-            'host' => getenv('FREESEWING_DATA_DB_HOST', true),
-            'database' => getenv('FREESEWING_DATA_DB_DATABASE', true),
-            'user' => getenv('FREESEWING_DATA_DB_USER', true),
-            'password' => getenv('FREESEWING_DATA_DB_PASSWORD', true),
+            'host' => getenv('DB_HOST'),
+            'database' => getenv('DB_DB'),
+            'user' => getenv('DB_USER'),
+            'password' => getenv('DB_PASS'),
         ],
         
         // Mailgun
         'mailgun' => [
-            'api_key' => getenv('FREESEWING_MAILGUN_API_KEY', true),
+            'api_key' => getenv('MAILGUN_KEY', true),
             'template_path' => dirname(__DIR__) . '/templates/email',
         ],
 
@@ -37,13 +37,13 @@ return [
 
         // App settings
         'app' => [
-            'api' => 'https://data.freesewing.org',
-            'site' => 'https://beta.freesewing.org',
+            'data_api' => getenv('DATA_API'),
+            'site' => getenv('SITE'),
+            'jwt_secret' => getenv('JWT_SECRET'),
+            'origin' => getenv('ORIGIN'),
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
-            'jwt_secret' => getenv('FREESEWING_JWT_SECRET', true),
-            'origin' => 'https://beta.freesewing.org',
             'static_path' => '/static',
         ],
 
