@@ -10,9 +10,6 @@ install:
 - composer dump-autoload -o
 env:
   global:
-  - FREESEWING_DATA_DB_HOST=localhost
-  - FREESEWING_DATA_DB_DATABASE=freesewing_data
-  - FREESEWING_DATA_DB_USER=freesewing
   - FREESEWING_DATA_DEPLOY_HOST=lin.freesewing.org
   - FREESEWING_DATA_DEPLOY_USER=travis
   - FREESEWING_DATA_DEPLOY_PATH=/fs/deploy/data

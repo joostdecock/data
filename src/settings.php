@@ -26,7 +26,7 @@ return [
         
         // Mailgun
         'mailgun' => [
-            'api_key' => getenv('MAILGUN_KEY', true),
+            'api_key' => getenv('MAILGUN_KEY'),
             'template_path' => dirname(__DIR__) . '/templates/email',
         ],
 
