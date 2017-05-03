@@ -37,13 +37,13 @@ return [
 
         // App settings
         'app' => [
-            'api' => 'http://joost.freesewing.org:8081',
-            'site' => 'http://joost.freesewing.org:8080',
+            'api' => 'https://data.freesewing.org',
+            'site' => 'https://beta.freesewing.org',
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
             'jwt_secret' => getenv('FREESEWING_JWT_SECRET', true),
-            'origin' => 'http://joost.freesewing.org:8080',
+            'origin' => 'https://beta.freesewing.org',
             'static_path' => '/static',
         ],
 
