@@ -76,15 +76,21 @@ class MailKit
         switch($template) {
         case 'recover.txt':
         case 'recover.html':
-            $search = ['__LINK__','__USERNAME__'];
+            $search = ['__API__','__SITE__','__STATIC__','__LINK__','__USERNAME__'];
             $replace = [
+                $this->container['settings']['app']['data_api'], 
+                $this->container['settings']['app']['site'], 
+                $this->container['settings']['app']['static_path'], 
                 $this->container['settings']['app']['site'].'/account/reset#'.$user->getHandle().'.'.$user->getResetToken(), 
                 $user->getUsername()
             ];
             break;
         default:
-            $search = ['__LINK__','__USERNAME__'];
+            $search = ['__API__','__SITE__','__STATIC__','__LINK__','__USERNAME__'];
             $replace = [
+                $this->container['settings']['app']['data_api'], 
+                $this->container['settings']['app']['site'], 
+                $this->container['settings']['app']['static_path'], 
                 $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken(), 
                 $user->getUsername()
             ];
