@@ -160,7 +160,8 @@ class UserController
                 $filter = FILTER_SANITIZE_STRING;
         }
 
-        return filter_var($request->getParsedBody()[$key], $filter);
+        if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
+        else return false;
     }
 
     /** Update account */
