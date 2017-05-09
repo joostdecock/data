@@ -33,6 +33,7 @@ return [
         // Storage settings
         'storage' => [
             'static_path' => dirname(__DIR__) . '/public/static',
+            'temp_path' => '/tmp',
         ],
 
         // App settings

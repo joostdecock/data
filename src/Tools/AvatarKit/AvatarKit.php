@@ -95,16 +95,8 @@ class AvatarKit
         // Imagick instance with the user's picture
         $imagick = new \Imagick($uri);
 
-        // Max side?
-        $w = $imagick->getImageWidth();
-        $h = $imagick->getImageHeight();
-        $min = ($w < $h) ? $w : $h;
-
-        if($w != $h || $min > 500) {
-            // Generate square/small version
-            if($min > 500) $imagick->thumbnailImage(500,500, true);
-            else $imagick->thumbnailImage($min,$min, true);
-        }
+        $imagick = $this->thumbnail($imagick);
+        
         switch($imagick->getImageMimeType()) {
             case 'image/png':
                 $ext = '.png';
@@ -121,6 +113,71 @@ class AvatarKit
         ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
         // Save avatar and return filename
         return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
+    }
+
+    /**
+     * Loads an avater from a data string
+     *
+     * @param string $data The original data string
+     * @param string $handle The user handle
+     * @param string $type One of user/model/draft
+     *
+     * @return string The avatar filename
+     */
+    public function createFromDataString($data, $userHandle,$type='user', $typeHandle=null) 
+    {
+        $base64data = substr($data,strpos($data,'base64,')+7);
+        $filepath = $this->container['settings']['storage']['temp_path']."/$userHandle.tmp";
+        if ($handle = fopen($filepath, 'w')) {
+            fwrite($handle, base64_decode($base64data));
+            fclose($handle);
+        } else {
+            echo "could not write to file";
+            return false;
+        }
+        
+        // Imagick instance with the user's picture
+        $imagick = new \Imagick();
+        $handle = fopen($filepath, 'r');
+        $imagick->readImageFile($handle);
+        fclose($handle);
+
+        $imagick = $this->thumbnail($imagick);
+
+        switch($imagick->getImageMimeType()) {
+            case 'image/png':
+                $ext = '.png';
+            break;
+            case 'image/gif':
+                $ext = '.gif';
+            break;
+            case 'image/bmp':
+                $ext = '.bmp';
+            break;
+            default:
+                $ext = '.jpg';
+        }
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
+        // Save avatar and return filename
+        return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
+    }
+
+    private function thumbnail($image, $size=200)
+    {
+        $w = $image->getImageWidth();
+        $h = $image->getImageHeight();
+
+        if ($w > $h) {
+            $resize_w = $w * $size / $h;
+            $resize_h = $size;
+        } else {
+            $resize_w = $size;
+            $resize_h = $h * $size / $w;
+        }
+        $image->resizeImage($resize_w, $resize_h, \Imagick::FILTER_LANCZOS, 0.9);
+        $image->cropImage($size, $size, ($resize_w - $size) / 2, ($resize_h - $size) / 2);
+
+        return $image;
     }
 
     private function saveAvatar($filename, $data, $userHandle, $type='user', $typeHandle=null) 

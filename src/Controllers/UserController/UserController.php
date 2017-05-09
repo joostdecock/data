@@ -170,6 +170,7 @@ class UserController
         $in = new \stdClass();
         $in->email = $this->scrub($request,'email','email');
         $in->username = $this->scrub($request,'username');
+        $in->picture = $this->scrub($request,'picture');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
      
@@ -184,6 +185,12 @@ class UserController
         $user = $this->container->get('User');
         $user->loadFromId($in->id);
 
+        // Handle picture
+        if($in->picture != '') {
+            // Get the AvatarKit to create the avatar
+            $avatarKit = $this->container->get('AvatarKit');
+            $user->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle()));
+        }
 
         // Handle username change
         if($user->getUsername() != $in->username) {
