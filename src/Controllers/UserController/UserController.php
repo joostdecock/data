@@ -150,6 +150,93 @@ class UserController
         ]);
     }
 
+    private function scrub($request, $key, $type='string')
+    {
+        switch($type) {
+            case 'email':
+                $filter = FILTER_SANITIZE_EMAIL;
+            break;
+            default:
+                $filter = FILTER_SANITIZE_STRING;
+        }
+
+        return filter_var($request->getParsedBody()[$key], $filter);
+    }
+
+    /** Update account */
+    public function update($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->email = $this->scrub($request,'email','email');
+        $in->username = $this->scrub($request,'username');
+        ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
+        ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
+     
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+
+
+        // Handle username change
+        if($user->getUsername() != $in->username) {
+            if($user->usernameTaken($in->username)) {
+                $logger->info("Failed to update profile for user ".$user->getId().": Username ".$in->username." is taken");
+
+                return $this->prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'username_taken', 
+                    'message' => 'account/username-taken',
+                ]);
+            }
+            $user->setUsername($in->username);
+        }
+
+        // Handle defaults
+        $data = $user->getData();
+        if($data->account->units != $in->units) $data->account->units = $in->units;
+        if($data->account->theme != $in->theme) $data->account->theme = $in->theme;
+
+        // Handle email change
+        $pendingEmail = false;
+        if($user->getEmail() != $in->email) {
+            if($user->emailTaken($in->email)) {
+                $logger->info("Failed to update profile for user ".$user->getId().": Email ".$in->email." is taken");
+
+                return $this->prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'email_taken', 
+                    'message' => 'account/email-taken',
+                ]);
+            }
+            // Send email 
+            $mailKit = $this->container->get('MailKit');
+            $mailKit->emailChange($user, $in->email);
+            $logger->info("Email change requested for user ".$user->getId().": From ".$user->getEmail()." to ".$in->email);
+            $pendingEmail = $in->email;
+            // Store future email address pending confirmation
+            $data->account->pendingEmail = $in->email;
+        }
+
+        // Save changes 
+        $user->setData($data);
+        $user->save();
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'message' => 'account/updated',
+            'pendingEmail' => $pendingEmail,
+            'data' => json_encode($data),
+        ]);
+    }
+
     /** User login */
     public function login($request, $response, $args) {
         // Handle request data 
@@ -217,6 +304,9 @@ class UserController
             'reason' => 'password_correct', 
             'message' => 'login/success',
             'token' => $TokenKit->create($user->getId()),
+            'userid' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
         ]);
     }
 
@@ -327,6 +417,71 @@ class UserController
         ]);
     }
     
+    /** Email change confirmation */
+    public function confirm($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        $in->token = filter_var($args['token'], FILTER_SANITIZE_STRING);
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+
+        // Load user
+        $user = $this->container->get('User');
+        $user->loadFromHandle($in->handle);
+
+        // Does the user exist?
+        if ($user->getId() == '') { 
+            $logger->info("Confirmation rejected: User handle ".$in->handle." does not exist");
+        
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_account', 
+                'message' => 'activation/no-such-account'
+            ]);
+        }
+
+        // Is the user blocked? 
+        if($user->getStatus() === 'blocked') {
+            $logger->info('Confirmation rejected: User '.$user->getId().' is blocked');
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'account/blocked'
+            ]);
+        }
+
+        // Is there a token mismatch? 
+        if($in->token != $user->getActivationToken()) {
+            $logger->info("Confirmation rejected: Token mismatch for user ".$user->getId());
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'token_mismatch', 
+                'message' => 'activation/token-mismatch'
+            ]);
+        }
+
+        // Get the token kit from the container
+        $TokenKit = $this->container->get('TokenKit');
+        
+        // Confirm address
+        $user->setEmail($user->getData()->account->pendingEmail);
+        $data = $user->getData();
+        unset($data->account->pendingEmail);
+        $user->save();
+        
+        $logger->info("Confirmation: User ".$user->getId()." is now confirmed for address ".$user->getEmail());
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'confirm_complete', 
+        ]);
+    }
+    
     /** User activation */
     public function activate($request, $response, $args) {
 
@@ -391,8 +546,8 @@ class UserController
         ]);
     }
     
-    /** User account */
-    public function account($request, $response, $args) 
+    /** Load user account */
+    public function load($request, $response, $args) 
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
@@ -423,7 +578,7 @@ class UserController
     } 
 
     /** Remove account */
-    public function removeAccount($request, $response, $args) 
+    public function remove($request, $response, $args) 
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;

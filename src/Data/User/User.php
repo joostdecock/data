@@ -58,6 +58,7 @@ class User
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
+
     }
 
     public function getId() 
@@ -180,18 +181,21 @@ class User
 
     public function setData($data) 
     {
-        if(is_object($data)) {
-            $this->data = json_encode($data);
-            
-            return true;
-        }
-
-        return false;
+        $this->data = $data;
+        return true;
     } 
 
     public function getData() 
     {
-        return json_decode($this->data);
+        if(!is_object($this->data)) {
+            $this->data = new \stdClass();
+            $this->data->account = new \stdClass();
+            $this->data->account->units = 'metric';
+            $this->data->account->theme = 'classic';
+            return $this->data;
+        }
+
+        return $this->data;
     } 
 
     public function setPassword($password) 
@@ -222,7 +226,12 @@ class User
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
 
         if(!$result) return false;
-        else foreach($result as $key => $val) $this->$key = $val;
+        else {
+            foreach($result as $key => $val) {
+                if($key == 'data' && $val != '') $this->$key = json_decode($val);
+                else $this->$key = $val;
+            }
+        }
     }
    
     /**
@@ -402,7 +411,7 @@ class User
             `login`    = ".$db->quote($this->getLogin()).",
             `role`     = ".$db->quote($this->getEmail()).",
             `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote($this->getData()).",
+            `data`     = ".$db->quote(json_encode($this->getData())).",
             `password` = ".$db->quote($this->getPassword())."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";

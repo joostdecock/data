@@ -4,6 +4,7 @@
 $app->post('/signup', 'UserController:signup');
 $app->post('/resend', 'UserController:resend');
 $app->get('/activate/{handle}/{token}', 'UserController:activate');
+$app->get('/confirm/{handle}/{token}', 'UserController:confirm');
 $app->post('/recover', 'UserController:recover');
 $app->post('/reset', 'UserController:reset');
 
@@ -30,10 +31,13 @@ $app->get('/auth', function ($request, $response) {
 $app->post('/login', 'UserController:login');
 
 // Load account data
-$app->get('/account', 'UserController:account');
+$app->get('/account', 'UserController:load');
+
+// Update account
+$app->put('/account/update', 'UserController:update');
 
 // Delete account
-$app->get('/account/delete', 'UserController:removeAccount');
+$app->get('/account/delete', 'UserController:remove');
 
 
 // Catch-all GET requests that don't match anything

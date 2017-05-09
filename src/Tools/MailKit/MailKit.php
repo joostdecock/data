@@ -40,6 +40,22 @@ class MailKit
         ]);
     }
 
+    public function emailChange($user, $newEmailAddress) 
+    {
+        // Mailgun API instance
+        $mg = $this->initApi();
+        
+        return $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $newEmailAddress, 
+          'cc'      => $user->getEmail(), 
+          'subject' => 'Please confirm your new email address', 
+          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
+          'text'    => $this->loadTemplate("newaddress.txt", $user, $newEmailAddress),
+          'html'    => $this->loadTemplate("newaddress.html", $user, $newEmailAddress),
+        ]);
+    }
+
     public function recover($user) 
     {
         // Mailgun API instance
@@ -70,30 +86,31 @@ class MailKit
         ]);
     }
 
-    private function loadTemplate($template, $user)
+    private function loadTemplate($template, $user, $data=null)
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
+        $search = ['__API__','__SITE__','__STATIC__','__USERNAME__'];
+        $replace = [
+            $this->container['settings']['app']['data_api'], 
+            $this->container['settings']['app']['site'], 
+            $this->container['settings']['app']['static_path'], 
+            $user->getUsername()
+        ];
+
         switch($template) {
+        case 'newaddress.txt':
+        case 'newaddress.html':
+            array_push($search, '__NEW_ADDRESS__','__OLD_ADDRESS__','__LINK__');
+            array_push($replace, $data, $user->getEmail(), $this->container['settings']['app']['site'].'/account/email/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
+            break;
         case 'recover.txt':
         case 'recover.html':
-            $search = ['__API__','__SITE__','__STATIC__','__LINK__','__USERNAME__'];
-            $replace = [
-                $this->container['settings']['app']['data_api'], 
-                $this->container['settings']['app']['site'], 
-                $this->container['settings']['app']['static_path'], 
-                $this->container['settings']['app']['site'].'/account/reset#'.$user->getHandle().'.'.$user->getResetToken(), 
-                $user->getUsername()
-            ];
+            array_push($search, '__LINK__');
+            array_push($replace, $this->container['settings']['app']['site'].'/account/reset#'.$user->getHandle().'.'.$user->getResetToken());
             break;
         default:
-            $search = ['__API__','__SITE__','__STATIC__','__LINK__','__USERNAME__'];
-            $replace = [
-                $this->container['settings']['app']['data_api'], 
-                $this->container['settings']['app']['site'], 
-                $this->container['settings']['app']['static_path'], 
-                $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken(), 
-                $user->getUsername()
-            ];
+            array_push($search, '__LINK__');
+            array_push($replace, $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
         }
 
         return str_replace($search, $replace, $t);

@@ -1,0 +1,19 @@
+Hello __USERNAME__
+
+It seems you forgot your password. 
+No worries, simply click the link below to regain access to your account:
+
+__LINK__
+
+If that doesn't work, you can copy and paste the link in your browser.
+
+
+If you have any questions, just reply to this email — I'm always happy to help out.
+
+Love,
+
+Joost
+
+--
+You received this email because you forgot your password.
+Freesewing is an open source platform for made-to-measure sewing patterns.
