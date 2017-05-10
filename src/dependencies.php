@@ -32,6 +32,10 @@ $container['UserController'] = function ($container) {
     return new \App\Controllers\UserController($container);
 };
 
+$container['ModelController'] = function ($container) {
+    return new \App\Controllers\ModelController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \App\Tools\HandleKit($container);
 };

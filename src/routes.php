@@ -39,6 +39,12 @@ $app->put('/account/update', 'UserController:update');
 // Delete account
 $app->get('/account/delete', 'UserController:remove');
 
+// Load model data
+$app->get('/model/{handle}', 'ModelController:load');
+
+// Update model
+$app->put('/model/{handle}/update', 'ModelController:update');
+
 
 // Catch-all GET requests that don't match anything
 $app->get('/[{name}]', function ($request, $response, $args) {

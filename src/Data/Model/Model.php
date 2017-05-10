@@ -88,6 +88,17 @@ class Model
         return $this->name;
     } 
 
+    public function setNotes($notes) 
+    {
+        $this->notes = $notes;
+        return true;
+    } 
+
+    public function getNotes() 
+    {
+        return $this->notes;
+    } 
+
     public function setBody($body) 
     {
         $this->body = $body;
@@ -255,10 +266,35 @@ class Model
             `name` = ".$db->quote($this->getName()).",
             `body`   = ".$db->quote($this->getBody()).",
             `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote($this->data)."
+            `data`     = ".$db->quote($this->data).",
+            `units`     = ".$db->quote($this->units).",
+            `migrated`     = ".$db->quote($this->migrated).",
+            `notes`     = ".$db->quote($this->notes)."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
 
         return $db->exec($sql);
+    }
+    
+    /**
+     * Loads all drafts for a model
+     *
+     * @param int $id
+     *
+     * @return array|false An array of drafts or false
+     */
+    public function getDrafts() 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT * from `drafts` WHERE `model` =".$db->quote($this->getId());
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        if(!$result) return false;
+        else {
+            foreach($result as $key => $val) {
+                $drafts[$val->id] = $val;
+            }
+        } 
+        return $drafts;
     }
 }

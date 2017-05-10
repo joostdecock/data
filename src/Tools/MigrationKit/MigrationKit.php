@@ -100,8 +100,27 @@ class MigrationKit
         // Migrate measurements
         $newModel->setData($this->migrateMeasurements(json_decode($oldModel->data)));
 
-        // MMP models are always metric
+        // MMP models are always metric and migrated
         $newModel->setUnits('metric');
+        $newModel->setMigrated(1);
+        // Construct array to print data
+        $noteData = [
+            'modelid' => $oldModel->modelid,
+            'uid' => $oldModel->uid,
+            'title' => $oldModel->title,
+            'sex' => $oldModel->sex,
+            'picture' => json_decode($oldModel->picture),
+            'data' => json_decode($oldModel->data)
+        ];
+        $newModel->setNotes('
+#### This model was migrated from makemypattern.com
+Please make sure to read up on the [caveats for migrated model data](/caveats/migration).
+
+The original data from makemypattern is included below:
+ 
+```
+'.json_encode($noteData, JSON_PRETTY_PRINT).'
+```');
 
         // Save model
         $newModel->save();
@@ -112,8 +131,6 @@ class MigrationKit
         // Object to hold our migrated data
         $data = new \stdClass();
         $data->measurements = [];
-        $data->info=[];
-        $data->info['migrated'] = "From makemypattern.com";
         
         $map = [
             'field_across_back_width'          => 'acrossBack',
