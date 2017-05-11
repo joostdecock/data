@@ -54,6 +54,7 @@ class ModelController
         $in = new \stdClass();
         $in->name = $this->scrub($request,'name');
         $in->picture = $this->scrub($request,'picture');
+        $in->notes = $this->scrub($request,'notes');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
@@ -74,17 +75,20 @@ class ModelController
         $model->loadFromHandle($in->handle);
         
         // Handle picture
-        if($in->picture != '') {
+        if($in->picture && $in->picture != $model->getPicture()) {
             // Get the AvatarKit to create the avatar
             $avatarKit = $this->container->get('AvatarKit');
             $model->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle(), 'model', $model->getHandle()));
         }
 
         // Handle name change
-        if($model->getName() != $in->name) $model->setName($in->name);
+        if($in->name && $model->getName() != $in->name) $model->setName($in->name);
 
         // Handle units
-        if($model->getUnits() != $in->units) $model->setUnits($in->units);
+        if($in->units && $model->getUnits() != $in->units) $model->setUnits($in->units);
+
+        // Handle notes
+        if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
 
         // Save changes 
         $model->save();
