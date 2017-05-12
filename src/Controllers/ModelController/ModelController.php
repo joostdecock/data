@@ -52,11 +52,12 @@ class ModelController
     {
         // Handle request
         $in = new \stdClass();
+        $in->data = json_decode($request->getParsedBody()['data']);
         $in->name = $this->scrub($request,'name');
         $in->picture = $this->scrub($request,'picture');
         $in->notes = $this->scrub($request,'notes');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
-        ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
+        ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
      
         
@@ -87,8 +88,16 @@ class ModelController
         // Handle units
         if($in->units && $model->getUnits() != $in->units) $model->setUnits($in->units);
 
+        // Handle body
+        if($in->body && $model->getBody() != $in->body) $model->setBody($in->body);
+
         // Handle notes
         if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
+
+        // Handle data
+        if($in->data) {
+            if($model->getData() != $in->data) $model->setData($in->data);
+        }
 
         // Save changes 
         $model->save();

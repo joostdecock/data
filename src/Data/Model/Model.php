@@ -152,18 +152,12 @@ class Model
 
     public function getData() 
     {
-        return json_decode($this->data);
+        return $this->data;
     } 
 
     public function setData($data) 
     {
-        if(is_object($data)) {
-            $this->data = json_encode($data);
-            
-            return true;
-        }
-
-        return false;
+        $this->data = $data;
     } 
 
 
@@ -184,7 +178,10 @@ class Model
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
 
         if(!$result) return false;
-        else foreach($result as $key => $val) $this->$key = $val;
+        else foreach($result as $key => $val) {
+            if($key == 'data' && $val != '') $this->$key = json_decode($val);
+            else $this->$key = $val;
+            }
     }
    
     /**
@@ -266,7 +263,7 @@ class Model
             `name` = ".$db->quote($this->getName()).",
             `body`   = ".$db->quote($this->getBody()).",
             `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote($this->data).",
+            `data`     = ".$db->quote(json_encode($this->data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)).",
             `units`     = ".$db->quote($this->units).",
             `migrated`     = ".$db->quote($this->migrated).",
             `notes`     = ".$db->quote($this->notes)."
