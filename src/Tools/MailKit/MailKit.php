@@ -24,6 +24,7 @@ class MailKit
 
     public function signUp($user) 
     {
+        // FIXME: Handle timeout of the mailgun API gracefully
         // Mailgun API instance
         $mg = $this->initApi();
 

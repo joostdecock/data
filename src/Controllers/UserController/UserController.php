@@ -582,6 +582,7 @@ class UserController
                 'data' => $user->getData(), 
             ],
             'models' => $user->getModels(),
+            'drafts' => $user->getDrafts(),
         ]);
     } 
 

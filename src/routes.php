@@ -1,16 +1,24 @@
 <?php
 
-// Anonymous routes
-$app->post('/signup', 'UserController:signup');
-$app->post('/resend', 'UserController:resend');
-$app->get('/activate/{handle}/{token}', 'UserController:activate');
-$app->get('/confirm/{handle}/{token}', 'UserController:confirm');
-$app->post('/recover', 'UserController:recover');
-$app->post('/reset', 'UserController:reset');
+/*******************/
+/* Prefetch routes */
+/*******************/
 
-// Authenticated routes
+// Pattern list
+$app->get('/patterns', 'CoreController:patterns');
 
-// Preflight
+// Measurements list
+$app->get('/measurements', 'CoreController:measurements');
+
+
+
+
+
+/********************/
+/* Anonymous routes */
+/********************/
+
+// Preflight requests 
 $app->options('/[{path:.*}]', function($request, $response, $path = null) {
     $settings = require __DIR__ . '/../src/settings.php';
     return $response
@@ -19,7 +27,32 @@ $app->options('/[{path:.*}]', function($request, $response, $path = null) {
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
-// The 'am I logged in' check
+
+// Signup user
+$app->post('/signup', 'UserController:signup');
+
+// Resend user activation email
+$app->post('/resend', 'UserController:resend');
+
+// Activate user account
+$app->get('/activate/{handle}/{token}', 'UserController:activate');
+
+// Confirm user email change
+$app->get('/confirm/{handle}/{token}', 'UserController:confirm');
+
+// Recover user password
+$app->post('/recover', 'UserController:recover');
+
+// Reset user password
+$app->post('/reset', 'UserController:reset');
+
+
+
+/************************/
+/* Authenticated routes */
+/************************/
+
+// Check for authenticated user
 $app->get('/auth', function ($request, $response) {
     $settings = require __DIR__ . '/../src/settings.php';
     $response->getBody()->write(json_encode(['result' => 'ok']));
@@ -27,23 +60,34 @@ $app->get('/auth', function ($request, $response) {
         ->withHeader('Access-Control-Allow-Origin', $settings['settings']['app']['origin']);
 });
 
-// Login
+// User login
 $app->post('/login', 'UserController:login');
 
-// Load account data
+// Load user account data
 $app->get('/account', 'UserController:load');
 
-// Update account
-$app->put('/account/update', 'UserController:update');
+// Update user account
+$app->put('/account', 'UserController:update');
 
-// Delete account
-$app->get('/account/delete', 'UserController:remove');
+// Delete user account
+$app->delete('/account', 'UserController:remove');
 
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');
 
 // Update model
-$app->put('/model/{handle}/update', 'ModelController:update');
+$app->put('/model/{handle}', 'ModelController:update');
+
+// Create model
+$app->post('/model', 'ModelController:create');
+
+// Remove model
+$app->delete('/model/{handle}', 'ModelController:remove');
+
+
+/*******************/
+/* Catch-all route */
+/*******************/
 
 
 // Catch-all GET requests that don't match anything

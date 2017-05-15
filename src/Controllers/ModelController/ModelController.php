@@ -47,12 +47,53 @@ class ModelController
         else return false;
     }
 
+    /** Create model */
+    public function create($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->name = $this->scrub($request,'name');
+        ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+
+        // Get a model instance from the container and create a new model
+        $model = $this->container->get('Model');
+        $model->create($user);
+
+        // Update model with user input and save
+        $model->setBody($in->body);
+        $model->setName($in->name);
+        $model->save();
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'message' => 'model/created',
+            'handle' => $model->getHandle(),
+            'units' => $model->getUnits(),
+            'picture' => $model->getPicture(),
+            'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
+        ]);
+    }
+
     /** Update model */
     public function update($request, $response, $args) 
     {
         // Handle request
         $in = new \stdClass();
-        $in->data = json_decode($request->getParsedBody()['data']);
+        if(isset($request->getParsedBody()['data']) && $request->getParsedBody()['data'] != '') $in->data = json_decode($request->getParsedBody()['data']);
+        else $in->data = null;
         $in->name = $this->scrub($request,'name');
         $in->picture = $this->scrub($request,'picture');
         $in->notes = $this->scrub($request,'notes');
@@ -162,26 +203,33 @@ class ModelController
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         
         // Get a user instance from the container and load user data
         $user = $this->container->get('User');
         $user->loadFromId($id);
 
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->goodbye($user);
-        
+        // Get a model instance from the container and load model data
+        $model = $this->container->get('Model');
+        $model->loadFromHandle($in->handle);
+
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
+
+        // Does this model belong to the user?
+        if($model->getUser() != $id) {
+            $logger->info("Access blocked: Attempt to remove model ".$model->getId()." by user: ".$user->getId());
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'not_your_model', 
+            ]);
+        }
         
-        $logger->info("User removed: ".$user->getId()." (".$user->getEmail().")is no more");
-        
-        $user->remove();
+        $model->remove($user);
         
         return $this->prepResponse($response, [
             'result' => 'ok', 
-            'reason' => 'user_removed', 
+            'reason' => 'model_removed', 
         ]);
     } 
-
 }

@@ -437,10 +437,6 @@ class User
     
     /**
      * Loads all models for a given user id
-     *
-     * @param int $id
-     *
-     * @return object|false A model object or false if user does not exist
      */
     public function getModels() 
     {
@@ -461,4 +457,21 @@ class User
         return $models;
     }
    
+    /**
+     * Loads all drafts for a given user id
+     */
+    public function getDrafts() 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT * from `drafts` WHERE `user` =".$db->quote($this->getId());
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        if(!$result) return false;
+        else {
+            foreach($result as $key => $val) {
+                $drafts[$val->id] = $val;
+            }
+        } 
+        return $drafts;
+    }
 }

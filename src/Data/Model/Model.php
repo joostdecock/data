@@ -245,7 +245,7 @@ class Model
 
         // Retrieve model ID
         $id = $db->lastInsertId();
-
+        
         // Set modelname to #ID to encourage people to change it
         $sql = "UPDATE `models` SET `name` = '#$id' WHERE `models`.`id` = '$id';";
         $db->exec($sql);
@@ -294,4 +294,18 @@ class Model
         } 
         return $drafts;
     }
+
+    /** Remove a model */
+    public function remove($user) 
+    {
+        // Remove from storage
+        shell_exec("rm -rf ".$this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/models/'.$this->getHandle());
+        
+        // Remove from database
+        $db = $this->container->get('db');
+        $sql = "DELETE from `models` WHERE `id` = ".$db->quote($this->getId()).";";
+
+        return $db->exec($sql);
+    }
+    
 }

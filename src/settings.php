@@ -39,6 +39,7 @@ return [
         // App settings
         'app' => [
             'data_api' => getenv('DATA_API'),
+            'core_api' => getenv('CORE_API'),
             'site' => getenv('SITE'),
             'jwt_secret' => getenv('JWT_SECRET'),
             'origin' => getenv('ORIGIN'),
@@ -46,6 +47,7 @@ return [
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
             'static_path' => '/static',
+            'female_measurements' => ['underBust'],
         ],
 
         // Migration settings
