@@ -15,7 +15,7 @@ Love,
 Joost
 
 (*) We have auto-magically migrated your makemypattern.com account for you. 
-Make sure to read the migration caveats: __FIXME__
+Make sure to read the migration caveats: __SITE__/caveats/migration
 
 --
 You received this email because you just signed up for a new account.
