@@ -207,7 +207,7 @@ class UserController
             $user->setUsername($in->username);
         }
 
-        // Handle defaults
+        // Handle toggles
         $data = $user->getData();
         if($data->account->units != $in->units) $data->account->units = $in->units;
         if($data->account->theme != $in->theme) $data->account->theme = $in->theme;

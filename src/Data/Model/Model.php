@@ -43,6 +43,12 @@ class Model
     /** @var bool $migrated Whether the model was migrated (from MMP) */
     private $migrated;
 
+    /** @var bool $shared Whether the model is shared */
+    private $shared;
+
+    /** @var string $notes the model notes */
+    private $notes;
+
 
     // constructor receives container instance
     public function __construct(\Slim\Container $container) 
@@ -119,6 +125,17 @@ class Model
     public function getMigrated() 
     {
         return $this->migrated;
+    } 
+
+    public function setShared($shared) 
+    {
+        $this->shared = $shared;
+        return true;
+    } 
+
+    public function getShared() 
+    {
+        return $this->shared;
     } 
 
     public function getCreated() 
@@ -266,6 +283,7 @@ class Model
             `data`     = ".$db->quote(json_encode($this->data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)).",
             `units`     = ".$db->quote($this->units).",
             `migrated`     = ".$db->quote($this->migrated).",
+            `shared`   = ".$db->quote($this->getShared()).",
             `notes`     = ".$db->quote($this->notes)."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";

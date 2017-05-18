@@ -99,6 +99,7 @@ class ModelController
         $in->notes = $this->scrub($request,'notes');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
+        ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
      
         
@@ -127,10 +128,13 @@ class ModelController
         if($in->name && $model->getName() != $in->name) $model->setName($in->name);
 
         // Handle units
-        if($in->units && $model->getUnits() != $in->units) $model->setUnits($in->units);
+        if($model->getUnits() != $in->units) $model->setUnits($in->units);
 
         // Handle body
-        if($in->body && $model->getBody() != $in->body) $model->setBody($in->body);
+        if($model->getBody() != $in->body) $model->setBody($in->body);
+
+        // Handle shared
+        if($model->getShared() != $in->shared) $model->setShared($in->shared);
 
         // Handle notes
         if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
@@ -191,6 +195,7 @@ class ModelController
                 'units' => $model->getUnits(), 
                 'created' => $model->getCreated(), 
                 'migrated' => $model->getMigrated(), 
+                'shared' => $model->getShared(), 
                 'notes' => $model->getNotes(), 
 
             ],

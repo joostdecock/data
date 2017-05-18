@@ -114,13 +114,9 @@ class MigrationKit
         ];
         $newModel->setNotes('
 #### This model was migrated from makemypattern.com
-Please make sure to read up on the [caveats for migrated model data](/caveats/migration).
 
-The original data from makemypattern is included below:
- 
-```
-'.json_encode($noteData, JSON_PRETTY_PRINT).'
-```');
+Please make sure to read up on the [caveats for migrated model data](/caveats/migration).
+');
 
         // Save model
         $newModel->save();
