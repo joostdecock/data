@@ -102,16 +102,16 @@ class MailKit
         case 'newaddress.txt':
         case 'newaddress.html':
             array_push($search, '__NEW_ADDRESS__','__OLD_ADDRESS__','__LINK__');
-            array_push($replace, $data, $user->getEmail(), $this->container['settings']['app']['site'].'/account/email/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
+            array_push($replace, $data, $user->getEmail(), $this->container['settings']['app']['site'].'/email-confirm#'.$user->getHandle().'.'.$user->getActivationToken());
             break;
         case 'recover.txt':
         case 'recover.html':
             array_push($search, '__LINK__');
-            array_push($replace, $this->container['settings']['app']['site'].'/account/reset#'.$user->getHandle().'.'.$user->getResetToken());
+            array_push($replace, $this->container['settings']['app']['site'].'/reset#'.$user->getHandle().'.'.$user->getResetToken());
             break;
         default:
             array_push($search, '__LINK__');
-            array_push($replace, $this->container['settings']['app']['site'].'/account/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
+            array_push($replace, $this->container['settings']['app']['site'].'/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
         }
 
         return str_replace($search, $replace, $t);
