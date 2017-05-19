@@ -450,8 +450,10 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
-                $models[$val->id] = $val;
-                $models[$val->id]->pictureSrc = $avatarKit->getWebDir($this->getHandle(), 'model', $val->handle).'/'.$val->picture;
+                $models[$val->handle] = $val;
+                $models[$val->handle]->pictureSrc = $avatarKit->getWebDir($this->getHandle(), 'model', $val->handle).'/'.$val->picture;
+                $models[$val->handle]->data = json_decode($val->data);
+
             }
         } 
         return $models;
