@@ -31,6 +31,25 @@ class CoreController
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
    
+    /** Pattern handles */
+    public function handles($request, $response, $args) 
+    {
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        $logger->info("Fetching patterns handles from core");
+
+        $handles = [];
+
+        foreach ($this->getPatterns() as $namespace => $list) {
+            foreach ($list as $handle => $data) {
+                $pattern = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info&pattern='.$handle));
+                $handles[$pattern->info->handle] = ['namespace' => $namespace, 'pattern' => $handle];
+            }
+        }
+
+        return $this->prepResponse($response, $handles);
+    }
+
     /** Patterns */
     public function patterns($request, $response, $args) 
     {
@@ -40,15 +59,17 @@ class CoreController
 
         $patterns = [];
 
-        $json = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info'));
         foreach ($this->getPatterns() as $namespace => $list) {
             $ns = [];
             foreach ($list as $handle => $title) {
-                $pattern = [];
-                $patternInfo = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info&pattern='.$handle));
-                foreach ($patternInfo->measurements as $name => $default) {
-                    $pattern['measurements'][$name] = strtolower($name);
+                //$pattern = [];
+                $pattern = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info&pattern='.$handle));
+                //unset($pattern['measurements']);
+                foreach ($pattern->measurements as $name => $default) {
+                    $pattern->measurements->$name = strtolower($name);
                 }
+                unset($pattern->models);
+                //$pattern['info'] = $patternInfo;
                 $ns[$handle] = $pattern;
             }
             $patterns[$namespace] = $ns;

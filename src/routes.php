@@ -4,6 +4,9 @@
 /* Prefetch routes */
 /*******************/
 
+// Pattern handle list
+$app->get('/patternmap', 'CoreController:handles');
+
 // Pattern list
 $app->get('/patterns', 'CoreController:patterns');
 
