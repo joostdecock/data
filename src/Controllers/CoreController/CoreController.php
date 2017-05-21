@@ -50,6 +50,25 @@ class CoreController
         return $this->prepResponse($response, $handles);
     }
 
+    /** Reverse pattern handles */
+    public function reverseHandles($request, $response, $args) 
+    {
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        $logger->info("Fetching patterns handles from core");
+
+        $handles = [];
+
+        foreach ($this->getPatterns() as $namespace => $list) {
+            foreach ($list as $handle => $data) {
+                $pattern = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info&pattern='.$handle));
+                $handles[$handle] = ['namespace' => $namespace, 'pattern' => $pattern->info->handle];
+            }
+        }
+
+        return $this->prepResponse($response, $handles);
+    }
+
     /** Patterns */
     public function patterns($request, $response, $args) 
     {

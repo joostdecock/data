@@ -40,6 +40,10 @@ $container['ModelController'] = function ($container) {
     return new \App\Controllers\ModelController($container);
 };
 
+$container['DraftController'] = function ($container) {
+    return new \App\Controllers\DraftController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \App\Tools\HandleKit($container);
 };
@@ -66,4 +70,8 @@ $container['User'] = function ($container) {
 
 $container['Model'] = function ($container) {
     return new \App\Data\Model($container);
+};
+
+$container['Draft'] = function ($container) {
+    return new \App\Data\Draft($container);
 };

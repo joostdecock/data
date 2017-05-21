@@ -7,6 +7,9 @@
 // Pattern handle list
 $app->get('/patternmap', 'CoreController:handles');
 
+// Pattern reverse handle list
+$app->get('/patternpam', 'CoreController:reverseHandles');
+
 // Pattern list
 $app->get('/patterns', 'CoreController:patterns');
 
@@ -87,6 +90,11 @@ $app->post('/model', 'ModelController:create');
 // Remove model
 $app->delete('/model/{handle}', 'ModelController:remove');
 
+// Create draft
+$app->post('/draft', 'DraftController:create');
+
+// Load draft data
+$app->get('/draft/{handle}', 'DraftController:load');
 
 /*******************/
 /* Catch-all route */
