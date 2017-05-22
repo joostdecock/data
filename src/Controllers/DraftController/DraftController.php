@@ -144,6 +144,7 @@ class DraftController
                 'name' => $draft->getName(), 
                 'handle' => $draft->getHandle(), 
                 'svg' => $draft->getSvg(), 
+                'compared' => $draft->getCompared(), 
                 'data' => $draft->getData(), 
                 'created' => $draft->getCreated(), 
                 'shared' => $draft->getShared(), 

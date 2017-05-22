@@ -37,6 +37,9 @@ class Draft
     /** @var string $svg The drafted SVG */
     private $svg;
 
+    /** @var string $compared The compared SVG */
+    private $compared;
+
     /** @var string $data Other app data stored as JSON */
     private $data;
 
@@ -125,6 +128,17 @@ class Draft
     public function getSvg() 
     {
         return $this->svg;
+    } 
+
+    public function setCompared($compared) 
+    {
+        $this->compared = $compared;
+        return true;
+    } 
+
+    public function getCompared() 
+    {
+        return $this->compared;
     } 
 
     public function setNotes($notes) 
@@ -217,9 +231,14 @@ class Draft
      */
     public function create($in, $user, $model) 
     {
+        $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+            
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
+        $in['service'] = 'compare';
+        $in['theme'] = 'Compare';
+        $this->setCompared($this->getDraft($in));
         
         // Set basic info    
         $this->setUser($user->getId());
@@ -237,14 +256,20 @@ class Draft
             `pattern`,
             `model`,
             `handle`,
+            `data`,
             `svg`,
+            `compared`,
+            `notes`,
             `created`
              ) VALUES (
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getPattern()).",
             ".$db->quote($this->getModel()).",
             ".$db->quote($this->getHandle()).",
+            ".$db->quote($data).",
             ".$db->quote($this->getSvg()).",
+            ".$db->quote($this->getCompared()).",
+            ".$db->quote($this->container['settings']['app']['motd']).",
             NOW()
             );";
         $db->exec($sql);
@@ -263,15 +288,16 @@ class Draft
     private function getDraft($args)
     {
         $url = $this->container['settings']['app']['core_api']."/index.php";
-
+        
         $config = [
             'connect_timeout' => 5,
             'timeout' => 35,
             'query' => $args,
+            'debug' => $log,
         ];
         $guzzle = new GuzzleClient($config);
         $response = $guzzle->request('GET', $url);
-
+        
         return $response->getBody();
     }
 

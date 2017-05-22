@@ -461,6 +461,7 @@ class User
    
     /**
      * Loads all drafts for a given user id
+     * but not the SVG to limit the reponse size
      */
     public function getDrafts() 
     {
@@ -471,6 +472,7 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
+                unset($val->svg);
                 $drafts[$val->id] = $val;
             }
         } 
