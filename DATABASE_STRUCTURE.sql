@@ -1,15 +1,20 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
---
--- Database: `freesewing_data`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `mmpmodels`
---
+CREATE TABLE IF NOT EXISTS `drafts` (
+`id` int(5) NOT NULL,
+  `user` int(5) NOT NULL,
+  `pattern` varchar(64) NOT NULL,
+  `model` int(5) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `handle` varchar(5) NOT NULL,
+  `data` text NOT NULL,
+  `svg` mediumtext,
+  `compared` mediumtext NOT NULL,
+  `created` datetime NOT NULL,
+  `shared` tinyint(1) NOT NULL DEFAULT '0',
+  `notes` text
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `mmpmodels` (
   `modelid` int(5) NOT NULL,
@@ -20,12 +25,6 @@ CREATE TABLE IF NOT EXISTS `mmpmodels` (
   `data` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `mmpusers`
---
-
 CREATE TABLE IF NOT EXISTS `mmpusers` (
   `uid` int(5) NOT NULL,
   `email` varchar(192) NOT NULL,
@@ -34,12 +33,6 @@ CREATE TABLE IF NOT EXISTS `mmpusers` (
   `initial` varchar(254) NOT NULL,
   `created` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `models`
---
 
 CREATE TABLE IF NOT EXISTS `models` (
 `id` int(5) NOT NULL,
@@ -51,14 +44,10 @@ CREATE TABLE IF NOT EXISTS `models` (
   `data` text NOT NULL,
   `units` enum('metric','imperial') NOT NULL DEFAULT 'metric',
   `created` datetime NOT NULL,
-  `migrated` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
+  `migrated` tinyint(1) NOT NULL DEFAULT '0',
+  `shared` tinyint(1) NOT NULL DEFAULT '0',
+  `notes` text
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `users` (
 `id` int(5) NOT NULL COMMENT 'user id',
@@ -75,47 +64,28 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` varchar(255) NOT NULL,
   `initial` varchar(191) NOT NULL COMMENT 'Email address the user signed up with',
   `pepper` varchar(64) NOT NULL COMMENT 'Random string used for reset tokens and such'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Holds user data';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='Holds user data';
 
---
--- Indexes for dumped tables
---
+ALTER TABLE `drafts`
+ ADD PRIMARY KEY (`id`), ADD KEY `user` (`user`), ADD KEY `model` (`model`), ADD KEY `handle` (`handle`);
 
---
--- Indexes for table `mmpmodels`
---
 ALTER TABLE `mmpmodels`
  ADD PRIMARY KEY (`modelid`);
 
---
--- Indexes for table `mmpusers`
---
 ALTER TABLE `mmpusers`
  ADD PRIMARY KEY (`uid`), ADD KEY `mail` (`email`);
 
---
--- Indexes for table `models`
---
 ALTER TABLE `models`
  ADD PRIMARY KEY (`id`), ADD KEY `user` (`user`);
 
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
  ADD PRIMARY KEY (`id`), ADD UNIQUE KEY `username` (`handle`), ADD UNIQUE KEY `email` (`email`), ADD UNIQUE KEY `user` (`username`), ADD KEY `username_2` (`username`);
 
---
--- AUTO_INCREMENT for dumped tables
---
+ALTER TABLE `drafts`
+MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `models`
---
 ALTER TABLE `models`
 MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
---
--- AUTO_INCREMENT for table `users`
---
+
 ALTER TABLE `users`
 MODIFY `id` int(5) NOT NULL AUTO_INCREMENT COMMENT 'user id';
