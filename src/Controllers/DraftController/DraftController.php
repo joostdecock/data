@@ -149,9 +149,114 @@ class DraftController
                 'created' => $draft->getCreated(), 
                 'shared' => $draft->getShared(), 
                 'notes' => $draft->getNotes(), 
-
+                'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
             ]
         ]);
     } 
 
+    /** Update draft */
+    public function update($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->name = $this->scrub($request,'name');
+        $in->notes = $this->scrub($request,'notes');
+        ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+     
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+
+        // Get a draft instance from the container and load its data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+        
+        // Handle name change
+        if($in->name && $draft->getName() != $in->name) $draft->setName($in->name);
+
+        // Handle shared
+        if($draft->getShared() != $in->shared) $draft->setShared($in->shared);
+
+        // Handle notes
+        if($in->notes && $draft->getNotes() != $in->notes) $draft->setNotes($in->notes);
+        
+        // Save changes 
+        $draft->save();
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'name' => $draft->getName(),
+            'shared' => $draft->getShared(),
+            'notes' => $draft->getNotes(),
+        ]);
+    }
+    
+    /** Remove draft */
+    public function remove($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get a draft instance from the container and load draft data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+
+        // Does this draft belong to the user?
+        if($draft->getUser() != $id) {
+            $logger->info("Access blocked: Attempt to remove draft ".$draft->getId()." by user: ".$user->getId());
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'not_your_draft', 
+            ]);
+        }
+        
+        $draft->remove($user);
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'draft_removed', 
+        ]);
+    } 
+    
+    /** Download draft */
+    public function download($request, $response, $args) 
+    {
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        $in->format = filter_var($args['format'], FILTER_SANITIZE_STRING);
+
+        // Get a draft instance from the container and load draft data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($draft->getUser());
+
+        // Get location of file on disk
+        $path = $draft->export($user, $in->format);
+
+        if($in->format == 'svg') $contentType = 'image/svg+xml';
+        else $contentType = 'application/pdf';
+
+        return $response
+            ->withHeader("Content-Type", $contentType)
+            ->withHeader("Content-Disposition", 'attachment; filename="freesewing.'.basename($path).'"')
+            ->write(file_get_contents($path));
+    }
 }

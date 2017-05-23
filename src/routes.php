@@ -52,6 +52,8 @@ $app->post('/recover', 'UserController:recover');
 // Reset user password
 $app->post('/reset', 'UserController:reset');
 
+// Download draft is anonymous coz no ajax
+$app->get('/download/{handle}/{format}', 'DraftController:download');
 
 
 /************************/
@@ -95,6 +97,13 @@ $app->post('/draft', 'DraftController:create');
 
 // Load draft data
 $app->get('/draft/{handle}', 'DraftController:load');
+
+// Update draft
+$app->put('/draft/{handle}', 'DraftController:update');
+
+// Remove draft
+$app->delete('/draft/{handle}', 'DraftController:remove');
+
 
 /*******************/
 /* Catch-all route */

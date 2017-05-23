@@ -283,6 +283,14 @@ class Draft
 
         // Update instance from database
         $this->loadFromId($id);
+
+        // Store on disk
+        $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
+        mkdir($dir, 0755, true);
+        $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
+        fwrite($handle, $this->getSvg());
+        $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
+        fwrite($handle, $this->getCompared());
     }
 
     private function getDraft($args)
@@ -301,18 +309,12 @@ class Draft
         return $response->getBody();
     }
 
-    /** Saves the model to the database */
+    /** Saves the draft to the database */
     public function save() 
     {
         $db = $this->container->get('db');
-        $sql = "UPDATE `models` set 
-            `user`    = ".$db->quote($this->getUser()).",
+        $sql = "UPDATE `drafts` set 
             `name` = ".$db->quote($this->getName()).",
-            `body`   = ".$db->quote($this->getBody()).",
-            `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote(json_encode($this->data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)).",
-            `units`     = ".$db->quote($this->units).",
-            `migrated`     = ".$db->quote($this->migrated).",
             `shared`   = ".$db->quote($this->getShared()).",
             `notes`     = ".$db->quote($this->notes)."
             WHERE 
@@ -343,17 +345,61 @@ class Draft
         return $drafts;
     }
 
-    /** Remove a model */
+    /** Remove a draft */
     public function remove($user) 
     {
         // Remove from storage
-        shell_exec("rm -rf ".$this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/models/'.$this->getHandle());
+        shell_exec("rm -rf ".$this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle());
         
         // Remove from database
         $db = $this->container->get('db');
-        $sql = "DELETE from `models` WHERE `id` = ".$db->quote($this->getId()).";";
+        $sql = "DELETE from `drafts` WHERE `id` = ".$db->quote($this->getId()).";";
 
         return $db->exec($sql);
     }
-    
+
+    private function getExportPath($user, $format)
+    {
+        return $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle().'/'.$this->getHandle().'.'.$format;
+
+    }
+
+    /** Exports SVG as a format of choice */
+    public function export($user, $format) 
+    {
+        // This is where our file should be stored on disk
+        $path = $this->getExportPath($user, $format);
+        
+        // Generate file if it's not on disk
+        if(!file_exists($path)) { 
+            // Full-size PDF is just a simple Inkscape expert
+            if($format == 'pdf') $cmd = "/usr/bin/inkscape --export-pdf=".$this->getExportPath($user, 'pdf').' '.$this->getExportPath($user, 'svg');
+            else {
+                // Other formats require more work
+                if($format == 'letter.pdf') $pf = 'Let';
+                elseif($format == 'tabloid.pdf') $pf = 'Tab';
+                else $pf = ucfirst(array_shift(explode('.',$format))); // Turn a4.pdf into A4
+
+                // Get Postscript file
+                $ps = $this->getExportPath($user, 'ps'); // Postscript file
+                if(!file_exists($ps)) $this->svgToPs($user); 
+
+                // Tile postscript to required format
+                $cmd = "/usr/local/bin/tile -m$pf -s1 $ps > ".$this->getExportPath($user, $format.'.ps');
+                // Convert to PDF
+                $cmd .= " ; /usr/bin/ps2pdf14 ".$this->getExportPath($user, $format.'.ps').' '.$this->getExportPath($user, $format);
+            }
+
+        }
+        shell_exec($cmd);
+        
+        return $path;
+    }
+
+    private function svgToPs($user) 
+    {
+        $cmd = "/usr/bin/inkscape --export-ps=".$this->getExportPath($user, 'ps').' '.$this->getExportPath($user, 'svg');
+        return shell_exec($cmd);
+    } 
+
 }

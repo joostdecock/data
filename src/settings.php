@@ -48,7 +48,7 @@ return [
             'handle_type' => ['user', 'model', 'draft'],
             'static_path' => '/static',
             'female_measurements' => ['underBust'],
-            'motd' => 'Please keep in mind that this service is in beta',
+            'motd' => 'Please keep in mind that freesewing.org is in beta',
         ],
 
         // Migration settings
