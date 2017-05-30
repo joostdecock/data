@@ -55,6 +55,9 @@ $app->post('/reset', 'UserController:reset');
 // Download draft is anonymous coz no ajax
 $app->get('/download/{handle}/{format}', 'DraftController:download');
 
+// Referral logging
+$app->post('/referral', 'ReferralController:log');
+
 
 /************************/
 /* Authenticated routes */

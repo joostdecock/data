@@ -44,6 +44,10 @@ $container['DraftController'] = function ($container) {
     return new \App\Controllers\DraftController($container);
 };
 
+$container['ReferralController'] = function ($container) {
+    return new \App\Controllers\ReferralController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \App\Tools\HandleKit($container);
 };
@@ -74,4 +78,8 @@ $container['Model'] = function ($container) {
 
 $container['Draft'] = function ($container) {
     return new \App\Data\Draft($container);
+};
+
+$container['Referral'] = function ($container) {
+    return new \App\Data\Referral($container);
 };

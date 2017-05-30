@@ -38,9 +38,9 @@ class UserController
         // Handle request data 
         $data = $request->getParsedBody();
         $reset_data = [
-            'password' => filter_var($data['reset-password'], FILTER_SANITIZE_EMAIL),
-            'handle' => filter_var($data['reset-handle'], FILTER_SANITIZE_EMAIL),
-            'token' => filter_var($data['reset-token'], FILTER_SANITIZE_EMAIL),
+            'password' => filter_var($data['reset-password'], FILTER_SANITIZE_STRING),
+            'handle' => filter_var($data['reset-handle'], FILTER_SANITIZE_STRING),
+            'token' => filter_var($data['reset-token'], FILTER_SANITIZE_STRING),
         ];
         
         // Get a logger instance from the container
