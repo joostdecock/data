@@ -4,17 +4,11 @@
 /* Prefetch routes */
 /*******************/
 
-// Pattern handle list
-$app->get('/patternmap', 'CoreController:handles');
+// YAML info bundle
+$app->get('/info/yaml', 'InfoController:asYaml');
 
-// Pattern reverse handle list
-$app->get('/patternpam', 'CoreController:reverseHandles');
-
-// Pattern list
-$app->get('/patterns', 'CoreController:patterns');
-
-// Measurements list
-$app->get('/measurements', 'CoreController:measurements');
+// JSON info bundle
+$app->get('/info/json', 'InfoController:asJson');
 
 
 

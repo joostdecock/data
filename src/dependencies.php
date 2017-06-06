@@ -28,8 +28,8 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
-$container['CoreController'] = function ($container) {
-    return new \App\Controllers\CoreController($container);
+$container['InfoController'] = function ($container) {
+    return new \App\Controllers\InfoController($container);
 };
 
 $container['UserController'] = function ($container) {
