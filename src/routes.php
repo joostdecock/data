@@ -11,9 +11,6 @@ $app->get('/info/yaml', 'InfoController:asYaml');
 $app->get('/info/json', 'InfoController:asJson');
 
 
-
-
-
 /********************/
 /* Anonymous routes */
 /********************/
@@ -26,7 +23,6 @@ $app->options('/[{path:.*}]', function($request, $response, $path = null) {
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
-
 
 // Signup user
 $app->post('/signup', 'UserController:signup');
@@ -52,6 +48,8 @@ $app->get('/download/{handle}/{format}', 'DraftController:download');
 // Referral logging
 $app->post('/referral', 'ReferralController:log');
 
+// Load shared draft
+$app->get('/shared/draft/{handle}', 'DraftController:loadShared');
 
 /************************/
 /* Authenticated routes */
@@ -91,6 +89,9 @@ $app->delete('/model/{handle}', 'ModelController:remove');
 
 // Create draft
 $app->post('/draft', 'DraftController:create');
+
+// Recreate draft
+$app->post('/redraft', 'DraftController:recreate');
 
 // Load draft data
 $app->get('/draft/{handle}', 'DraftController:load');

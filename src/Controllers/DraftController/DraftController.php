@@ -48,11 +48,12 @@ class DraftController
     }
 
     /** Create draft */
-    public function create($request, $response, $args) 
+    public function create($request, $response, $args, $recreate=false) 
     {
         // Handle request
         $in = new \stdClass();
         $in->model = $this->scrub($request,'model');
+        $in->handle = $this->scrub($request,'draft');
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -79,7 +80,11 @@ class DraftController
 
         // Get a draft instance from the container and create the draft
         $draft = $this->container->get('Draft');
-        $draft->create($request->getParsedBody(), $user, $model);
+        if($recreate) {
+            $draft->loadFromHandle($in->handle);
+            $draft->recreate($request->getParsedBody(), $user, $model);
+        }
+        else $draft->create($request->getParsedBody(), $user, $model);
         $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
         
         return $this->prepResponse($response, [
@@ -88,6 +93,12 @@ class DraftController
         ]);
     }
     
+    /** Recreate draft */
+    public function recreate($request, $response, $args) 
+    {
+        return $this->create($request, $response, $args, true); 
+    }
+
     /** Load draft data */
     public function load($request, $response, $args) 
     {
@@ -101,22 +112,24 @@ class DraftController
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
-        // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
-
         // Get a draft instance from the container and load its data
         $draft = $this->container->get('Draft');
         $draft->loadFromHandle($in->handle);
-        
-        if($draft->getUser() != $user->getId() && !$draft->getShared()) {
-            // Not a draft that belongs to the user, and not shared either
+
+        if($draft->getUser() != $id && !$draft->getShared()) {
+            // Not a draft that belongs to the user, nor is it shared
             $logger->info("Load blocked: User ".$user->getId()." can not load draft ".$in->handle);
             return $this->prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'draft_not_yours_nor_shared', 
+                'reason' => 'draft_not_yours_and_not_shared', 
             ]);
         }
+        
+        // Get a user instance from the container and load its data
+        $user = $this->container->get('User');
+        // It's important to load the user owning the draft.
+        // This may or may not be the logged-in user (if it's a shared draft)
+        $user->loadFromId($draft->getUser());
         
         // Get a model instance from the container and load its data
         $model = $this->container->get('Model');
@@ -154,6 +167,52 @@ class DraftController
         ]);
     } 
 
+    /** Load a shared draft */
+    public function loadShared($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a draft instance from the container and load its data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+        
+        if(!$draft->getShared()) {
+            // Not a shared draft
+            $logger->info("Load blocked: ".$in->handle." is not a shared draft");
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'draft_not_shared', 
+            ]);
+        }
+        
+        // Get a user instance from the container and load its data
+        $user = $this->container->get('User');
+        $user->loadFromId($draft->getUser());
+        
+        return $this->prepResponse($response, [
+            'draft' => [
+                'id' => $draft->getId(), 
+                'user' => $draft->getUser(), 
+                'userHandle' => $user->getHandle(), 
+                'pattern' => $draft->getPattern(), 
+                'name' => $draft->getName(), 
+                'handle' => $draft->getHandle(), 
+                'svg' => $draft->getSvg(), 
+                'compared' => $draft->getCompared(), 
+                'data' => $draft->getData(), 
+                'created' => $draft->getCreated(), 
+                'shared' => $draft->getShared(), 
+                'notes' => $draft->getNotes(), 
+                'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
+            ]
+        ]);
+    } 
+
     /** Update draft */
     public function update($request, $response, $args) 
     {
@@ -171,14 +230,23 @@ class DraftController
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
+        // Get a draft instance from the container and load its data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+
+        // Does this user own this draft?
+        if($draft->getUser() != $in->id) {
+            $logger->info("Draft edit blocked: User id ".$in->id." is not the owner of draft ".$draft->getHandle());
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'draft_not_yours', 
+            ]);
+        }
+        
         // Get a user instance from the container
         $user = $this->container->get('User');
         $user->loadFromId($in->id);
 
-        // Get a draft instance from the container and load its data
-        $draft = $this->container->get('Draft');
-        $draft->loadFromHandle($in->handle);
-        
         // Handle name change
         if($in->name && $draft->getName() != $in->name) $draft->setName($in->name);
 
@@ -204,6 +272,7 @@ class DraftController
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
+        $in = new \stdClass();
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         
         // Get a user instance from the container and load user data

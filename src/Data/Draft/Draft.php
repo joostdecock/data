@@ -293,6 +293,41 @@ class Draft
         fwrite($handle, $this->getCompared());
     }
 
+    /**
+     * Recreates a draft and stores it in the database
+     *
+     * @param array $in The pattern options
+     * @param Model $model The model object     
+     * @param User $user The user object     
+     * 
+     * @return int The id of the newly created model
+     */
+    public function recreate($in, $user, $model) 
+    {
+        $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+            
+        // Getting draft from core
+        $in['service'] = 'draft';
+        $this->setSvg($this->getDraft($in));
+        $in['service'] = 'compare';
+        $in['theme'] = 'Compare';
+        $this->setCompared($this->getDraft($in));
+        
+        // Update info    
+        $this->setData($data);
+
+        // Save draft to database
+        $this->save();
+
+        // Store on disk
+        $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
+        mkdir($dir, 0755, true);
+        $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
+        fwrite($handle, $this->getSvg());
+        $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
+        fwrite($handle, $this->getCompared());
+    }
+
     private function getDraft($args)
     {
         $url = $this->container['settings']['app']['core_api']."/index.php";
@@ -301,7 +336,6 @@ class Draft
             'connect_timeout' => 5,
             'timeout' => 35,
             'query' => $args,
-            'debug' => $log,
         ];
         $guzzle = new GuzzleClient($config);
         $response = $guzzle->request('GET', $url);
@@ -315,6 +349,9 @@ class Draft
         $db = $this->container->get('db');
         $sql = "UPDATE `drafts` set 
             `name` = ".$db->quote($this->getName()).",
+            `svg` = ".$db->quote($this->getSvg()).",
+            `compared` = ".$db->quote($this->getCompared()).",
+            `data` = ".$db->quote($this->getData()).",
             `shared`   = ".$db->quote($this->getShared()).",
             `notes`     = ".$db->quote($this->notes)."
             WHERE 

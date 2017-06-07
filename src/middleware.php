@@ -2,13 +2,12 @@
 // Application middleware
 
 $jwtOptions = [
-    "secure" => false,
+    "secure" => true,
     'path' => '/',
-    'passthrough' => ['/signup', '/login', '/recover', '/reset', '/activate', '/resend','/confirm','/info/','/download/','/referral'],
+    'passthrough' => ['/signup', '/login', '/recover', '/reset', '/activate', '/resend','/confirm','/info/','/shared/','/download/','/referral'],
     'attribute' => 'jwt',
     'secret' => getenv("JWT_SECRET"),
     "error" => function ($request, $response, $arguments) {
-        $settings = require __DIR__ . '/../src/settings.php';
         echo file_get_contents(dirname(__DIR__).'/templates/index.html');
     }
 ];
