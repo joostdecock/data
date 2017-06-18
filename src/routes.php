@@ -102,6 +102,15 @@ $app->put('/draft/{handle}', 'DraftController:update');
 // Remove draft
 $app->delete('/draft/{handle}', 'DraftController:remove');
 
+// Create comment
+$app->post('/comment', 'CommentController:create');
+
+// Create comment
+$app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
+
+// Remove comment
+$app->delete('/comment/{id}', 'CommentController:remove');
+
 
 /*******************/
 /* Catch-all route */

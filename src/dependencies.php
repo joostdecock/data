@@ -48,6 +48,10 @@ $container['ReferralController'] = function ($container) {
     return new \App\Controllers\ReferralController($container);
 };
 
+$container['CommentController'] = function ($container) {
+    return new \App\Controllers\CommentController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \App\Tools\HandleKit($container);
 };
@@ -82,4 +86,8 @@ $container['Draft'] = function ($container) {
 
 $container['Referral'] = function ($container) {
     return new \App\Data\Referral($container);
+};
+
+$container['Comment'] = function ($container) {
+    return new \App\Data\Comment($container);
 };

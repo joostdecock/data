@@ -96,6 +96,27 @@ class DraftController
     /** Recreate draft */
     public function recreate($request, $response, $args) 
     {
+        // Handle request
+        $in = new \stdClass();
+        $in->handle = $this->scrub($request,'draft');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a draft instance from the container and load data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+         
+        if ($draft->getUser() != $in->id) {
+            // Get a logger instance from the container
+            $logger = $this->container->get('logger');
+            $logger->info("Draft recreation blocked: User ".$user->getId()." does not own draft ".$in->handle);
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'draft_not_yours', 
+            ]);
+        }
+
         return $this->create($request, $response, $args, true); 
     }
 
@@ -118,7 +139,7 @@ class DraftController
 
         if($draft->getUser() != $id && !$draft->getShared()) {
             // Not a draft that belongs to the user, nor is it shared
-            $logger->info("Load blocked: User ".$user->getId()." can not load draft ".$in->handle);
+            $logger->info("Load blocked: User $id cannot load draft ".$in->handle);
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours_and_not_shared', 
