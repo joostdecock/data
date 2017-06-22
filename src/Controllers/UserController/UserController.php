@@ -550,7 +550,6 @@ class UserController
         return $this->prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'signup_complete', 
-            'token' => $TokenKit->create($user->getId()),
         ]);
     }
     
