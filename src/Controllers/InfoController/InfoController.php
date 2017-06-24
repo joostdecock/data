@@ -23,7 +23,6 @@ class InfoController
     /** Info bundle as YAML */
     public function asYaml($request, $response, $args) 
     {
-        //return $this->prepResponse($response, $this->infoBundle());
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/plain")
@@ -33,7 +32,6 @@ class InfoController
     /** Info bundle as JSON */
     public function asJson($request, $response, $args) 
     {
-        //return $this->prepResponse($response, $this->infoBundle());
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/plain")
@@ -81,9 +79,6 @@ class InfoController
                     $options[$okey] = (array) $oval;
                     $ogroups[$oval->group][] = $okey;
                 }
-                asort($options);
-                asort($ogroups);
-                foreach($ogroups as $key => $val) sort($ogroups[$key]);
                 $p['options'] = $options;
                 $p['optiongroups'] = $ogroups;
                 unset($options);
