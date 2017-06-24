@@ -401,36 +401,34 @@ class Draft
 
     }
 
-    /** Exports SVG as a format of choice */
+    /** Exports SVG as a format of choice 
+     *
+     * Note that since users can re-draft, we can't be sure the exiting PDF/PS files
+     * are up-to-date with the SVG. So we always regenerate them, even if they exist
+     * */
     public function export($user, $format) 
     {
-        // This is where our file should be stored on disk
-        $path = $this->getExportPath($user, $format);
-        
-        // Generate file if it's not on disk
-        if(!file_exists($path)) { 
-            // Full-size PDF is just a simple Inkscape expert
-            if($format == 'pdf') $cmd = "/usr/bin/inkscape --export-pdf=".$this->getExportPath($user, 'pdf').' '.$this->getExportPath($user, 'svg');
-            else {
-                // Other formats require more work
-                if($format == 'letter.pdf') $pf = 'Let';
-                elseif($format == 'tabloid.pdf') $pf = 'Tab';
-                else $pf = ucfirst(array_shift(explode('.',$format))); // Turn a4.pdf into A4
+        // Full-size PDF is just a simple Inkscape expert
+        if($format == 'pdf') $cmd = "/usr/bin/inkscape --export-pdf=".$this->getExportPath($user, 'pdf').' '.$this->getExportPath($user, 'svg');
+        else {
+            // Other formats require more work
+            if($format == 'letter.pdf') $pf = 'Let';
+            elseif($format == 'tabloid.pdf') $pf = 'Tab';
+            else $pf = ucfirst(array_shift(explode('.',$format))); // Turn a4.pdf into A4
 
-                // Get Postscript file
-                $ps = $this->getExportPath($user, 'ps'); // Postscript file
-                if(!file_exists($ps)) $this->svgToPs($user); 
+            // Get Postscript file
+            $ps = $this->getExportPath($user, 'ps'); // Postscript file
+            $this->svgToPs($user); 
 
-                // Tile postscript to required format
-                $cmd = "/usr/local/bin/tile -m$pf -s1 $ps > ".$this->getExportPath($user, $format.'.ps');
-                // Convert to PDF
-                $cmd .= " ; /usr/bin/ps2pdf14 ".$this->getExportPath($user, $format.'.ps').' '.$this->getExportPath($user, $format);
-            }
-
+            // Tile postscript to required format
+            $cmd = "/usr/local/bin/tile -m$pf -s1 $ps > ".$this->getExportPath($user, $format.'.ps');
+            // Convert to PDF
+            $cmd .= " ; /usr/bin/ps2pdf14 ".$this->getExportPath($user, $format.'.ps').' '.$this->getExportPath($user, $format);
         }
+
         shell_exec($cmd);
         
-        return $path;
+        return $this->getExportPath($user, $format);
     }
 
     private function svgToPs($user) 
