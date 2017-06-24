@@ -1,4 +1,4 @@
 vendor/
 logs/
 env
-public/static
+public/static/users

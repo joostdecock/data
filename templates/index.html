@@ -3,35 +3,40 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#5C3566">
+    <meta name="theme-color" content="#f6f6f6">
     <meta name="author" content="Joost De Cock">
     <title>Freesewing Data API</title>
-
-    <!--
-          __                           _           
-         / _|_ _ ___ ___ ________ __ _(_)_ _  __ _ 
-        |  _| '_/ -_) -_|_-< -_) V  V / | ' \/ _` |
-        |_| |_| \___\___/__|___|\_/\_/|_|_||_\__, |
-                      freesewing.org         |___/ 
-    --> 
-
-    <!-- CSS bundle -->
-    <link rel="stylesheet" href="https://beta.freesewing.org/css/style.css">
+    <style>
+        body {
+            background: #f6f6f6;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 1rem;
+            font-weight: normal;
+            line-height: 1.5;
+            color: #292b2c;
+        }
+        div {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            margin: auto;
+            padding-top: 5%;
+        }
+        h1 {
+            font-size: 5rem;
+        }
+    </style>
 </head>
 <body>
-<div id="modal" class="shown light">
-    <div class="cover-wrap">
-        <div class="cover-top" id="model-header"></div>
-        <div id="modal-main" class="text-center" style="max-width: 500px;">
-            <h1 class="page-title display-1">¯\_(ツ)_/¯</h1>
-            <h3>Your request makes no sense</h3>
-            <p>This is an API, not some promiscuous free-for-all</p>
-            <p><a class="noline" href="https://beta.freesewing.org/">
-                <img class="mb-3" src="https://beta.freesewing.org/img/logo/logo.svg" style="width: 100px; height: 112px;" />
-            </a></p>
-        </div>
-        <div class="cover-bottom" id="modal-footer"><p class="hidden"><small><a class="noline" href="https://beta.freesewing.org/">Freesewing</a> is an open source platform for made-to-measure sewing patterns</small></p></div>
+    <div>
+        <h1>¯\_(ツ)_/¯</h1>
+        <h3>Your request makes no sense</h3>
+        <p>This is an API, not some promiscuous free-for-all</p>
+        <p>
+            <a class="noline" href="https://freesewing.org/">
+                <img src="/static/img/logo.svg" style="width: 100px; height: 112px;" />
+            </a>
+        </p>
     </div>
-</div>
 </body>
 </html>
