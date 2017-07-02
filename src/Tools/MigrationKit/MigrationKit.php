@@ -131,7 +131,7 @@ Please make sure to read up on the [caveats for migrated model data](/caveats/mi
         $map = [
             'field_across_back_width'          => 'acrossBack',
             'field_biceps_circumference'       => 'bicepsCircumference',
-            'field_body_rise'                  => 'bodyRise',
+            'field_body_rise'                  => 'seatDepth',
             'field_center_back_neck_to_waist'  => 'centerBackNeckToWaist',
             'field_chest'                      => 'chestCircumference',
             'field_inseam'                     => 'inseam',
