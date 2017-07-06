@@ -179,3 +179,16 @@ MODIFY `id` int(6) NOT NULL AUTO_INCREMENT;
 --
 ALTER TABLE `users`
 MODIFY `id` int(5) NOT NULL AUTO_INCREMENT COMMENT 'user id',AUTO_INCREMENT=4;
+
+CREATE TABLE IF NOT EXISTS `comments` (
+    `id` smallint(6) NOT NULL,
+      `user` int(5) NOT NULL,
+      `comment` text NOT NULL,
+      `page` tinytext NOT NULL,
+      `time` datetime NOT NULL,
+      `status` enum('active','removed','restricted') NOT NULL DEFAULT 'active',
+      `parent` smallint(6) DEFAULT NULL
+    ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+ALTER TABLE `comments`
+ ADD PRIMARY KEY (`id`);
