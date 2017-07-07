@@ -142,7 +142,7 @@ Please make sure to read up on the [caveats for migrated model data](/caveats/mi
             'field_seat_circumference'         => 'seatCircumference',
             'field_shoulder_slope'             => 'shoulderSlope',
             'field_shoulder_to_elbow_length'   => 'shoulderToElbow',
-            'field_sleeve_length'              => 'shoulderToWritst',
+            'field_sleeve_length'              => 'shoulderToWrist',
             'field_neck_to_waist'              => 'centerBackNeckToWaist',
             'field_trouser_waist_circum'       => 'hipsCircumference',
             'field_underbust'                  => 'underBust',
