@@ -65,6 +65,9 @@ class InfoController
             }
         }
 
+        // Sort measurements
+        ksort($info['measurements']);
+
         return $info;
     }
 

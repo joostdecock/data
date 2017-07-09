@@ -408,7 +408,10 @@ class Draft
      * */
     public function export($user, $format) 
     {
-        // Full-size PDF is just a simple Inkscape expert
+        // SVG is already on disk
+        if($format == 'svg') return $this->getExportPath($user, 'svg');
+
+        // Full-size PDF is just a simple Inkscape export
         if($format == 'pdf') $cmd = "/usr/bin/inkscape --export-pdf=".$this->getExportPath($user, 'pdf').' '.$this->getExportPath($user, 'svg');
         else {
             // Other formats require more work

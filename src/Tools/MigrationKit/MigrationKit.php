@@ -28,14 +28,25 @@ class MigrationKit
      */
     public function migrate(\App\Data\User $user) 
     {
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
         $this->account = $this->loadAccount($user->getEmail());
 
         // Is this user known on MMP?
-        if(!is_object($this->account)) return false; // Nope
+        if(!is_object($this->account)) {
+            $logger->info("User ".$user->getEmail()." not known in MMP. Not migrating.");
+            return false; // Nope
+        }
 
         // Migrate username
-        if(!$user->usernameTaken($this->account->username)) $user->setUsername($this->account->username);
-        
+        if(!$user->usernameTaken($this->account->username)) {
+            $logger->info("User ".$user->getEmail()." known in MMP as ".$this->account->username.". Migrating with same username.");
+            $user->setUsername($this->account->username);
+        } else {
+            $logger->info("User ".$user->getEmail()." known in MMP as ".$this->account->username.". Username is taken. Migrating with different username.");
+        }
+
         // Migrate user picture
         $avatarKit = $this->container->get('AvatarKit');
         if(isset($this->account->picture) && $this->account->picture != '') {
@@ -83,6 +94,10 @@ class MigrationKit
     private function migrateModel($oldModel, $user) {
         $newModel = $this->container->get('Model');
 
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        $logger->info("Migrating model ".$oldModel->title." for user ".$user->getId());
+        
         // Create new model
         $newModel->create($user);
 
