@@ -4,7 +4,7 @@
 $jwtOptions = [
     "secure" => true,
     'path' => '/',
-    'passthrough' => ['/signup', '/login', '/recover', '/reset', '/activate', '/resend','/confirm','/info/','/shared/','/download/','/referral','/comments/'],
+    'passthrough' => ['/signup', '/login', '/recover', '/reset', '/activate', '/resend','/confirm','/info/','/shared/','/download/','/referral','/comments/','/status'],
     'attribute' => 'jwt',
     'secret' => getenv("JWT_SECRET"),
     "error" => function ($request, $response, $arguments) {

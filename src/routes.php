@@ -10,6 +10,9 @@ $app->get('/info/yaml', 'InfoController:asYaml');
 // JSON info bundle
 $app->get('/info/json', 'InfoController:asJson');
 
+// Status
+$app->get('/status', 'InfoController:status');
+
 
 /********************/
 /* Anonymous routes */
