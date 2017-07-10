@@ -346,17 +346,21 @@ class Draft
     /** Saves the draft to the database */
     public function save() 
     {
+        $data = json_encode($this->getData(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+
         $db = $this->container->get('db');
         $sql = "UPDATE `drafts` set 
             `name` = ".$db->quote($this->getName()).",
             `svg` = ".$db->quote($this->getSvg()).",
             `compared` = ".$db->quote($this->getCompared()).",
-            `data` = ".$db->quote($this->getData()).",
+            `data` = ".$db->quote($data).",
             `shared`   = ".$db->quote($this->getShared()).",
-            `notes`     = ".$db->quote($this->notes)."
+            `notes`     = ".$db->quote($this->getNotes())."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
-
+        
+        $logger = $this->container->get('logger');
+        $logger->debug($sql);
         return $db->exec($sql);
     }
     
