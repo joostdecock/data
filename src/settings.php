@@ -55,5 +55,30 @@ return [
         'mmp' => [
             'public_path' => 'https://makemypattern.com/sites/default/files/styles/user_picture/public',
         ],
+        
+        // Measurement titles
+        'measurements' => [
+            'acrossBack' => 'Across back',
+            'bicepsCircumference' => 'Biceps circumference',
+            'centerBackNeckToWaist' => 'Centerback neck to waist',
+            'chestCircumference' => 'Chest circumference',
+            'headCircumference' => 'Head circumference',
+            'hipsCircumference' => 'Hips circumference',
+            'hipsToUpperLeg' => 'Hips to upper leg',
+            'inseam' => 'Inseam',
+            'naturalWaist' => 'Natural waist',
+            'naturalWaistToHip' => 'Natural waist to hip',
+            'naturalWaistToUnderbust' => 'Natural waist to underbust',
+            'neckCircumference' => 'Neck circumference',
+            'seatCircumference' => 'Seat circumference',
+            'seatDepth' => 'Seat depth',
+            'shoulderSlope' => 'Shoulder slope',
+            'shoulderToElbow' => 'Shoulder to elbow',
+            'shoulderToShoulder' => 'Shoulder to shoulder',
+            'shoulderToWrist' => 'Shoulder to wrist',
+            'underBust' => 'Underbust',
+            'upperLegCircumference' => 'Upper leg circumference',
+            'wristCircumference' => 'Wrist circumference',
+        ],
     ],
 ];

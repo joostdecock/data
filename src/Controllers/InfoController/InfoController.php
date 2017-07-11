@@ -47,6 +47,7 @@ class InfoController
         // Iterate over patterns to get remaining info
         $female = $this->container['settings']['app']['female_measurements'];
         //$male = $this->container['settings']['app']['female_measurements'];
+        $measurementTitles = $this->container['settings']['app']['female_measurements'];
         
         foreach ($patternlist as $namespace => $list) {
             foreach ($list as $handle => $title) {
@@ -64,6 +65,7 @@ class InfoController
                 }
             }
         }
+        $info['mapping']['measurementToTitle'] =  $this->container['settings']['measurements'];
 
         // Sort measurements
         ksort($info['measurements']);
