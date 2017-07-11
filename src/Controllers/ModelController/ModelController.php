@@ -72,6 +72,7 @@ class ModelController
         // Update model with user input and save
         $model->setBody($in->body);
         $model->setName($in->name);
+        $model->setUnits($user->getData()->account->units);
         $model->save();
 
         // Get the AvatarKit to create the avatar
