@@ -233,11 +233,16 @@ class Draft
     {
         $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
+        // Passing model measurements to core
+        foreach($model->getData()->measurements as $key => $val) $in[$key] = $val;
+        
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
+        
+        // Getting compare from core
         $in['service'] = 'compare';
-        $in['theme'] = 'Compare';
+        $in['theme'] = 'Compare'; // Overriding theme
         $this->setCompared($this->getDraft($in));
         
         // Set basic info    
@@ -337,6 +342,7 @@ class Draft
             'timeout' => 35,
             'query' => $args,
         ];
+
         $guzzle = new GuzzleClient($config);
         $response = $guzzle->request('GET', $url);
         
