@@ -167,7 +167,7 @@ class DraftController
                 'pattern' => $draft->getPattern(), 
                 'model' => [
                     'handle' => $model->getHandle(),
-                    'name' => $model->getHandle(),
+                    'name' => $model->getName(),
                     'body' => $model->getBody(), 
                     'picture' => $model->getPicture(), 
                     'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
