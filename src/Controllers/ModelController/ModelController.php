@@ -220,9 +220,81 @@ class ModelController
                 'notes' => $model->getNotes(), 
 
             ],
-            'drafts' => $model->getDrafts(),
         ]);
     } 
+
+    /** Clone model data 
+     *
+     * clone is a reserved work, hence why this methos is called klone */
+    public function klone($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load its data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get a model instance from the container and load its data
+        $model = $this->container->get('Model');
+        $model->loadFromHandle($in->handle);
+        
+        // Verify this user owns this model
+        if($model->getUser() != $user->getId()) {
+            // Not a model that belongs to the user
+            $logger->info("Model clone blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ]);
+        }
+
+        // Get a model instance from the container and create a new model
+        $clone = clone $this->container->get('Model');
+        $clone->create($user);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        // Update model with user input and save
+        $clone->setName($model->getName().' (cloned from '.$model->getHandle().')');
+        $clone->setBody($model->getBody());
+        $img = $avatarKit->getDiskDir($user->getHandle(),'model', $model->getHandle().'/'.$model->getPicture());
+        $clone->setPicture($avatarKit->createFromUri($img, $user->getHandle(),'model', $clone->getHandle()));
+        $clone->setData($model->getData());
+        $clone->setUnits($model->getUnits());
+        $clone->setShared($model->getShared());
+        $clone->setNotes($model->getNotes());
+        $clone->save();
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'handle' => $clone->getHandle(),
+            'img' => $avatarKit->getDiskDir($user->getHandle(),'model', $model->getHandle().'/'.$model->getPicture()),
+            'orig' => [
+                'name' => $model->getName(),
+                'handle' => $model->getHandle(),
+                'body' => $model->getBody(),
+                'data' => $model->getData(),
+                'units' => $model->getUnits(),
+                'shared' => $model->getShared(),
+                'notes' => $model->getNotes(),
+            ],
+            'clone' => [
+                'name'   => $clone->getName(),
+                'handle' => $clone->getHandle(),
+                'body'   => $clone->getBody(),
+                'data'   => $clone->getData(),
+                'units'  => $clone->getUnits(),
+                'shared' => $clone->getShared(),
+                'notes'  => $clone->getNotes(),
+            ],
+        ]);
+    }
 
     /** Export model data */
     public function export($request, $response, $args) 
@@ -271,6 +343,7 @@ class ModelController
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
+        $in = new \stdClass();
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         
         // Get a user instance from the container and load user data

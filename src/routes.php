@@ -117,6 +117,9 @@ $app->delete('/comment/{id}', 'CommentController:remove');
 // Export model data
 $app->get('/export/model/{handle}', 'ModelController:export');
 
+// Clone model 
+$app->post('/clone/model/{handle}', 'ModelController:klone');
+
 /*******************/
 /* Catch-all route */
 /*******************/
