@@ -352,7 +352,9 @@ class Draft
     /** Saves the draft to the database */
     public function save() 
     {
-        $data = json_encode($this->getData(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        // Don't double encode
+        $data = $this->getData();
+        if(!is_string($data)) $data = json_encode($this->getData(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
         $db = $this->container->get('db');
         $sql = "UPDATE `drafts` set 
