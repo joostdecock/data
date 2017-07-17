@@ -118,6 +118,16 @@ class ModelController
         $model = $this->container->get('Model');
         $model->loadFromHandle($in->handle);
         
+        // Verify this user owns this model
+        if($model->getUser() != $user->getId()) {
+            // Not a model that belongs to the user
+            $logger->info("Model update blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ]);
+        }
+
         // Handle picture
         if($in->picture && $in->picture != $model->getPicture()) {
             // Get the AvatarKit to create the avatar
@@ -179,6 +189,16 @@ class ModelController
         $model = $this->container->get('Model');
         $model->loadFromHandle($in->handle);
         
+        // Verify this user owns this model
+        if($model->getUser() != $user->getId()) {
+            // Not a model that belongs to the user
+            $logger->info("Model load blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ]);
+        }
+
         // Get the AvatarKit to get the avatar location
         $avatarKit = $this->container->get('AvatarKit');
 
@@ -203,6 +223,48 @@ class ModelController
             'drafts' => $model->getDrafts(),
         ]);
     } 
+
+    /** Export model data */
+    public function export($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load its data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get a model instance from the container and load its data
+        $model = $this->container->get('Model');
+        $model->loadFromHandle($in->handle);
+        
+        // Verify this user owns this model
+        if($model->getUser() != $user->getId()) {
+            // Not a model that belongs to the user
+            $logger->info("Model export blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ]);
+        }
+
+        // Export model data to disk
+        $dir = $model->export();
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'formats' => [
+                'csv'  => $dir.'/'.$model->getHandle().'.csv',
+                'json' => $dir.'/'.$model->getHandle().'.json',
+                'yaml' => $dir.'/'.$model->getHandle().'.yaml',
+            ]
+        ]);
+
+    }
 
     /** Remove model */
     public function remove($request, $response, $args) 

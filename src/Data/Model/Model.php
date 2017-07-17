@@ -2,6 +2,8 @@
 /** App\Data\Model class */
 namespace App\Data;
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * The model class.
  *
@@ -311,6 +313,45 @@ class Model
             }
         } 
         return $drafts;
+    }
+
+    /**
+     * Exports model data to disk (for download by user)
+     *
+     * @return string name of the directory where the data is stored
+     */
+    public function export() 
+    {
+        // Units
+        if($this->getUnits() == 'imperial') $units = 'inch';
+        else $units = 'cm';
+
+        // Load measurements
+        $measurements = (array)$this->getData()->measurements;
+        ksort($measurements);
+
+        // Create random directory
+        $token = sha1(print_r($this,1).time());
+        $dir = $this->container['settings']['storage']['static_path']."/export/$token";
+        mkdir($dir);
+
+        // Export as CSV
+        $fp = fopen("$dir/".$this->getHandle().'.csv', 'w');
+        fputcsv($fp, ['Measurement', 'value', 'units']);
+        foreach($measurements as $key => $val) fputcsv($fp, [$key, $val, $units]);
+        fclose($fp);
+
+        // Export as JSON
+        $fp = fopen("$dir/".$this->getHandle().'.json', 'w');
+        fwrite($fp, json_encode($measurements, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        fclose($fp);
+
+        // Export as YAML
+        $fp = fopen("$dir/".$this->getHandle().'.yaml', 'w');
+        fwrite($fp, '# All measurements in '."$units\n".Yaml::dump($measurements));
+        fclose($fp);
+
+        return '/static/export/'.$token;
     }
 
     /** Remove a model */

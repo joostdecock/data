@@ -114,6 +114,8 @@ $app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
 // Remove comment
 $app->delete('/comment/{id}', 'CommentController:remove');
 
+// Export model data
+$app->get('/export/model/{handle}', 'ModelController:export');
 
 /*******************/
 /* Catch-all route */
