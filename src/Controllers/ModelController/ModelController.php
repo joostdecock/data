@@ -93,14 +93,20 @@ class ModelController
     {
         // Handle request
         $in = new \stdClass();
-        if(isset($request->getParsedBody()['data']) && $request->getParsedBody()['data'] != '') $in->data = json_decode($request->getParsedBody()['data']);
-        else $in->data = null;
-        $in->name = $this->scrub($request,'name');
-        $in->picture = $this->scrub($request,'picture');
-        $in->notes = $this->scrub($request,'notes');
-        ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
-        ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
-        ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
+        if(isset($request->getParsedBody()['data']) && $request->getParsedBody()['data'] != '') {
+            $in->data = json_decode($request->getParsedBody()['data']);
+            $settingsUpdate = false;
+        } else {
+
+            $in->data = null;
+            $in->name = $this->scrub($request,'name');
+            $in->picture = $this->scrub($request,'picture');
+            $in->notes = $this->scrub($request,'notes');
+            ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
+            ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
+            ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
+            $settingsUpdate = true;
+        }
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
      
         
@@ -127,32 +133,34 @@ class ModelController
                 'reason' => 'model_not_yours', 
             ]);
         }
+        
+        if($settingsUpdate) {
+            // Handle picture
+            if($in->picture && $in->picture != $model->getPicture()) {
+                // Get the AvatarKit to create the avatar
+                $avatarKit = $this->container->get('AvatarKit');
+                $model->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle(), 'model', $model->getHandle()));
+            }
 
-        // Handle picture
-        if($in->picture && $in->picture != $model->getPicture()) {
-            // Get the AvatarKit to create the avatar
-            $avatarKit = $this->container->get('AvatarKit');
-            $model->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle(), 'model', $model->getHandle()));
-        }
+            // Handle name change
+            if($in->name && $model->getName() != $in->name) $model->setName($in->name);
 
-        // Handle name change
-        if($in->name && $model->getName() != $in->name) $model->setName($in->name);
+            // Handle units
+            if($model->getUnits() != $in->units) $model->setUnits($in->units);
 
-        // Handle units
-        if($model->getUnits() != $in->units) $model->setUnits($in->units);
+            // Handle body
+            if($model->getBody() != $in->body) $model->setBody($in->body);
 
-        // Handle body
-        if($model->getBody() != $in->body) $model->setBody($in->body);
+            // Handle shared
+            if($model->getShared() != $in->shared) $model->setShared($in->shared);
 
-        // Handle shared
-        if($model->getShared() != $in->shared) $model->setShared($in->shared);
-
-        // Handle notes
-        if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
-
-        // Handle data
-        if($in->data) {
-            if($model->getData() != $in->data) $model->setData($in->data);
+            // Handle notes
+            if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
+        } else {
+            // Handle data
+            if($in->data) {
+                if($model->getData() != $in->data) $model->setData($in->data);
+            }
         }
 
         // Save changes 
