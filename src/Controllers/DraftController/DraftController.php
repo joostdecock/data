@@ -211,6 +211,10 @@ class DraftController
             ]);
         }
         
+        // Get a model instance from the container and load its data
+        $model = $this->container->get('Model');
+        $model->loadFromId($draft->getModel());
+        
         // Get a user instance from the container and load its data
         $user = $this->container->get('User');
         $user->loadFromId($draft->getUser());
@@ -221,6 +225,10 @@ class DraftController
                 'user' => $draft->getUser(), 
                 'userHandle' => $user->getHandle(), 
                 'pattern' => $draft->getPattern(), 
+                'model' => [
+                    'body' => $model->getBody(), 
+                    'units' => $model->getUnits(), 
+                ],
                 'name' => $draft->getName(), 
                 'handle' => $draft->getHandle(), 
                 'svg' => $draft->getSvg(), 
