@@ -233,11 +233,16 @@ class Draft
     {
         $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
+        // Passing model measurements to core
+        foreach($model->getData()->measurements as $key => $val) $in[$key] = $val;
+        
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
+        
+        // Getting compare from core
         $in['service'] = 'compare';
-        $in['theme'] = 'Compare';
+        $in['theme'] = 'Compare'; // Overriding theme
         $this->setCompared($this->getDraft($in));
         
         // Set basic info    
@@ -337,6 +342,7 @@ class Draft
             'timeout' => 35,
             'query' => $args,
         ];
+
         $guzzle = new GuzzleClient($config);
         $response = $guzzle->request('GET', $url);
         
@@ -346,17 +352,23 @@ class Draft
     /** Saves the draft to the database */
     public function save() 
     {
+        // Don't double encode
+        $data = $this->getData();
+        if(!is_string($data)) $data = json_encode($this->getData(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+
         $db = $this->container->get('db');
         $sql = "UPDATE `drafts` set 
             `name` = ".$db->quote($this->getName()).",
             `svg` = ".$db->quote($this->getSvg()).",
             `compared` = ".$db->quote($this->getCompared()).",
-            `data` = ".$db->quote($this->getData()).",
+            `data` = ".$db->quote($data).",
             `shared`   = ".$db->quote($this->getShared()).",
-            `notes`     = ".$db->quote($this->notes)."
+            `notes`     = ".$db->quote($this->getNotes())."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
-
+        
+        $logger = $this->container->get('logger');
+        $logger->debug($sql);
         return $db->exec($sql);
     }
     
@@ -408,7 +420,10 @@ class Draft
      * */
     public function export($user, $format) 
     {
-        // Full-size PDF is just a simple Inkscape expert
+        // SVG is already on disk
+        if($format == 'svg') return $this->getExportPath($user, 'svg');
+
+        // Full-size PDF is just a simple Inkscape export
         if($format == 'pdf') $cmd = "/usr/bin/inkscape --export-pdf=".$this->getExportPath($user, 'pdf').' '.$this->getExportPath($user, 'svg');
         else {
             // Other formats require more work

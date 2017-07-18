@@ -47,6 +47,7 @@ class InfoController
         // Iterate over patterns to get remaining info
         $female = $this->container['settings']['app']['female_measurements'];
         //$male = $this->container['settings']['app']['female_measurements'];
+        $measurementTitles = $this->container['settings']['app']['female_measurements'];
         
         foreach ($patternlist as $namespace => $list) {
             foreach ($list as $handle => $title) {
@@ -64,6 +65,10 @@ class InfoController
                 }
             }
         }
+        $info['mapping']['measurementToTitle'] =  $this->container['settings']['measurements'];
+
+        // Sort measurements
+        ksort($info['measurements']);
 
         return $info;
     }
@@ -88,5 +93,78 @@ class InfoController
         }
         
         return $p;
+    }
+    
+    /** Status info */
+    public function status($request, $response, $args) 
+    {
+
+        $memory = $this->asScrubbedArray(rtrim(shell_exec("free -m | grep Mem")));
+        $status['system']['memory']['used'] = $memory[2];
+        $status['system']['memory']['free'] = $memory[3];
+        $swap = $this->asScrubbedArray(rtrim(shell_exec("free -m | grep Swap")));
+        $status['system']['swap']['used'] = $swap[2];
+        $status['system']['swap']['free'] = $swap[3];
+        $status['system']['cpu'] = 100 - array_pop(explode('  ',rtrim(shell_exec("mpstat 1 1 | tail -n 2 | head -n 1"))));
+        $status['system']['uptime'] = rtrim(substr(shell_exec("uptime -p"), 3));
+        $status['data']['users'] = $this->countUsers(); 
+        $status['data']['drafts'] = $this->countDrafts(); 
+        $status['data']['comments'] = $this->countComments(); 
+        $status['data']['models'] = $this->countModels(); 
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write(json_encode($status, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
+
+    private static function asScrubbedArray($data, $separator = ' ')
+    {
+        $array = explode($separator, $data);
+        foreach ($array as $value) {
+            if (rtrim($value) != '') {
+                $return[] = rtrim($value);
+            }
+        }
+        if (isset($return)) {
+            return $return;
+        } else {
+            return false;
+        }
+    }
+
+    private function countUsers()
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT COUNT(id) as 'users' FROM `users` WHERE `status` = 'active'";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        return $result[0]->users;
+    }
+
+    private function countDrafts()
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT COUNT(id) as 'drafts' FROM `drafts`";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        return $result[0]->drafts;
+    }
+    
+    private function countComments()
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT COUNT(id) as 'comments' FROM `comments`";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        return $result[0]->comments;
+    }
+    
+    private function countModels()
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT COUNT(id) as 'models' FROM `models`";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        return $result[0]->models;
     }
 }

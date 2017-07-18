@@ -92,6 +92,11 @@ class AvatarKit
      */
     public function createFromUri($uri, $userHandle,$type='user', $typeHandle=null) 
     {
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
+
+        // If it's one of our auto-generated SVGs, simply copy
+        if(substr($uri,-4) == '.svg') return $this->saveAvatar($handle.'.svg', file_get_contents($uri), $userHandle, $type, $typeHandle);
+
         // Imagick instance with the user's picture
         $imagick = new \Imagick($uri);
 
@@ -110,7 +115,6 @@ class AvatarKit
             default:
                 $ext = '.jpg';
         }
-        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
         // Save avatar and return filename
         return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
     }
@@ -162,7 +166,7 @@ class AvatarKit
         return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
     }
 
-    private function thumbnail($image, $size=200)
+    private function thumbnail($image, $size=500)
     {
         $w = $image->getImageWidth();
         $h = $image->getImageHeight();

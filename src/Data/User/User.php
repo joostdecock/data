@@ -282,6 +282,9 @@ class User
      */
     public function create($email, $password) 
     {
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
         // Set basic info    
         $this->setPassword($password);
         $this->setEmail($email);
@@ -289,6 +292,7 @@ class User
         // Get the HandleKit to create the handle
         $handleKit = $this->container->get('HandleKit');
         $this->setHandle($handleKit->create('user'));
+        $logger->info("Got handle ".$this->getHandle()." for: ".$email);
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
@@ -319,7 +323,8 @@ class User
             ".$db->quote($this->getEmail()).",
             ".$db->quote(hash('sha256', random_bytes(256)))."
             );";
-        $db->exec($sql);
+        if($db->exec($sql)) $logger->info("User ".$this->getHandle()." created in database.");
+        else $logger->info("Could not create user ".$this->getHandle()." in database. Query that failed was: $sql");
 
         // Retrieve user ID
         $id = $db->lastInsertId();

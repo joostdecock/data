@@ -2,3 +2,4 @@ vendor/
 logs/
 env
 public/static/users
+public/static/export

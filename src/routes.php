@@ -10,6 +10,9 @@ $app->get('/info/yaml', 'InfoController:asYaml');
 // JSON info bundle
 $app->get('/info/json', 'InfoController:asJson');
 
+// Status
+$app->get('/status', 'InfoController:status');
+
 
 /********************/
 /* Anonymous routes */
@@ -111,6 +114,11 @@ $app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
 // Remove comment
 $app->delete('/comment/{id}', 'CommentController:remove');
 
+// Export model data
+$app->get('/export/model/{handle}', 'ModelController:export');
+
+// Clone model 
+$app->post('/clone/model/{handle}', 'ModelController:klone');
 
 /*******************/
 /* Catch-all route */

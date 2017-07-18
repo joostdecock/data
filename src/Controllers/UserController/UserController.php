@@ -333,6 +333,7 @@ class UserController
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
+        $logger->info("Signup request from: ".$signup_data['email']);
         
         // Get a user instance from the container
         $user = $this->container->get('User');
@@ -354,7 +355,8 @@ class UserController
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
-        $mailKit->signup($user);
+        if($mailKit->signup($user)) $logger->info("Activation email sent to: ".$signup_data['email']);
+        else $logger->info("Could not send activation email to: ".$signup_data['email']);
         
         $logger->info("Signup: ".$signup_data['email']." is user ".$user->getId());
         return $this->prepResponse($response, [
