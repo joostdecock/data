@@ -231,11 +231,15 @@ class Draft
      */
     public function create($in, $user, $model) 
     {
-        $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-            
         // Passing model measurements to core
-        foreach($model->getData()->measurements as $key => $val) $in[$key] = $val;
-        
+        foreach($model->getData()->measurements as $key => $val) {
+            $in[$key] = $val;
+            $data['measurements'][$key] = $val;
+        }
+        $data['options'] = $in;
+        $data['units'] = $model->getUnits();
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+            
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
@@ -309,7 +313,14 @@ class Draft
      */
     public function recreate($in, $user, $model) 
     {
-        $data = json_encode($in, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        // Passing model measurements to core
+        foreach($model->getData()->measurements as $key => $val) {
+            $in[$key] = $val;
+            $data['measurements'][$key] = $val;
+        }
+        $data['options'] = $in;
+        $data['units'] = $model->getUnits();
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
         // Getting draft from core
         $in['service'] = 'draft';
@@ -326,7 +337,6 @@ class Draft
 
         // Store on disk
         $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
-        mkdir($dir, 0755, true);
         $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
         fwrite($handle, $this->getSvg());
         $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
