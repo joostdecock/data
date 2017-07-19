@@ -239,7 +239,11 @@ class Draft
         $data['options'] = $in;
         $data['units'] = $model->getUnits();
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-            
+
+        // Pass units to core
+        $in['unitsIn'] = strtolower($model->getUnits());
+        $in['unitsOut'] = strtolower($model->getUnits());
+
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
@@ -322,6 +326,10 @@ class Draft
         $data['units'] = $model->getUnits();
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
+        // Pass units to core
+        $in['unitsIn'] = strtolower($model->getUnits());
+        $in['unitsOut'] = strtolower($model->getUnits());
+        
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
