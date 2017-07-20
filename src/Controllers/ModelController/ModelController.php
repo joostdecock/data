@@ -159,7 +159,16 @@ class ModelController
         } else {
             // Handle data
             if($in->data) {
-                if($model->getData() != $in->data) $model->setData($in->data);
+                if($model->getData() != $in->data) {
+                    if($model->getUnits() == 'imperial') {
+                        // Need to deal with imperial fractions in measurements
+                        $unitsKit = $this->container->get('UnitsKit');
+                        foreach($in->data->measurements as $key => $val) {
+                            $in->data->measurements->$key =  $unitsKit->asFloat($val);
+                        }
+                    }
+                    $model->setData($in->data);
+                }
             }
         }
 
@@ -176,6 +185,7 @@ class ModelController
             'units' => $model->getUnits(),
             'picture' => $model->getPicture(),
             'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
+            'data' => $model->getData(),
         ]);
     }
 
