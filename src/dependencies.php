@@ -72,6 +72,10 @@ $container['TokenKit'] = function ($container) {
     return new \App\Tools\TokenKit($container);
 };
 
+$container['UnitsKit'] = function ($container) {
+    return new \App\Tools\UnitsKit($container);
+};
+
 $container['User'] = function ($container) {
     return new \App\Data\User($container);
 };
