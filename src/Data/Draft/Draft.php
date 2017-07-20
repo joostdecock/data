@@ -240,9 +240,14 @@ class Draft
         $data['units'] = $model->getUnits();
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
-        // Pass units to core
+        // Get the HandleKit to create the handle
+        $handleKit = $this->container->get('HandleKit');
+        $this->setHandle($handleKit->create('draft'));
+        
+        // Pass units and handle to core
         $in['unitsIn'] = strtolower($model->getUnits());
         $in['unitsOut'] = strtolower($model->getUnits());
+        $in['reference'] = $this->getHandle();
 
         // Getting draft from core
         $in['service'] = 'draft';
@@ -258,9 +263,6 @@ class Draft
         $this->setModel($model->getId());
         $this->setPattern($in['pattern']);
         
-        // Get the HandleKit to create the handle
-        $handleKit = $this->container->get('HandleKit');
-        $this->setHandle($handleKit->create('draft'));
 
         // Store in database
         $db = $this->container->get('db');
@@ -326,9 +328,10 @@ class Draft
         $data['units'] = $model->getUnits();
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
-        // Pass units to core
+        // Pass units and handle to core
         $in['unitsIn'] = strtolower($model->getUnits());
         $in['unitsOut'] = strtolower($model->getUnits());
+        $in['reference'] = $this->getHandle();
         
         // Getting draft from core
         $in['service'] = 'draft';
