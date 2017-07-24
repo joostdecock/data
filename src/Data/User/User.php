@@ -414,7 +414,7 @@ class User
             `migrated` = ".$db->quote($this->getMigrated()).",
             `role`     = ".$db->quote($this->getRole()).",
             `login`    = ".$db->quote($this->getLogin()).",
-            `role`     = ".$db->quote($this->getEmail()).",
+            `email`     = ".$db->quote($this->getEmail()).",
             `picture`  = ".$db->quote($this->getPicture()).",
             `data`     = ".$db->quote(json_encode($this->getData())).",
             `password` = ".$db->quote($this->getPassword())."
