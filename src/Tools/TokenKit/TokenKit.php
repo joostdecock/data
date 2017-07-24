@@ -33,7 +33,7 @@ class TokenKit
     public function create($userId) 
     {
         $now = new \DateTime();
-        $exp = new \DateTime("now +2 hours");
+        $exp = new \DateTime("now +".$this->container['settings']['app']['jwt_lifetime']);
         
         $base62 = new Base62();
 
