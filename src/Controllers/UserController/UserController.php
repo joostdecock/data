@@ -302,7 +302,11 @@ class UserController
             ]);
         }
 
+        // Log login
+        $user->setLogin();
+        $user->save();
         $logger->info("Login: User ".$user->getId());
+        
         // Get the token kit from the container
         $TokenKit = $this->container->get('TokenKit');
         
