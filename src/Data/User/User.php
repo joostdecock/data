@@ -92,9 +92,10 @@ class User
         return $this->handle;
     } 
 
-    private function setLogin($login) 
+    public function setLogin($time=false) 
     {
-        $this->email = $login;
+        if($time === false) $time = date('Y-m-d H:i:s');
+        $this->login = $time;
         return true;
     } 
 
