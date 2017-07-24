@@ -42,6 +42,7 @@ return [
             'core_api' => getenv('CORE_API'),
             'site' => getenv('SITE'),
             'jwt_secret' => getenv('JWT_SECRET'),
+            'jwt_lifetime' => "1 month",
             'origin' => getenv('ORIGIN'),
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
