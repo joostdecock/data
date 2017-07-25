@@ -15,9 +15,11 @@ Love,
 Joost
 
 (*) We have auto-magically migrated your makemypattern.com account for you. 
-Make sure to read the migration caveats: __SITE__/caveats/migration
+Make sure to read the migration caveats: __SITE__/docs/site/makemypattern-migration-caveats
 
 --
-You received this email because you just signed up for a new account.
-Freesewing is an open source platform for made-to-measure sewing patterns.
+You received this email because you just signed up for an account at freesewing.org
+
+Freesewing is an open source platform for made-to-measure sewing patterns
+Made with love by Joost De Cock 
 

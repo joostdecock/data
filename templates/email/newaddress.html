@@ -1,221 +1,133 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title></title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>freesewing</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
 <style type="text/css">
-    
-    /* CLIENT-SPECIFIC STYLES */
-    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
-    img { -ms-interpolation-mode: bicubic; }
+    #outlook a{padding:0;}
+    .ReadMsgBody{width:100%;} .ExternalClass{width:100%;}
+    .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}
+    body, table, td, a{-webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;}
+    table, td{mso-table-lspace:0pt; mso-table-rspace:0pt;}
+    img{-ms-interpolation-mode:bicubic;}
 
-    /* RESET STYLES */
-    img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-    table { border-collapse: collapse !important; }
-    body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
-
-    /* iOS BLUE LINKS */
-    a[x-apple-data-detectors] {
-        color: inherit !important;
-        text-decoration: none !important;
-        font-size: inherit !important;
-        font-family: inherit !important;
-        font-weight: inherit !important;
-        line-height: inherit !important;
-    }
+    body{margin:0; padding:0;}
+    img{border:0; height:auto; line-height:100%; outline:none; text-decoration:none;}
+    table{border-collapse:collapse !important;}
+    body{height:100% !important; margin:0; padding:0; width:100% !important;}
     
-    /* MOBILE STYLES */
-    @media screen and (max-width:600px){
-        h1 {
-            font-size: 32px !important;
-            line-height: 32px !important;
+    a {color:#663F95; text-decoration: none;}
+    a:hover {color:#663F95; text-decoration: none;}
+    .appleBody a {color:#663F95; text-decoration: none;}
+    .appleFooter a {color:#663F95; text-decoration: none;}
+
+    @media screen and (max-width: 525px) {
+
+        table[class="wrapper"]{
+          width:100% !important;
         }
-    }
 
-    /* ANDROID CENTER FIX */
-    div[style*="margin: 16px 0;"] { margin: 0 !important; }
+        td[class="logo"]{
+          text-align: left;
+          padding: 20px 0 20px 0 !important;
+        }
+
+        td[class="logo"] img{
+          margin:0 auto!important;
+        }
+
+        td[class="mobile-hide"]{
+          display:none;}
+
+        img[class="mobile-hide"]{
+          display: none !important;
+        }
+
+        img[class="img-max"]{
+          max-width: 100% !important;
+          height:auto !important;
+        }
+
+        table[class="responsive-table"]{
+          width:100%!important;
+        }
+
+        td[class="padding"]{
+          padding: 10px 5% 15px 5% !important;
+        }
+
+        td[class="padding-copy"]{
+          padding: 10px 5% 10px 5% !important;
+          text-align: center;
+        }
+
+        td[class="padding-meta"]{
+          padding: 30px 5% 0px 5% !important;
+          text-align: center;
+        }
+
+        td[class="no-pad"]{
+          padding: 0 0 20px 0 !important;
+        }
+
+        td[class="no-padding"]{
+          padding: 0 !important;
+        }
+
+        td[class="section-padding"]{
+          padding: 50px 15px 50px 15px !important;
+        }
+
+        td[class="section-padding-bottom-image"]{
+          padding: 50px 15px 0 15px !important;
+        }
+
+        td[class="mobile-wrapper"]{
+            padding: 10px 5% 15px 5% !important;
+        }
+
+        table[class="mobile-button-container"]{
+            margin:0 auto;
+            width:100% !important;
+        }
+
+        a[class="mobile-button"]{
+            width:80% !important;
+            padding: 15px !important;
+            border: 0 !important;
+            font-size: 16px !important;
+        }
+
+    }
 </style>
 </head>
-<body style="background-color: #f4f4f4; margin: 0 !important; padding: 0 !important;">
-
+<body style="margin: 0; padding: 0;">
 <!-- HIDDEN PREHEADER TEXT -->
-<div style="display: none; font-size: 1px; color: #fefefe; line-height: 1px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    Please confirm your new email address.
+<div style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+    Just a quick confirmation of your new email address.
 </div>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-    <!-- LOGO -->
+    <!-- HEADER -->
     <tr>
-        <td bgcolor="#663F95" align="center">
+        <td bgcolor="#ffffff" align="center" style="padding: 0px 15px 0px 15px;">
             <!--[if (gte mso 9)|(IE)]>
             <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
             <tr>
             <td align="center" valign="top" width="600">
             <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-                <tr>
-                    <td align="center" valign="top" style="padding: 20px 10px 20px 10px;">
-                        <a href="__SITE__" target="_blank">
-                            <img alt="Logo" src="__API____STATIC__/img/email/logo.png" width="80" height="80" style="display: block; width: 80px; max-width: 80px; min-width: 80px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">
-                        </a>
-                    </td>
-                </tr>
-            </table>
-            <!--[if (gte mso 9)|(IE)]>
-            </td>
-            </tr>
-            </table>
-            <![endif]-->
-        </td>
-    </tr>
-    <!-- HERO -->
-    <tr>
-        <td bgcolor="#663F95" align="center" style="padding: 0px 10px 0px 10px;">
-            <!--[if (gte mso 9)|(IE)]>
-            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-            <tr>
-            <td align="center" valign="top" width="600">
-            <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-                <tr>
-                    <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 48px; font-weight: 200; letter-spacing: 1px; line-height: 48px;">
-                        <h1 style="font-size: 48px; font-weight: 200; margin: 0;">Hello __USERNAME__</h1>
-                    </td>
-                </tr>
-            </table>
-            <!--[if (gte mso 9)|(IE)]>
-            </td>
-            </tr>
-            </table>
-            <![endif]-->
-        </td>
-    </tr>
-    <!-- COPY BLOCK -->
-    <tr>
-        <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
-            <!--[if (gte mso 9)|(IE)]>
-            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-            <tr>
-            <td align="center" valign="top" width="600">
-            <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-              <!-- COPY -->
-              <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 25px;" >
-                  <p style="margin: 0;">Please confirm your new email address (__NEW_ADDRESS__) be clicking the button below:</p>
-                </td>
-              </tr>
-              <!-- BULLETPROOF BUTTON -->
-              <tr>
-                <td bgcolor="#ffffff" align="left">
-                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                      <td bgcolor="#ffffff" align="center" style="padding: 20px 30px 60px 30px;">
-                        <table border="0" cellspacing="0" cellpadding="0">
-                          <tr>
-                              <td align="center" style="border-radius: 3px;" bgcolor="#663F95"><a href="__LINK__" target="_blank" style="font-size: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #663F95; display: inline-block;">Confirm address</a></td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <!-- COPY -->
-              <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 0px 30px; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 25px;" >
-                  <p style="margin: 0;">If that doesn't work, copy and paste the following link in your browser:</p>
-                </td>
-              </tr>
-              <!-- COPY -->
-                <tr>
-                  <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #292B2C; font-size: 14px; font-weight: 300; line-height: 20px;" >
-                    <p style="margin: 0;"><a href="__LINK__" target="_blank" style="color: #663F95;">__LINK__</a></p>
-                  </td>
-                </tr>
-              <!-- COPY -->
-              <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 20px 30px; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 22px;" >
-                  <p style="margin: 0;">Note that your current address (__OLD_ADDRESS__) is in CC. Once you confirm __NEW_ADDRESS__ as your new address, we'll never email __OLD_ADDRESS__ again.</p>
-                </td>
-              </tr>
-              <!-- COPY -->
-              <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 20px 30px; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 25px;" >
-                  <p style="margin: 0;">If you have any questions, just reply to this email — I'm always happy to help out.</p>
-                </td>
-              </tr>
-              <!-- COPY -->
-              <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 25px;" >
-                  <p style="margin: 0;">Love,<br>Joost</p>
-                </td>
-              </tr>
-            </table>
-            <!--[if (gte mso 9)|(IE)]>
-            </td>
-            </tr>
-            </table>
-            <![endif]-->
-        </td>
-    </tr>
-    <!-- SUPPORT CALLOUT -->
-    <tr>
-        <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
-            <!--[if (gte mso 9)|(IE)]>
-            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-            <tr>
-            <td align="center" valign="top" width="600">
-            <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
-                <!-- HEADLINE -->
-                <tr>
-                  <td bgcolor="#663F95" align="center" style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #666666; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 18px; font-weight: 300; line-height: 25px;" >
-                    <h2 style="font-size: 20px; font-weight: 300; color: #ffffff; margin: 0;">Need more help?</h2>
-                    <p style="margin: 0;"><a href="https://gitter.im/freesewing/freesewing" target="_blank" style="color: #ffffff;">We&rsquo;re here, ready to talk</a></p>
-                  </td>
-                </tr>
-            </table>
-            <!--[if (gte mso 9)|(IE)]>
-            </td>
-            </tr>
-            </table>
-            <![endif]-->
-        </td>
-    </tr>
-    <!-- FOOTER -->
-    <tr>
-        <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
-            <!--[if (gte mso 9)|(IE)]>
-            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
-            <tr>
-            <td align="center" valign="top" width="600">
-            <![endif]-->
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" >
               <!-- NAVIGATION -->
               <tr>
-                <td bgcolor="#f4f4f4" align="left" style="padding: 30px 30px 30px 30px; color: #666666; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
-                  <p style="margin: 0;">
-                    <a href="https://freesewing.org" target="_blank" style="color: #111111; font-weight: 700;">Home</a> -
-                    <a href="https://twitter.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Twitter</a> -
-                    <a href="https://instagram.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Instagram</a> -
-                    <a href="https://github.com/freesewing" target="_blank" style="color: #111111; font-weight: 700;">GitHub</a>
-                  </p>
+                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 0 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
+                  <p style="margin: 0;"><a href="https://freesewing.org" target="_blank" style="color: #111111; font-weight: 700;">Freesewing</a></p>
                 </td>
               </tr>
               <!-- PERMISSION REMINDER -->
               <tr>
-                <td bgcolor="#f4f4f4" align="left" style="padding: 0px 30px 30px 30px; color: #666666; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 200; line-height: 18px;" >
-                  <p style="margin: 0;">You received this email because you changed the email address associated with your account.</p>
-                </td>
-              </tr>
-              <!-- ADDRESS -->
-              <tr>
-                <td bgcolor="#f4f4f4" align="left" style="padding: 0px 30px 30px 30px; color: #666666; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
-                  <p style="margin: 0;">Freesewing is an open source platform for made-to-measure sewing patterns</p>
+                <td bgcolor="#ffffff" align="left" style="padding: 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
+                    <p style="margin: 0;">You've moved. Good for you. Now please confirm your new address.<br><hr></p>
                 </td>
               </tr>
             </table>
@@ -228,6 +140,111 @@
     </tr>
 </table>
 
+<!-- ONE COLUMN SECTION -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+        <td bgcolor="#ffffff" align="center" style="padding: 10px 15px 40px 15px;" class="section-padding">
+            <table border="0" cellpadding="0" cellspacing="0" width="500" class="responsive-table">
+                <tr>
+                    <td>
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td>
+                                    <!-- COPY -->
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                          <td align="left" style="font-size: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C; padding-top: 30px;" class="padding-copy">Hello __USERNAME__</td>
+                                        </tr>
+                                        <tr>
+                                          <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
+                                          Please confirm your new email address (__NEW_ADDRESS__) by clicking the button below:
+                                          </td>
+                                        </tr>
+                                        <!-- BULLETPROOF BUTTON -->
+                                        <tr>
+                                          <td bgcolor="#ffffff" align="left">
+                                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                              <tr>
+                                                <td bgcolor="#ffffff" align="center" style="padding: 30px 30px 30px 30px;">
+                                                  <table border="0" cellspacing="0" cellpadding="0">
+                                                    <tr>
+                                                        <td align="center" style="border-radius: 3px;" bgcolor="#663F95"><a href="__LINK__" target="_blank" style="font-size: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #663F95; display: inline-block;">Confirm address</a></td>
+                                                    </tr>
+                                                  </table>
+                                                </td>
+                                              </tr>
+                                            </table>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td align="left" style="padding: 0 0 0 0; font-size: 16px; line-height: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
+                                          If that doesn't work, copy and paste the following link in your browser:
+                                          <br><br>
+                                          __LINK___
+                                          <br><br>
+                                          If you have any questions, just reply to this email . I'm always happy to help out.
+                                          <br><br>
+                                          Love,<br>Joost
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                          <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
+                                              <small>PS: Note that your current address (__OLD_ADDRESS__) is in CC. Once you confirm __NEW_ADDRESS__ as your new address, no more emails will be sent to __OLD_ADDRESS__</small>
+
+                                          </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <!-- FOOTER -->
+    <tr>
+        <td bgcolor="#ffffff" align="center" style="padding: 0px 15px 0px 15px;">
+            <!--[if (gte mso 9)|(IE)]>
+            <table align="center" border="0" cellspacing="0" cellpadding="0" width="600">
+            <tr>
+            <td align="center" valign="top" width="600">
+            <![endif]-->
+            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" >
+              <!-- NAVIGATION -->
+              <tr>
+                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 20px 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
+                  <p style="margin: 0;">
+                    <a href="https://freesewing.org" target="_blank" style="color: #111111; font-weight: 700;">Home</a> -
+                    <a href="https://twitter.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Twitter</a> -
+                    <a href="https://instagram.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Instagram</a> -
+                    <a href="https://github.com/freesewing" target="_blank" style="color: #111111; font-weight: 700;">GitHub</a>
+                  </p>
+                </td>
+              </tr>
+              <!-- PERMISSION REMINDER -->
+              <tr>
+                <td bgcolor="#ffffff" align="left" style="padding: 0 0 30px 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
+                    <p style="margin: 0;">
+                    You received this email because you changed the email address associated with your account on freesewing.org
+                    <br><br>
+                    Freesewing is an open source platform for made-to-measure sewing patterns<br>Made with love by Joost De Cock
+                    </p>
+                </td>
+              </tr>
+            </table>
+            <!--[if (gte mso 9)|(IE)]>
+            </td>
+            </tr>
+            </table>
+            <![endif]-->
+        </td>
+    </tr>
+</table>
+
+
 </body>
 </html>
-

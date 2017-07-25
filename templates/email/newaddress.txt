@@ -1,19 +1,23 @@
 Hello __USERNAME__
 
-It seems you forgot your password. 
-No worries, simply click the link below to regain access to your account:
+Please confirm your new email address (__NEW_ADDRESS__) by clicking the link below:
 
 __LINK__
 
 If that doesn't work, you can copy and paste the link in your browser.
 
 
-If you have any questions, just reply to this email — I'm always happy to help out.
+Note that your current address (__OLD_ADDRESS__) is in CC. 
+Once you confirm __NEW_ADDRESS__ as your new address, we'll never email __OLD_ADDRESS__ again.
+
+If you have any questions, just reply to this email. I'm always happy to help out.
 
 Love,
-
 Joost
 
 --
-You received this email because you forgot your password.
-Freesewing is an open source platform for made-to-measure sewing patterns.
+You received this email because you changed the email address associated with your account on freesewing.org
+
+Freesewing is an open source platform for made-to-measure sewing patterns
+Made with love by Joost De Cock 
+
