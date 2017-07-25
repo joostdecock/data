@@ -15,5 +15,8 @@ Love,
 Joost
 
 --
-You received this email because you forgot your password.
-Freesewing is an open source platform for made-to-measure sewing patterns.
+You received this email because you forgot your password
+
+Freesewing is an open source platform for made-to-measure sewing patterns
+Made with love by Joost De Cock 
+
