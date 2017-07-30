@@ -130,7 +130,7 @@ class MigrationKit
         $newModel->setNotes('
 #### This model was migrated from makemypattern.com
 
-Please make sure to read up on the [caveats for migrated model data](/caveats/migration).
+Please make sure to read up on the [caveats for migrated model data](/docs/site/makemypattern-migration-caveats).
 ');
 
         // Save model
