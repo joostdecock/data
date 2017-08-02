@@ -48,6 +48,9 @@ class CommentController
         $in->comment = $this->scrub($request,'comment');
         $in->parent = $this->scrub($request,'parent');
         
+        // Strip trailing slashes
+        if(substr($in->page,-1) == '/') $in->page = substr($in->page,0,-1);
+
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
         
@@ -75,6 +78,9 @@ class CommentController
         // Handle request
         $in = new \stdClass();
         $in->page = '/'.filter_var($args['page'], FILTER_SANITIZE_STRING);
+        
+        // Strip trailing slashes
+        if(substr($in->page,-1) == '/') $in->page = substr($in->page,0,-1);
         
         $comments = $this->loadPageComments($in->page);
         
@@ -118,6 +124,9 @@ class CommentController
     } 
     private function loadPageComments($page)
     {
+        // Strip trailing slashes
+        if(substr($page,-1) == '/') $page = substr($page,0,-1);
+
         return $this->loadComments('page', $page);
     }
 
