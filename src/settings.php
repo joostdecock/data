@@ -28,6 +28,7 @@ return [
         'mailgun' => [
             'api_key' => getenv('MAILGUN_KEY'),
             'template_path' => dirname(__DIR__) . '/templates/email',
+            'instance' => getenv('MAILGUN_INSTANCE'),
         ],
 
         // Storage settings

@@ -87,6 +87,33 @@ class MailKit
         ]);
     }
 
+    public function commentNotify($user, $comment, $parentAuthor, $parentComment)
+    {
+        // Mailgun API instance
+        $mg = $this->initApi();
+
+        $instance = $this->container['settings']['mailgun']['instance'];
+        if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
+        else $replyTo = $this->container['settings']['mailgun']['instance'].'.comment@mg.freesewing.org';
+
+        $templateData = [
+            'user' => $user->getUsername(), 
+            'comment' => $comment->getComment(), 
+            'parentComment' => $parentComment->getComment(), 
+            'commentLink' => $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId(), 
+            'parentCommentLink' => $this->container['settings']['app']['site'].$parentComment->getPage().'#comment-'.$parentComment->getId(), 
+        ];
+
+        return $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $parentAuthor->getEmail(), 
+          'subject' => $user->getUsername().' replied to your comment [comment#'.$comment->getId().']', 
+          'h:Reply-To' => $replyTo,
+          'text'    => $this->loadTemplate("comment.reply.txt", $user, $templateData),
+          'html'    => $this->loadTemplate("comment.reply.html", $user, $templateData),
+        ]);
+    }
+
     private function loadTemplate($template, $user, $data=null)
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
@@ -108,6 +135,11 @@ class MailKit
         case 'recover.html':
             array_push($search, '__LINK__');
             array_push($replace, $this->container['settings']['app']['site'].'/reset#'.$user->getHandle().'.'.$user->getResetToken());
+            break;
+        case 'comment.reply.txt':
+        case 'comment.reply.html':
+            array_push($search, '__AUTHOR__','__COMMENT__','__COMMENT_LINK__','__PARENT_COMMENT__','__PARENT_COMMENT_LINK__');
+            array_push($replace, $data['user'], $data['comment'], $data['commentLink'], $data['parentComment'], $data['parentCommentLink']);
             break;
         default:
             array_push($search, '__LINK__');

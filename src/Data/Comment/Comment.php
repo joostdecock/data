@@ -209,6 +209,7 @@ class Comment
         return $db->exec($sql);
     }
     
+
     /** Remove a comment */
     public function remove() 
     {

@@ -54,6 +54,9 @@ $app->post('/referral', 'ReferralController:log');
 // Load shared draft
 $app->get('/shared/draft/{handle}', 'DraftController:loadShared');
 
+// Reply to comment via email
+$app->post('/email/comment', 'CommentController:emailReply');
+
 /************************/
 /* Authenticated routes */
 /************************/
