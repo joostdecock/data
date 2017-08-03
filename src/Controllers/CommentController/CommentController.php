@@ -64,7 +64,20 @@ class CommentController
         $comment->setComment($in->comment);
         if($in->parent) $comment->setParent($in->parent);
         $comment->create($user);
-        
+
+        // Notify if needed
+        if($in->parent) {
+            // Load parent comment
+            $parentComment = clone $this->container->get('Comment');
+            $parentComment->load($in->parent);
+            // Load parent author
+            $parentAuthor = clone $this->container->get('User');
+            $parentAuthor->loadFromId($parentComment->getUser());
+            // Send email 
+            $mailKit = $this->container->get('MailKit');
+            $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+        }
+
         return $this->prepResponse($response, [
             'result' => 'ok', 
             'message' => 'comment/created',
@@ -121,7 +134,51 @@ class CommentController
             'result' => 'ok', 
             'reason' => 'comment_removed', 
         ]);
-    } 
+    }
+
+    /** Email reply */
+    public function emailReply($request, $response, $args)
+    {
+        // Get info from Mailgun POST
+        $in = new \stdClass();
+        $in->sender = $this->scrub($request,'sender');
+        $in->subject = $this->scrub($request,'subject');
+        $in->comment = $this->scrub($request,'stripped-text');
+        
+        // Load the user from email address
+        $user = $this->container->get('User');
+        $user->loadFromEmail($in->sender);
+
+        // Load the parent comment
+        preg_match('/\[comment\#(\d+)\]/',$in->subject, $match);
+        $parentId = $match[1];
+        $parentComment = $this->container->get('Comment');
+        $parentComment->load($parentId);
+
+        // Get a comment instance from the container, set info and store
+        $comment = clone $this->container->get('Comment');
+        $comment->setPage($parentComment->getPage());
+        $comment->setComment($in->comment);
+        $comment->setParent($parentId);
+        $comment->create($user);
+
+        // Notify 
+        // Load parent author
+        $parentAuthor = clone $this->container->get('User');
+        $parentAuthor->loadFromId($parentComment->getUser());
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'message' => 'comment/created',
+            'id' => $comment->getId(),
+        ]);
+
+    }
+
+
     private function loadPageComments($page)
     {
         // Strip trailing slashes
