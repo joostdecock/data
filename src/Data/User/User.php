@@ -484,4 +484,28 @@ class User
         } 
         return $drafts;
     }
+
+    /** Adds a badge to the user */
+    public function addBadge($badge)
+    {
+        $data = $this->getData();
+        if(isset($data->badges->$badge)) return false;
+
+        if(!isset($data->badges)) $data->badges = new  \stdClass();
+        $data->badges->$badge = true;
+
+        return true;
+    }
+
+    /** Removes a badge from the user */
+    public function removeBadge($badge)
+    {
+        $data = $this->getData();
+        if(!isset($data->badges->$badge)) return true;
+        if(!isset($data->badges)) return true;
+        
+        unset($data->badges->$badge);
+
+        return true;
+    }
 }

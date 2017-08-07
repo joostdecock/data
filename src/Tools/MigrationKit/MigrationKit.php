@@ -56,7 +56,8 @@ class MigrationKit
         // Mark user as migrated
         $user->setMigrated(date("Y-m-d H:i:s", $this->account->created));
 
-        // Save user
+        // Add migration badge and save user
+        $user->addBadge('makemypattern');
         $user->save();
 
         // Migrating models

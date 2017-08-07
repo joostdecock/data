@@ -52,6 +52,9 @@ return [
             'female_measurements' => ['underBust'],
             'motd' => 'Please keep in mind that freesewing.org is in beta',
         ],
+        'badges' => [
+            'login' => '2017',
+        ],
 
         // Migration settings
         'mmp' => [

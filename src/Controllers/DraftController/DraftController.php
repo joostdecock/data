@@ -54,6 +54,7 @@ class DraftController
         $in = new \stdClass();
         $in->model = $this->scrub($request,'model');
         $in->handle = $this->scrub($request,'draft');
+        $in->fork = $this->scrub($request,'fork');
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -83,9 +84,13 @@ class DraftController
         if($recreate) {
             $draft->loadFromHandle($in->handle);
             $draft->recreate($request->getParsedBody(), $user, $model);
+        } else {
+            $draft->create($request->getParsedBody(), $user, $model);
+            $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
+            // Add badge is needed
+            if($in->fork) if($user->addBadge('fork')) $user->save();
+            else if($user->addBadge('draft')) $user->save();
         }
-        else $draft->create($request->getParsedBody(), $user, $model);
-        $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
         
         return $this->prepResponse($response, [
             'result' => 'ok', 
