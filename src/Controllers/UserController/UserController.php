@@ -40,6 +40,7 @@ class UserController
         // Add badge if needed
         if(isset($this->container['settings']['badges']['login'])) {
             // Get ID from authentication middleware
+            $in = new \stdClass();
             $in->id = $request->getAttribute("jwt")->user;
             // Get a user instance from the container
             $user = $this->container->get('User');
