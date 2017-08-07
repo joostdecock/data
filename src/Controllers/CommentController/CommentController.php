@@ -211,6 +211,7 @@ class CommentController
             `comments`.`parent`,
             `users`.`username`,
             `users`.`picture`,
+            `users`.`data`,
             `users`.`handle` as userhandle
             from `comments`,`users` 
             WHERE `comments`.`user` = `users`.`id` AND
@@ -223,6 +224,9 @@ class CommentController
             $avatarKit = $this->container->get('AvatarKit');
             foreach($result as $key => $val) {
                 $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
+                $data = json_decode($val->data);
+                if(isset($data->badges)) $val->badges = $data->badges;
+                unset($val->data);
                 $comments[$val->id] = $val;
             }
         } 
