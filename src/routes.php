@@ -62,12 +62,7 @@ $app->post('/email/comment', 'CommentController:emailReply');
 /************************/
 
 // Check for authenticated user
-$app->get('/auth', function ($request, $response) {
-    $settings = require __DIR__ . '/../src/settings.php';
-    $response->getBody()->write(json_encode(['result' => 'ok']));
-    return $response
-        ->withHeader('Access-Control-Allow-Origin', $settings['settings']['app']['origin']);
-});
+$app->get('/auth', 'UserController:auth');
 
 // User login
 $app->post('/login', 'UserController:login');
@@ -80,6 +75,18 @@ $app->put('/account', 'UserController:update');
 
 // Delete user account
 $app->delete('/account', 'UserController:remove');
+
+// Load user profile data
+$app->get('/profile/{handle}', 'UserController:profile');
+
+// Load user role
+$app->get('/role', 'UserController:role');
+
+// Add badge to user profile
+$app->post('/badge', 'UserController:addBadge');
+
+// Remove badge from user profile
+$app->delete('/badge', 'UserController:removeBadge');
 
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');

@@ -32,7 +32,31 @@ class UserController
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
-   
+
+    /** Minimal auth check */
+    public function auth($request, $response, $args)
+    {
+        $return = false;
+        // Add badge if needed
+        if(isset($this->container['settings']['badges']['login'])) {
+            // Get ID from authentication middleware
+            $in->id = $request->getAttribute("jwt")->user;
+            // Get a user instance from the container
+            $user = $this->container->get('User');
+            $user->loadFromId($in->id);
+            if($user->addBadge($this->container['settings']['badges']['login'])) {
+                $user->save();
+                $return = ['result' => 'ok', 'new_badge' => $this->container['settings']['badges']['login']];
+            }
+        }
+    
+        if(!$return) $return = ['result' => 'ok'];
+        $response->getBody()->write(json_encode($return));
+
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin']);
+    }
+
     /** User password reset */
     public function reset($request, $response, $args) {
         // Handle request data 
@@ -242,6 +266,59 @@ class UserController
             'message' => 'account/updated',
             'pendingEmail' => $pendingEmail,
             'data' => json_encode($data),
+        ]);
+    }
+    
+    /** Removes badge from user profile */
+    public function removeBadge($request, $response, $args) 
+    {
+        return $this->addBadge($request, $response, $args, true);
+    }
+
+    /** Add badge to user profile */
+    public function addBadge($request, $response, $args, $remove=false) 
+    {
+        if($remove) $verb = 'remove';
+        else $verb = 'add';
+
+        // Handle request
+        $in = new \stdClass();
+        $in->userHandle = $this->scrub($request,'user');
+        $in->badge = $this->scrub($request,'badge');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to $verb badge: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+
+        // Add badge and save
+        if($remove) $user->removeBadge($in->badge);
+        else $user->addBadge($in->badge);
+        $user->save();
+        $logger->info("Badge ".$in->badge." $verb"."ed to user ".$user->getId());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'badges' => $user->getData()->badges
         ]);
     }
 
@@ -589,6 +666,46 @@ class UserController
             'models' => $user->getModels(),
             'drafts' => $user->getDrafts(),
         ]);
+    } 
+
+    /** Load user profile */
+    public function profile($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromHandle($in->handle);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        return $this->prepResponse($response, [
+            'profile' => [
+                'username' => $user->getUsername(), 
+                'handle' => $user->getHandle(), 
+                'status' => $user->getStatus(), 
+                'created' => $user->getCreated(), 
+                'migrated' => $user->getMigrated(), 
+                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
+            ],
+            'badges' => $user->getData()->badges,
+            'drafts' => $user->getDrafts(),
+        ]);
+    } 
+
+    public function role($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        return $this->prepResponse($response, ['role' => $user->getRole()]);
     } 
 
     /** Remove account */

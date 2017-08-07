@@ -75,6 +75,9 @@ class ModelController
         $model->setUnits($user->getData()->account->units);
         $model->save();
 
+        // Add badge if needed
+        if($user->addBadge('model')) $user->save();
+
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
 

@@ -62,8 +62,14 @@ class CommentController
         $comment = $this->container->get('Comment');
         $comment->setPage($in->page);
         $comment->setComment($in->comment);
-        if($in->parent) $comment->setParent($in->parent);
+        if($in->parent) {
+            $comment->setParent($in->parent);
+            $user->addBadge('replied');
+        } else {
+            $user->addBadge('commented');
+        }
         $comment->create($user);
+        $user->save();
 
         // Notify if needed
         if($in->parent) {
