@@ -668,6 +668,38 @@ class UserController
         ]);
     } 
 
+    /** List user accounts */
+    public function userlist($request, $response, $args) 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT 
+            `users`.`username`,
+            `users`.`picture`,
+            `users`.`data`,
+            `users`.`created`,
+            `users`.`handle` as userhandle
+            from `users` 
+            WHERE `users`.`status` = 'active'
+            ORDER BY `CREATED` DESC
+            LIMIT 50";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        if(!$result) return false;
+        else {
+            // Get the AvatarKit to get the avatar url
+            $avatarKit = $this->container->get('AvatarKit');
+            foreach($result as $key => $val) {
+                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
+                $data = json_decode($val->data);
+                if(isset($data->badges)) $val->badges = $data->badges;
+                unset($val->data);
+                $users[$val->userhandle] = $val;
+            }
+        } 
+
+        return $this->prepResponse($response, [ 'users' => $users ]);
+    }
+
     /** Load user profile */
     public function profile($request, $response, $args) 
     {
