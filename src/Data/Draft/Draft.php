@@ -233,25 +233,33 @@ class Draft
     {
         // Passing model measurements to core
         foreach($model->getData()->measurements as $key => $val) {
+            if(strtolower($model->getUnits()) != strtolower($in['userUnits'])) {
+                // Measurements need to be converted
+                if(strtolower($model->getUnits() == 'imperial')) $val = $val * 2.54;
+                else $val = $val / 2.54;
+            }
             $in[$key] = $val;
             $data['measurements'][$key] = $val;
         }
-        $data['options'] = $in;
-        $data['units'] = $model->getUnits();
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
         // Get the HandleKit to create the handle
         $handleKit = $this->container->get('HandleKit');
         $this->setHandle($handleKit->create('draft'));
         
         // Pass units and handle to core
-        $in['unitsIn'] = strtolower($model->getUnits());
-        $in['unitsOut'] = strtolower($model->getUnits());
+        $in['unitsIn'] = strtolower($in['userUnits']);
+        $in['unitsOut'] = strtolower($in['userUnits']);
         $in['reference'] = $this->getHandle();
 
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
+        
+        // Prep data
+        $data['options'] = $in;
+        $data['units'] = strtolower($in['userUnits']);
+        $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
         
         // Getting compare from core
         $in['service'] = 'compare';
@@ -324,9 +332,6 @@ class Draft
             $in[$key] = $val;
             $data['measurements'][$key] = $val;
         }
-        $data['options'] = $in;
-        $data['units'] = $model->getUnits();
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
             
         // Pass units and handle to core
         $in['unitsIn'] = strtolower($model->getUnits());
@@ -336,6 +341,14 @@ class Draft
         // Getting draft from core
         $in['service'] = 'draft';
         $this->setSvg($this->getDraft($in));
+        
+        // Prep data
+        $data['options'] = $in;
+        $data['units'] = $model->getUnits();
+        $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        
+        // Getting compare from core
         $in['service'] = 'compare';
         $in['theme'] = 'Compare';
         $this->setCompared($this->getDraft($in));
