@@ -57,6 +57,12 @@ $app->get('/shared/draft/{handle}', 'DraftController:loadShared');
 // Reply to comment via email
 $app->post('/email/comment', 'CommentController:emailReply');
 
+// Load page comments
+$app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
+
+// Load recent comments
+$app->get('/comments/recent/{count}', 'CommentController:recentComments');
+
 /************************/
 /* Authenticated routes */
 /************************/
@@ -120,9 +126,6 @@ $app->delete('/draft/{handle}', 'DraftController:remove');
 
 // Create comment
 $app->post('/comment', 'CommentController:create');
-
-// Create comment
-$app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
 
 // Remove comment
 $app->delete('/comment/{id}', 'CommentController:remove');

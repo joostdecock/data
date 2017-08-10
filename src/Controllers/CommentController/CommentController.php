@@ -110,6 +110,22 @@ class CommentController
         ]);
     }
 
+    /** Get recent comments */
+    public function recentComments($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->count = filter_var($args['count'], FILTER_SANITIZE_NUMBER_INT);
+        
+        $comments = $this->loadRecentComments($in->count);
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'count' => count($comments),
+            'comments' => $comments,
+        ]);
+    }
+
     /** Remove comment */
     public function remove($request, $response, $args) 
     {
@@ -191,6 +207,44 @@ class CommentController
         if(substr($page,-1) == '/') $page = substr($page,0,-1);
 
         return $this->loadComments('page', $page);
+    }
+
+    private function loadRecentComments($count)
+    {
+        if(!is_numeric($count)) $count = 5;
+        if($count > 100) $count = 100;
+        
+        $db = $this->container->get('db');
+        $sql = "SELECT 
+            `comments`.`id`,
+            `comments`.`user`,
+            `comments`.`comment`,
+            `comments`.`page`,
+            `comments`.`time`,
+            `comments`.`status`,
+            `users`.`username`,
+            `users`.`picture`,
+            `users`.`data`,
+            `users`.`handle` as userhandle
+            from `comments`,`users` 
+            WHERE `comments`.`user` = `users`.`id`
+            ORDER BY `comments`.`time` DESC LIMIT $count";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        if(!$result) return false;
+        else {
+            // Get the AvatarKit to get the avatar url
+            $avatarKit = $this->container->get('AvatarKit');
+            foreach($result as $key => $val) {
+                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
+                $data = json_decode($val->data);
+                if(isset($data->badges)) $val->badges = $data->badges;
+                unset($val->data);
+                $comments[$val->id] = $val;
+            }
+        } 
+
+        return $comments;
     }
 
     private function loadUserComments($user)
