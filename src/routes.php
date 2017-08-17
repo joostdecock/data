@@ -136,6 +136,9 @@ $app->get('/export/model/{handle}', 'ModelController:export');
 // Clone model 
 $app->post('/clone/model/{handle}', 'ModelController:klone');
 
+// Find users 
+$app->post('/find/users/{filter}', 'UserController:find');
+
 /*******************/
 /* Catch-all route */
 /*******************/
