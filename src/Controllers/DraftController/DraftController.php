@@ -134,6 +134,10 @@ class DraftController
         
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
+
+        // Logged in user could be an admin
+        $admin = clone $this->container->get('User');
+        $admin->loadFromId($id);
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
@@ -142,7 +146,7 @@ class DraftController
         $draft = $this->container->get('Draft');
         $draft->loadFromHandle($in->handle);
 
-        if($draft->getUser() != $id && !$draft->getShared()) {
+        if($draft->getUser() != $id && !$draft->getShared() && $admin->getRole() != 'admin') {
             // Not a draft that belongs to the user, nor is it shared
             $logger->info("Load blocked: User $id cannot load draft ".$in->handle);
             return $this->prepResponse($response, [
@@ -152,7 +156,7 @@ class DraftController
         }
         
         // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         // It's important to load the user owning the draft.
         // This may or may not be the logged-in user (if it's a shared draft)
         $user->loadFromId($draft->getUser());
@@ -164,9 +168,13 @@ class DraftController
         // Get the AvatarKit to get the avatar location
         $avatarKit = $this->container->get('AvatarKit');
 
+        if($admin->getRole() == 'admin') $asAdmin = true;
+        else $asAdmin = false;
+
         return $this->prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
+                'asAdmin' => $adAdmin,
                 'user' => $draft->getUser(), 
                 'userHandle' => $user->getHandle(), 
                 'pattern' => $draft->getPattern(), 
