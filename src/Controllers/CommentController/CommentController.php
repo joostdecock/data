@@ -76,18 +76,33 @@ class CommentController
             // Load parent comment
             $parentComment = clone $this->container->get('Comment');
             $parentComment->load($in->parent);
-            // Load parent author
-            $parentAuthor = clone $this->container->get('User');
-            $parentAuthor->loadFromId($parentComment->getUser());
-            // Send email 
-            $mailKit = $this->container->get('MailKit');
-            $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+            // Don't notify when replying to own comment
+            if($parentComment->getUser() != $user->getId()) {
+                // Load parent author
+                $parentAuthor = clone $this->container->get('User');
+                $parentAuthor->loadFromId($parentComment->getUser());
+                // Send email 
+                $mailKit = $this->container->get('MailKit');
+                $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+            }
+        }
+        if(substr($in->page,0,7) == '/users/') {
+            // Comment on profile page. Notify owner
+            $handle = substr($in->page,7);
+            if($handle != $user->getHandle()) {
+                // Get a user instance from the container
+                $profile = clone $this->container->get('User');
+                $profile->loadFromHandle($handle);
+                if(!isset($mailkit)) $mailKit = $this->container->get('MailKit');
+                $mailKit->profileCommentNotify($user, $comment, $profile);
+            }
         }
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
             'message' => 'comment/created',
             'id' => $comment->getId(),
+            'handle' => $handle,
         ]);
     }
 
@@ -102,6 +117,22 @@ class CommentController
         if(substr($in->page,-1) == '/') $in->page = substr($in->page,0,-1);
         
         $comments = $this->loadPageComments($in->page);
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'count' => count($comments),
+            'comments' => $comments,
+        ]);
+    }
+
+    /** Get recent comments */
+    public function recentComments($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->count = filter_var($args['count'], FILTER_SANITIZE_NUMBER_INT);
+        
+        $comments = $this->loadRecentComments($in->count);
         
         return $this->prepResponse($response, [
             'result' => 'ok', 
@@ -172,6 +203,12 @@ class CommentController
         // Load parent author
         $parentAuthor = clone $this->container->get('User');
         $parentAuthor->loadFromId($parentComment->getUser());
+        // Don't notify when replying to own comment
+        if($parentComment->getUser() != $user->getId()) {
+            // Send email 
+            $mailKit = $this->container->get('MailKit');
+            $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+        }
         // Send email 
         $mailKit = $this->container->get('MailKit');
         $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
@@ -191,6 +228,44 @@ class CommentController
         if(substr($page,-1) == '/') $page = substr($page,0,-1);
 
         return $this->loadComments('page', $page);
+    }
+
+    private function loadRecentComments($count)
+    {
+        if(!is_numeric($count)) $count = 5;
+        if($count > 100) $count = 100;
+        
+        $db = $this->container->get('db');
+        $sql = "SELECT 
+            `comments`.`id`,
+            `comments`.`user`,
+            `comments`.`comment`,
+            `comments`.`page`,
+            `comments`.`time`,
+            `comments`.`status`,
+            `users`.`username`,
+            `users`.`picture`,
+            `users`.`data`,
+            `users`.`handle` as userhandle
+            from `comments`,`users` 
+            WHERE `comments`.`user` = `users`.`id`
+            ORDER BY `comments`.`time` DESC LIMIT $count";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        if(!$result) return false;
+        else {
+            // Get the AvatarKit to get the avatar url
+            $avatarKit = $this->container->get('AvatarKit');
+            foreach($result as $key => $val) {
+                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
+                $data = json_decode($val->data);
+                if(isset($data->badges)) $val->badges = $data->badges;
+                unset($val->data);
+                $comments[$val->id] = $val;
+            }
+        } 
+
+        return $comments;
     }
 
     private function loadUserComments($user)

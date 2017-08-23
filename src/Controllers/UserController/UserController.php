@@ -701,6 +701,65 @@ class UserController
         return $this->prepResponse($response, [ 'users' => $users ]);
     }
 
+    /** Find user accounts */
+    public function find($request, $response, $args) 
+    {
+        // Handle request data 
+        $filter = filter_var($args['filter'], FILTER_SANITIZE_STRING);
+        
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $admin = $this->container->get('User');
+        $admin->loadFromId($id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            // Get a logger instance from the container
+            $logger = $this->container->get('logger');
+            $logger->info("Failed to find users: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        $db = $this->container->get('db');
+
+        $sql = "SELECT 
+            `users`.`email`,
+            `users`.`username`,
+            `users`.`picture`,
+            `users`.`data`,
+            `users`.`created`,
+            `users`.`handle` as userhandle
+            from `users` 
+            WHERE `users`.`username` LIKE ".$db->quote("%$filter%")."
+            OR `users`.`email` LIKE ".$db->quote("%$filter%")."
+            OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
+            ORDER BY `CREATED` DESC
+            LIMIT 50";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+
+        if(!$result) return false;
+        else {
+            // Get the AvatarKit to get the avatar url
+            $avatarKit = $this->container->get('AvatarKit');
+            foreach($result as $key => $val) {
+                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
+                $data = json_decode($val->data);
+                if(isset($data->badges)) $val->badges = $data->badges;
+                unset($val->data);
+                $users[$val->userhandle] = $val;
+            }
+        } 
+
+        return $this->prepResponse($response, [ 'users' => $users, 'filter' => $filter ]);
+    }
+
+
     /** Load user profile */
     public function profile($request, $response, $args) 
     {

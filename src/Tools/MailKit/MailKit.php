@@ -114,6 +114,33 @@ class MailKit
         ]);
     }
 
+
+    public function profileCommentNotify($user, $comment, $profile)
+    {
+        // Mailgun API instance
+        $mg = $this->initApi();
+
+        $instance = $this->container['settings']['mailgun']['instance'];
+        if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
+        else $replyTo = $this->container['settings']['mailgun']['instance'].'.comment@mg.freesewing.org';
+
+        $templateData = [
+            'user' => $user->getUsername(), 
+            'comment' => $comment->getComment(), 
+            'commentLink' => $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId(), 
+        ];
+
+        return $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $profile->getEmail(), 
+          'subject' => $user->getUsername().' commented on your profile page [comment#'.$comment->getId().']', 
+          'h:Reply-To' => $replyTo,
+          'text'    => $this->loadTemplate("profilecomment.reply.txt", $user, $templateData),
+          'html'    => $this->loadTemplate("profilecomment.reply.html", $user, $templateData),
+        ]);
+    }
+
+
     private function loadTemplate($template, $user, $data=null)
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
@@ -140,6 +167,11 @@ class MailKit
         case 'comment.reply.html':
             array_push($search, '__AUTHOR__','__COMMENT__','__COMMENT_LINK__','__PARENT_COMMENT__','__PARENT_COMMENT_LINK__');
             array_push($replace, $data['user'], $data['comment'], $data['commentLink'], $data['parentComment'], $data['parentCommentLink']);
+            break;
+        case 'profilecomment.reply.txt':
+        case 'profilecomment.reply.html':
+            array_push($search, '__AUTHOR__','__COMMENT__','__COMMENT_LINK__');
+            array_push($replace, $data['user'], $data['comment'], $data['commentLink']);
             break;
         default:
             array_push($search, '__LINK__');
