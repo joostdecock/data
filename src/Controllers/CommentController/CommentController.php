@@ -76,18 +76,33 @@ class CommentController
             // Load parent comment
             $parentComment = clone $this->container->get('Comment');
             $parentComment->load($in->parent);
-            // Load parent author
-            $parentAuthor = clone $this->container->get('User');
-            $parentAuthor->loadFromId($parentComment->getUser());
-            // Send email 
-            $mailKit = $this->container->get('MailKit');
-            $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+            // Don't notify when replying to own comment
+            if($parentComment->getUser() != $user->getId()) {
+                // Load parent author
+                $parentAuthor = clone $this->container->get('User');
+                $parentAuthor->loadFromId($parentComment->getUser());
+                // Send email 
+                $mailKit = $this->container->get('MailKit');
+                $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+            }
+        }
+        if(substr($in->page,0,7) == '/users/') {
+            // Comment on profile page. Notify owner
+            $handle = substr($in->page,7);
+            if($handle != $user->getHandle()) {
+                // Get a user instance from the container
+                $profile = clone $this->container->get('User');
+                $profile->loadFromHandle($handle);
+                if(!isset($mailkit)) $mailKit = $this->container->get('MailKit');
+                $mailKit->profileCommentNotify($user, $comment, $profile);
+            }
         }
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
             'message' => 'comment/created',
             'id' => $comment->getId(),
+            'handle' => $handle,
         ]);
     }
 
@@ -188,9 +203,12 @@ class CommentController
         // Load parent author
         $parentAuthor = clone $this->container->get('User');
         $parentAuthor->loadFromId($parentComment->getUser());
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+        // Don't notify when replying to own comment
+        if($parentComment->getUser() != $user->getId()) {
+            // Send email 
+            $mailKit = $this->container->get('MailKit');
+            $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
+        }
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
