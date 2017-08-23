@@ -759,6 +759,7 @@ class UserController
         return $this->prepResponse($response, [ 'users' => $users, 'filter' => $filter ]);
     }
 
+
     /** Load user profile */
     public function profile($request, $response, $args) 
     {

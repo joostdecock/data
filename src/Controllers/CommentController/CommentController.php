@@ -209,6 +209,9 @@ class CommentController
             $mailKit = $this->container->get('MailKit');
             $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
         }
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
