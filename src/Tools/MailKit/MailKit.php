@@ -114,6 +114,7 @@ class MailKit
         ]);
     }
 
+
     public function profileCommentNotify($user, $comment, $profile)
     {
         // Mailgun API instance
@@ -138,6 +139,7 @@ class MailKit
           'html'    => $this->loadTemplate("profilecomment.reply.html", $user, $templateData),
         ]);
     }
+
 
     private function loadTemplate($template, $user, $data=null)
     {
