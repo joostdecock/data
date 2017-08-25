@@ -50,7 +50,8 @@ class MigrationKit
         // Migrate user picture
         $avatarKit = $this->container->get('AvatarKit');
         if(isset($this->account->picture) && $this->account->picture != '') {
-            $user->setPicture($avatarKit->createFromMmp(json_decode($this->account->picture), $user->getHandle(), 'user')); 
+            $avatar = $avatarKit->createFromMmp(json_decode($this->account->picture), $user->getHandle(), 'user');
+            if($avatar !== false) $user->setPicture($avatar);
         }
 
         // Mark user as migrated
