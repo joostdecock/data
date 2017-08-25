@@ -97,6 +97,10 @@ class AvatarKit
         // If it's one of our auto-generated SVGs, simply copy
         if(substr($uri,-4) == '.svg') return $this->saveAvatar($handle.'.svg', file_get_contents($uri), $userHandle, $type, $typeHandle);
 
+        // Does the uri load?
+        $headers = @get_headers($uri);
+        if(strpos($headers[0],'200')===false) return false;
+
         // Imagick instance with the user's picture
         $imagick = new \Imagick($uri);
 
