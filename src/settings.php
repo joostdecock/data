@@ -52,13 +52,10 @@ return [
             'female_measurements' => ['underBust'],
             'motd' => '
 **Tip**: These are your notes.
-You can write whatever you want here.  
-
-### Yay, launch day!
-![Yay, launch day!](/img/launch-day.gif)',
+You can write whatever you want here.',  
         ],
         'badges' => [
-            'login' => 'launch-day',
+            'login' => '2017',
         ],
 
         // Migration settings
