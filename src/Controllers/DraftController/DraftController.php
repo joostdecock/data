@@ -174,7 +174,7 @@ class DraftController
         return $this->prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
-                'asAdmin' => $adAdmin,
+                'asAdmin' => $asAdmin,
                 'user' => $draft->getUser(), 
                 'userHandle' => $user->getHandle(), 
                 'pattern' => $draft->getPattern(), 
