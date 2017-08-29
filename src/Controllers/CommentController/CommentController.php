@@ -96,7 +96,7 @@ class CommentController
                 if(!isset($mailkit)) $mailKit = $this->container->get('MailKit');
                 $mailKit->profileCommentNotify($user, $comment, $profile);
             }
-        }
+        } else $handle = false;
 
         return $this->prepResponse($response, [
             'result' => 'ok', 

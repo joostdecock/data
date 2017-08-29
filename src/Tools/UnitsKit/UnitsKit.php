@@ -34,19 +34,13 @@ class UnitsKit
     {
         // Do we have a fraction?
         if(!strpos($value,'/')) return floatval(rtrim($value));
-        $fp = fopen('/tmp/debug.log/','w');
-        fwrite($fp, "Val is $val");
-
 
         $parts = $this->asScrubbedArray($value,'/');
 
-        fwrite($fp,print_r($parts,1));
         $divider = $parts[1];
         $parts = $this->asScrubbedArray($parts[0],' ');
         $inches = $parts[0];
         $fraction = $parts[1];
-        fwrite($fp,print_r($parts,1));
-        fclose($fp);
 
         return $inches + ($fraction/$divider);
     }
