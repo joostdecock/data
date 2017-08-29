@@ -348,6 +348,7 @@ class DraftController
     /** Download draft */
     public function download($request, $response, $args) 
     {
+        $in = new \stdClass();
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         $in->format = filter_var($args['format'], FILTER_SANITIZE_STRING);
 
