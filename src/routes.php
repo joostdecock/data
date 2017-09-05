@@ -91,12 +91,6 @@ $app->get('/role', 'UserController:role');
 // Load user list
 $app->get('/users', 'UserController:userlist');
 
-// Add badge to user profile
-$app->post('/badge', 'UserController:addBadge');
-
-// Remove badge from user profile
-$app->delete('/badge', 'UserController:removeBadge');
-
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');
 
@@ -138,6 +132,19 @@ $app->post('/clone/model/{handle}', 'ModelController:klone');
 
 // Find users 
 $app->post('/find/users/{filter}', 'UserController:find');
+
+/****************/
+/* Admin routes */
+/****************/
+
+// Add badge to user profile
+$app->post('/admin/badge', 'UserController:addBadge');
+
+// Remove badge from user profile
+$app->delete('/admin/badge', 'UserController:removeBadge');
+
+// Set new user password (by admin)
+$app->put('/admin/password', 'UserController:setPassword');
 
 /*******************/
 /* Catch-all route */

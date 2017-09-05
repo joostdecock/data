@@ -270,6 +270,48 @@ class UserController
         ]);
     }
     
+    /** Set password (by admin) */
+    public function setPassword($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->password = filter_var($request->getParsedBody()['password'], FILTER_SANITIZE_STRING);
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set password: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setPassword($in->password);
+        $user->save();
+        $logger->info("Password for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
     /** Removes badge from user profile */
     public function removeBadge($request, $response, $args) 
     {
