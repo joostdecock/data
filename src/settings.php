@@ -45,7 +45,7 @@ return [
                 'live.nl',
                 'msn.com',
                 'outlook.com',
-                'ep.europa.eu',
+                'snkmail.com',
             ],
             'host' => 'smtp.gmail.com',
             'port' => 587,
