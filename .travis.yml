@@ -1,6 +1,5 @@
 language: php
 php:
-- '7.0.8'
 - '7.0.22'
 addons:
   apt:
