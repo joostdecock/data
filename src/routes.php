@@ -18,6 +18,9 @@ $app->get('/status', 'InfoController:status');
 /* Anonymous routes */
 /********************/
 
+// debug route - here for when you need it
+$app->get('/debug', 'UserController:debug');
+
 // Preflight requests 
 $app->options('/[{path:.*}]', function($request, $response, $path = null) {
     $settings = require __DIR__ . '/../src/settings.php';

@@ -28,6 +28,19 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+// swift mailer
+$container['SwiftMailer'] = function ($c) {
+    $settings = $c->settings['swiftmailer'];
+    $transport = (new \Swift_SmtpTransport())
+        ->setHost($settings['host'])
+        ->setPort($settings['port'])
+        ->setEncryption($settings['encryption'])
+        ->setUsername($settings['username'])
+        ->setPassword($settings['password'])
+    ;
+    return new \Swift_Mailer($transport);
+};
+
 $container['InfoController'] = function ($container) {
     return new \App\Controllers\InfoController($container);
 };
