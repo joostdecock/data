@@ -53,10 +53,9 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('SwiftMailer test subject'))
+            $message = (new \Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
-                  ->setBcc('joost@decock.org')
                   ->setBody($this->loadTemplate("signup.$template.txt", $user))
                   ->addPart($this->loadTemplate("signup.$template.sep.html", $user), 'text/html')
             ;
@@ -71,7 +70,7 @@ class MailKit
         // Mailgun API instance
         $mg = $this->initApi();
         
-        return $mg->messages()->send('mg.freesewing.org', [
+        $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $newEmailAddress, 
           'cc'      => $user->getEmail(), 
@@ -80,6 +79,23 @@ class MailKit
           'text'    => $this->loadTemplate("newaddress.txt", $user, $newEmailAddress),
           'html'    => $this->loadTemplate("newaddress.html", $user, $newEmailAddress),
         ]);
+        
+        // Also send through Gmail if it's a SEP domain
+        // SEP: Shitty email provider
+        if($this->isSep($user->getEmail()) || $this->isSep($newEmailAddress)) {
+            // Send email via swiftmailer 
+            $mailer = $this->container->get('SwiftMailer');
+            $message = (new \Swift_Message('Confirm your freesewing account'))
+                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
+                  ->setTo($newEmailAddress)
+                  ->setCc($user->getEmail())
+                  ->setBody($this->loadTemplate("newaddress.txt", $user, $newEmailAddress))
+                  ->addPart($this->loadTemplate("newaddress.sep.html", $user, $newEmailAddress), 'text/html')
+            ;
+            $mailer->send($message);
+        }
+
+        return true;
     }
 
     public function recover($user) 
@@ -87,7 +103,7 @@ class MailKit
         // Mailgun API instance
         $mg = $this->initApi();
         
-        return $mg->messages()->send('mg.freesewing.org', [
+        $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Regain access to your acount', 
@@ -95,6 +111,22 @@ class MailKit
           'text'    => $this->loadTemplate("recover.txt", $user),
           'html'    => $this->loadTemplate("recover.html", $user),
         ]);
+        
+        // Also send through Gmail if it's a SEP domain
+        // SEP: Shitty email provider
+        if($this->isSep($user->getEmail())) {
+            // Send email via swiftmailer 
+            $mailer = $this->container->get('SwiftMailer');
+            $message = (new \Swift_Message('Regain access to your acount'))
+                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
+                  ->setTo($user->getEmail())
+                  ->setBody($this->loadTemplate("recover.txt", $user))
+                  ->addPart($this->loadTemplate("recover.sep.html", $user), 'text/html')
+            ;
+            $mailer->send($message);
+        }
+
+        return true;
     }
 
     public function goodbye($user) 
