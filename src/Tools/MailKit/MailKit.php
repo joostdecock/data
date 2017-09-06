@@ -25,7 +25,7 @@ class MailKit
     /** Checks wheter an email address is from a shitty email provider (SEP) */
     private function isSep($email)
     {
-        if (in_array(substr($email, strrpos($email, '@')+1), $this->container['settings']['swiftmailer']['domains'])) return true
+        if (in_array(substr($email, strrpos($email, '@')+1), $this->container['settings']['swiftmailer']['domains'])) return true;
         else return false;
     }
 
