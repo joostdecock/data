@@ -22,6 +22,13 @@ class MailKit
         $this->container = $container;
     }
 
+    /** Checks wheter an email address is from a shitty email provider (SEP) */
+    private function isSep($email)
+    {
+        if (in_array(substr($email, strrpos($email, '@')+1), $this->container['settings']['swiftmailer']['domains'])) return true
+        else return false;
+    }
+
     public function signUp($user) 
     {
         // FIXME: Handle timeout of the mailgun API gracefully
@@ -31,7 +38,8 @@ class MailKit
         if($user->getMigrated() != null) $template= 'migrated';
         else $template = 'default';
 
-        return $mg->messages()->send('mg.freesewing.org', [
+        // Send through mailgun
+        $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Confirm your freesewing account', 
@@ -39,6 +47,23 @@ class MailKit
           'text'    => $this->loadTemplate("signup.$template.txt", $user),
           'html'    => $this->loadTemplate("signup.$template.html", $user),
         ]);
+
+        // Also send through Gmail if it's a SEP domain
+        // SEP: Shitty email provider
+        if($this->isSep($user->getEmail())) {
+            // Send email via swiftmailer 
+            $mailer = $this->container->get('SwiftMailer');
+            $message = (new \Swift_Message('SwiftMailer test subject'))
+                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
+                  ->setTo($user->getEmail())
+                  ->setBcc('joost@decock.org')
+                  ->setBody($this->loadTemplate("signup.$template.txt", $user))
+                  ->addPart($this->loadTemplate("signup.$template.sep.html", $user), 'text/html')
+            ;
+            $mailer->send($message);
+        }
+
+        return true;
     }
 
     public function emailChange($user, $newEmailAddress) 

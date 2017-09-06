@@ -31,6 +31,29 @@ return [
             'instance' => getenv('MAILGUN_INSTANCE'),
         ],
 
+        // SEPs (shitty email providers - basically Microsoft domains) will not deliver
+        // MailGun messages, so we send email through GMAIL for these domains
+        // using SwiftMailer
+        'swiftmailer' => [
+            'domains' => [
+                'btinternet.com',
+                'hotmail.com',
+                'hotmail.co.uk',
+                'live.ca',
+                'live.com',
+                'live.com.au',
+                'live.nl',
+                'msn.com',
+                'outlook.com',
+                'ep.europa.eu',
+            ],
+            'host' => 'smtp.gmail.com',
+            'port' => 587,
+            'encryption' => 'tls',
+            'username' =>  getenv('GMAIL_USER'),
+            'password' =>  getenv('GMAIL_SECRET'),
+        ],
+
         // Storage settings
         'storage' => [
             'static_path' => dirname(__DIR__) . '/public/static',
