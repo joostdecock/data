@@ -37,6 +37,7 @@ return [
         'swiftmailer' => [
             'domains' => [
                 'btinternet.com',
+                'hotmail.be',
                 'hotmail.com',
                 'hotmail.co.uk',
                 'live.ca',
