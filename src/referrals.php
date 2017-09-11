@@ -1,149 +1,150 @@
 <?php
 
-function getReferralGroups()
-{
-    return [
-        'Freesewing' => [
-            'host' => 'freesewing.org',
-            'link' => 'https://freesewing.org/',
-        ],
-        'MakeMyPattern.com' => [
-            'host' => 'makemypattern.com',
-            'link' => 'https://makemypattern.com',
-        ],
-        'Facebook' => [
-            'host' => 'facebook.com',
-            'url' => '://l.messenger.com/',
-            'link' => 'https://facebook.com',
-        ],
-        'Twitter' => [
-            'url' => '://t.co/',
-            'link' => 'https://twitter.com',
-        ],
-        'Instagram' => [
-            'urls' => [ 
-                '://l.instagram.com/',
-                '://www.instagram.com/',
+if(!function_exists('getReferralGroups')) {
+    function getReferralGroups()
+    {
+        return [
+            'Freesewing' => [
+                'host' => 'freesewing.org',
+                'link' => 'https://freesewing.org/',
             ],
-            'link' => 'https://instagram.com',
-        ],
-        'Pinterest' => [
-            'host' => 'pinterest.com',
-            'urls' => [
-                '://www.pinterest.',
-                'https://pinterest.',
+            'MakeMyPattern' => [
+                'host' => 'makemypattern.com',
+                'link' => 'https://makemypattern.com',
             ],
-            'link' => 'https://instagram.com',
-        ],
-        'Reddit' => [
-            'host' => 'reddit.com',
-            'link' => 'https://reddit.com',
-        ],
-        'GitHub' => [
-            'host' => 'github.com',
-            'link' => 'https://reddit.com',
-        ],
-        'PatternReview.com' => [
-            'host' => 'sewing.patternreview.com',
-            'link' => 'https://patternreview.com',
-        ],
-        'Yandex' => [
-            'host' => 'yandex.ru',
-            'link' => 'http://yandex.ru/',
-        ],
-        'StayStrongDreamBig' => [
-            'host' => 'staystrongdreambig.com',
-            'link' => 'http://staystrongdreambig.com/',
-        ],
-        'HackerNews' => [
-            'urls' => [
-                '://news.ycombinator.com/', 
-                '://hn.algolia.com/',
+            'Facebook' => [
+                'host' => 'facebook.com',
+                'url' => '://l.messenger.com/',
+                'link' => 'https://facebook.com',
             ],
-            'link' => 'https://news.ycombinator.com/',
-        ],
-        'Makery.uk' => [
-            'host' => 'www.makery.uk',
-            'link' => 'http://www.makery.uk/',
-        ],
-        'KnitWitsOwls.blogspot.com' => [
-            'url' => '://knitwits-owls.blogspot.',
-            'link' => 'http://knitwits-owls.blogspot.com/',
-        ],
-        'MailChimp' => [
-            'hosts' => [
-                '.campaign-archive2.com',
-                '.campaign-archive1.com',
-                'mailchi.mp',
+            'Twitter' => [
+                'url' => '://t.co/',
+                'link' => 'https://twitter.com',
             ],
-            'link' => 'https://mailchimp.com/',
-        ],
-        'Digg' => [
-            'host' => 'digg.com',
-            'link' => 'http://digg.com/',
-        ],
-        '4Chan' => [
-            'host' => '.4chan.org',
-            'link' => 'http://4chan.org/',
-        ],
-        'Google+' => [
-            'hosts' => [
-                'plus.google.com',
-                'plus.url.google.com',
-                'notifications.google.com',
+            'Instagram' => [
+                'urls' => [ 
+                    '://l.instagram.com/',
+                    '://www.instagram.com/',
+                ],
+                'link' => 'https://instagram.com',
             ],
-            'link' => 'http://4chan.org/',
-        ],
-        'Email' => [
-            'hosts' => [
-                'mail',
-                'outlook.live.com',
-                'mail.google.com',
-                'mail.',
+            'Pinterest' => [
+                'host' => 'pinterest.com',
+                'urls' => [
+                    '://www.pinterest.',
+                    'https://pinterest.',
+                ],
+                'link' => 'https://instagram.com',
             ],
-            'urls' => [
-                'squirrelmail',
-                'deref-gmx.net/mail',
-                'deref-gmx.com/mail',
-                '://owa.',
-                '/zimbra/',
+            'Reddit' => [
+                'host' => 'reddit.com',
+                'link' => 'https://reddit.com',
             ],
-        ],
-        'Search' => [
-            'host' => 'search.yahoo.com',
-            'urls' => [
-                '://www.google.',
-                '://www.bing.com/',
-                'avg.nation.com',
-                '/duckduckgo.',
+            'GitHub' => [
+                'host' => 'github.com',
+                'link' => 'https://reddit.com',
             ],
-        ],
-        'Feed reader' => [
-            'hosts' => [
-                'feedly.com',
-                'newsblur.com',
-                'www.feedspot.com',
-                'getpocket.com',
-                'keep.google.com',
+            'PatternReview.com' => [
+                'host' => 'sewing.patternreview.com',
+                'link' => 'https://patternreview.com',
             ],
-        ],
-        'Mobile App' => [
-            'urls' => [
-              'app://',
-              '://web.telegram.org/'
+            'Yandex' => [
+                'host' => 'yandex.ru',
+                'link' => 'http://yandex.ru/',
             ],
-        ],
-        'OpenSource.com' => [
-            'host' => 'opensource.com',
-            'link' => 'https://opensource.com/'
-        ],
-        'Unknown' => [
-            'urls' => [
-                '192.168',
-                'alert.scansafe.net',
+            'StayStrongDreamBig' => [
+                'host' => 'staystrongdreambig.com',
+                'link' => 'http://staystrongdreambig.com/',
             ],
-        ],
+            'HackerNews' => [
+                'urls' => [
+                    '://news.ycombinator.com/', 
+                    '://hn.algolia.com/',
+                ],
+                'link' => 'https://news.ycombinator.com/',
+            ],
+            'Makery.uk' => [
+                'host' => 'www.makery.uk',
+                'link' => 'http://www.makery.uk/',
+            ],
+            'KnitWitsOwls' => [
+                'url' => '://knitwits-owls.blogspot.',
+                'link' => 'http://knitwits-owls.blogspot.com/',
+            ],
+            'MailChimp' => [
+                'hosts' => [
+                    '.campaign-archive2.com',
+                    '.campaign-archive1.com',
+                    'mailchi.mp',
+                ],
+                'link' => 'https://mailchimp.com/',
+            ],
+            'Digg' => [
+                'host' => 'digg.com',
+                'link' => 'http://digg.com/',
+            ],
+            '4Chan' => [
+                'host' => '.4chan.org',
+                'link' => 'http://4chan.org/',
+            ],
+            'Google+' => [
+                'hosts' => [
+                    'plus.google.com',
+                    'plus.url.google.com',
+                    'notifications.google.com',
+                ],
+                'link' => 'http://4chan.org/',
+            ],
+            'Email' => [
+                'hosts' => [
+                    'mail',
+                    'outlook.live.com',
+                    'mail.google.com',
+                    'mail.',
+                ],
+                'urls' => [
+                    'squirrelmail',
+                    'deref-gmx.net/mail',
+                    'deref-gmx.com/mail',
+                    '://owa.',
+                    '/zimbra/',
+                ],
+            ],
+            'Search' => [
+                'host' => 'search.yahoo.com',
+                'urls' => [
+                    '://www.google.',
+                    '://www.bing.com/',
+                    'avg.nation.com',
+                    '/duckduckgo.',
+                ],
+            ],
+            'Feed reader' => [
+                'hosts' => [
+                    'feedly.com',
+                    'newsblur.com',
+                    'www.feedspot.com',
+                    'getpocket.com',
+                    'keep.google.com',
+                ],
+            ],
+            'Mobile App' => [
+                'urls' => [
+                  'app://',
+                  '://web.telegram.org/'
+                ],
+            ],
+            'OpenSource.com' => [
+                'host' => 'opensource.com',
+                'link' => 'https://opensource.com/'
+            ],
+            'Unknown' => [
+                'urls' => [
+                    '192.168',
+                    'alert.scansafe.net',
+                ],
+            ],
 
-    ];
+        ];
+    }
 }
-
