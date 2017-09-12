@@ -14,6 +14,14 @@ $app->get('/info/json', 'InfoController:asJson');
 $app->get('/status', 'InfoController:status');
 
 
+/*******************/
+/* Batch routes    */
+/*******************/
+
+// Group ungrouped referrals
+$app->get('/referrals/group', 'ReferralController:group');
+
+
 /********************/
 /* Anonymous routes */
 /********************/

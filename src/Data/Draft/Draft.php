@@ -401,7 +401,6 @@ class Draft
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
         
-        $logger = $this->container->get('logger');
         return $db->exec($sql);
     }
     

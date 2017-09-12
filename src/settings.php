@@ -1,4 +1,5 @@
 <?php
+include('referrals.php');
 return [
     'settings' => [
         'displayErrorDetails' => false, // set to false in production
@@ -111,5 +112,8 @@ You can write whatever you want here.',
             'upperLegCircumference' => 'Upper leg circumference',
             'wristCircumference' => 'Wrist circumference',
         ],
+
+        // Referral groups
+        'referrals' => getReferralGroups(),
     ],
 ];

@@ -93,7 +93,7 @@ class Referral
      * Loads a draft based on its id
      *
      */
-    private function load($id) 
+    public function load($id) 
     {
         $db = $this->container->get('db');
         $sql = "SELECT * from `referrals` WHERE `id` =".$db->quote($id);
@@ -138,8 +138,51 @@ class Referral
         return $db->exec($sql);
     }
 
-    private function site($host)
+    /** Saves the referral to the database */
+    public function save() 
     {
-        return null;
+        $db = $this->container->get('db');
+        $sql = "UPDATE `referrals` set 
+            `site` = ".$db->quote($this->getSite())."
+            WHERE 
+            `id`       = ".$db->quote($this->getId()).";";
+        
+        return $db->exec($sql);
+    }
+    
+    public function group()
+    {
+        $groups =  $this->container['settings']['referrals'];
+        foreach($groups as $gid => $group) {
+            if (isset($group['host'])) {
+                if(stripos($this->getHost(),$group['host']) !== FALSE) { 
+                    $this->setSite($gid); 
+                    return true; 
+                }
+            } elseif (isset($group['hosts'])) {
+                foreach($group['hosts'] as $host) {
+                    if(stripos($this->getHost(),$host) !== FALSE) { 
+                        $this->setSite($gid); 
+                        return true; 
+                    }
+                }
+            }
+            if (isset($group['url'])) {
+                if(stripos($this->getUrl(),$group['url']) !== FALSE) { 
+                    $this->setSite($gid); 
+                    return true; 
+                }
+            } elseif (isset($group['urls'])) {
+                foreach($group['urls'] as $url) {
+                    if(stripos($this->getUrl(),$url) !== FALSE) { 
+                        $this->setSite($gid); 
+                        return true; 
+                    }
+                }
+            }
+
+        }
+
+        return false;
     }
 }

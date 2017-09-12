@@ -111,6 +111,18 @@ class InfoController
         $status['data']['drafts'] = $this->countDrafts(); 
         $status['data']['comments'] = $this->countComments(); 
         $status['data']['models'] = $this->countModels(); 
+
+        // Load grouped referrals from the last two weeks
+        $db = $this->container->get('db');
+        $sql = "SELECT `site`, COUNT(`site`) as hits FROM `referrals` WHERE site != '' AND `time` > DATE_SUB(curdate(), INTERVAL 2 WEEK) GROUP BY site ORDER BY hits DESC";
+        $referrals = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+
+        $groups =  $this->container['settings']['referrals'];
+        foreach($referrals as $rid => $ref) {
+            if(isset($groups[$ref['site']]['link'])) $referrals[$rid]['link'] = $groups[$ref['site']]['link'];
+        }
+        $status['referrals'] = $referrals;
+
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/plain")
