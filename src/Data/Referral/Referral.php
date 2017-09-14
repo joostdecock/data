@@ -117,7 +117,6 @@ class Referral
         $this->setHost($host);
         $this->setPath($path);
         $this->setUrl($url);
-        $this->setSite($this->site($host));
 
         // Store in database
         $db = $this->container->get('db');
@@ -125,13 +124,11 @@ class Referral
             `host`,
             `path`,
             `url`,
-            `site`,
             `time`
              ) VALUES (
             ".$db->quote($this->getHost()).",
             ".$db->quote($this->getPath()).",
             ".$db->quote($this->getUrl()).",
-            ".$db->quote($this->getSite()).",
             NOW()
             );";
 
