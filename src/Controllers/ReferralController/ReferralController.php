@@ -42,7 +42,7 @@ class ReferralController
     {
         // Load all ungrouped referrals
         $db = $this->container->get('db');
-        $sql = "SELECT `id` FROM `referrals` WHERE `site` = ''";
+        $sql = "SELECT `id` FROM `referrals` WHERE `site` = '' OR `site` IS NULL";
 
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
         
