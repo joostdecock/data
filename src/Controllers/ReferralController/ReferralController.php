@@ -45,6 +45,8 @@ class ReferralController
         $sql = "SELECT `id` FROM `referrals` WHERE `site` = '' OR `site` IS NULL";
 
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $matched = '<br><br>';
+        $unmatched = '';
         
         if(!$result) return false;
         else {
@@ -54,11 +56,13 @@ class ReferralController
                 $ref->load($referral->id);
                 
                 if(!$ref->group()) {
-                    echo "<br>".$ref->getUrl();
+                    $unmatched .= "<br><b>Could not match ".$ref->getUrl().'</b>';
                 } else {
                     $ref->save();
+                    $matched .=  '<br>Matched '.$ref->getUrl();
                 }
             }
         } 
+        echo $unmatched.$matched;
     }        
 }

@@ -14,7 +14,7 @@ if(!function_exists('getReferralGroups')) {
             ],
             'Facebook' => [
                 'host' => 'facebook.com',
-                'url' => '://l.messenger.com/',
+                'url' => '://l.messenger.com',
                 'link' => 'https://facebook.com',
             ],
             'Twitter' => [
@@ -23,8 +23,8 @@ if(!function_exists('getReferralGroups')) {
             ],
             'Instagram' => [
                 'urls' => [ 
-                    '://l.instagram.com/',
-                    '://www.instagram.com/',
+                    '://l.instagram.com',
+                    '://www.instagram.com',
                 ],
                 'link' => 'https://instagram.com',
             ],
@@ -32,7 +32,7 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'pinterest.com',
                 'urls' => [
                     '://www.pinterest.',
-                    'https://pinterest.',
+                    '://pinterest.',
                 ],
                 'link' => 'https://instagram.com',
             ],
@@ -58,8 +58,8 @@ if(!function_exists('getReferralGroups')) {
             ],
             'HackerNews' => [
                 'urls' => [
-                    '://news.ycombinator.com/', 
-                    '://hn.algolia.com/',
+                    '://news.ycombinator.com', 
+                    '://hn.algolia.com',
                 ],
                 'link' => 'https://news.ycombinator.com/',
             ],
@@ -114,7 +114,7 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'search.yahoo.com',
                 'urls' => [
                     '://www.google.',
-                    '://www.bing.com/',
+                    '://www.bing.com',
                     'avg.nation.com',
                     '/duckduckgo.',
                 ],
@@ -131,7 +131,7 @@ if(!function_exists('getReferralGroups')) {
             'Mobile App' => [
                 'urls' => [
                   'app://',
-                  '://web.telegram.org/'
+                  '://web.telegram.org'
                 ],
             ],
             'OpenSource.com' => [
