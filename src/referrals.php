@@ -115,6 +115,7 @@ if(!function_exists('getReferralGroups')) {
                 'urls' => [
                     '://www.google.',
                     '://www.bing.com',
+                    '://search.',
                     'avg.nation.com',
                     '/duckduckgo.',
                 ],
