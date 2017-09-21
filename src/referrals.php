@@ -95,6 +95,10 @@ if(!function_exists('getReferralGroups')) {
                 ],
                 'link' => 'http://4chan.org/',
             ],
+            'Ravelry' => [
+                'host' => 'www.ravelry.com',
+                'link' => 'http://www.ravelry.com/',
+            ],
             'Email' => [
                 'hosts' => [
                     'mail',
