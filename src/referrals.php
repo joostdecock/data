@@ -18,6 +18,7 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'https://facebook.com',
             ],
             'Twitter' => [
+                'host' => 'twitter.com',
                 'url' => '://t.co/',
                 'link' => 'https://twitter.com',
             ],
