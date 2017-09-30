@@ -177,6 +177,7 @@ class DraftController
                 'asAdmin' => $asAdmin,
                 'user' => $draft->getUser(), 
                 'userHandle' => $user->getHandle(), 
+                'userName' => $user->getUsername(), 
                 'pattern' => $draft->getPattern(), 
                 'model' => [
                     'handle' => $model->getHandle(),
