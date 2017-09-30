@@ -88,6 +88,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => '.4chan.org',
                 'link' => 'http://4chan.org/',
             ],
+            'Thread & Needles' => [
+                'host' => 'www.threadandneedles.fr',
+                'link' => 'http://www.threadandneedles.fr/',
+            ],
             'Google+' => [
                 'hosts' => [
                     'plus.google.com',
