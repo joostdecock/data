@@ -92,6 +92,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.threadandneedles.fr',
                 'link' => 'http://www.threadandneedles.fr/',
             ],
+            'Diary of a Chainstitcher' => [
+                'url' => '://chainstitcher.blogspot.',
+                'link' => 'http:/chainstitcher.blogspot.com/',
+            ],
             'Google+' => [
                 'hosts' => [
                     'plus.google.com',
@@ -136,6 +140,7 @@ if(!function_exists('getReferralGroups')) {
                     'www.feedspot.com',
                     'getpocket.com',
                     'keep.google.com',
+                    'theoldreader.com',
                 ],
             ],
             'Mobile App' => [
