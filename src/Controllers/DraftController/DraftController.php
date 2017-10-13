@@ -87,7 +87,7 @@ class DraftController
         } else {
             $draft->create($request->getParsedBody(), $user, $model);
             $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
-            // Add badge is needed
+            // Add badge if needed
             if($in->fork) if($user->addBadge('fork')) $user->save();
             else if($user->addBadge('draft')) $user->save();
         }
@@ -171,6 +171,10 @@ class DraftController
         if($admin->getRole() == 'admin') $asAdmin = true;
         else $asAdmin = false;
 
+        // Add caching token based on draft data
+        $optionData = $draft->getData();
+        $cacheToken = sha1(serialize($optionData));
+
         return $this->prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
@@ -193,7 +197,8 @@ class DraftController
                 'handle' => $draft->getHandle(), 
                 'svg' => $draft->getSvg(), 
                 'compared' => $draft->getCompared(), 
-                'data' => $draft->getData(), 
+                'data' => $optionData,
+                'cache' => $cacheToken,
                 'created' => $draft->getCreated(), 
                 'shared' => $draft->getShared(), 
                 'notes' => $draft->getNotes(), 
@@ -233,6 +238,10 @@ class DraftController
         $user = $this->container->get('User');
         $user->loadFromId($draft->getUser());
         
+        // Add caching token based on draft data
+        $optionData = $draft->getData();
+        $cacheToken = sha1(serialize($optionData));
+        
         return $this->prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
@@ -247,7 +256,8 @@ class DraftController
                 'handle' => $draft->getHandle(), 
                 'svg' => $draft->getSvg(), 
                 'compared' => $draft->getCompared(), 
-                'data' => $draft->getData(), 
+                'data' => $optionData,
+                'cache' => $cacheToken, 
                 'created' => $draft->getCreated(), 
                 'shared' => $draft->getShared(), 
                 'notes' => $draft->getNotes(), 
