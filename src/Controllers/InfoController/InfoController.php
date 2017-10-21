@@ -69,15 +69,16 @@ class InfoController
 
         // Sort measurements
         ksort($info['measurements']);
-
+        
         return $info;
     }
 
     private function patternToArray($pattern)
     {
         unset($pattern->models);
-        unset($pattern->inMemoryOf);
         unset($pattern->pattern);
+
+        
         foreach($pattern as $key => $val) {
             if($key == 'options') {
                 foreach($val as $okey => $oval) {
@@ -88,6 +89,11 @@ class InfoController
                 $p['optiongroups'] = $ogroups;
                 unset($options);
                 unset($ogroups);
+            }
+            elseif($key == 'info') {
+                $p[$key] = (array) $val;
+                // Convert inMemoryOf to array
+                if(isset($p[$key]['inMemoryOf'])) $p[$key]['inMemoryOf'] = (array) $p[$key]['inMemoryOf'];
             }
             else $p[$key] = (array) $val;
         }
