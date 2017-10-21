@@ -57,6 +57,14 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'staystrongdreambig.com',
                 'link' => 'http://staystrongdreambig.com/',
             ],
+            'AnnekeCaramin' => [
+                'host' => 'www.annekecaramin.com',
+                'link' => 'http://www.annekecaramin.com/',
+            ],
+            'Textillia' => [
+                'host' => 'www.textillia.com',
+                'link' => 'https://www.textillia.com/',
+            ],
             'HackerNews' => [
                 'urls' => [
                     '://news.ycombinator.com', 
