@@ -450,7 +450,7 @@ class Draft
      * Note that since users can re-draft, we can't be sure the exiting PDF/PS files
      * are up-to-date with the SVG. So we always regenerate them, even if they exist
      * */
-    public function export($user, $format) 
+    public function export($user, $format, $patternName, $patternHandle) 
     {
         // SVG is already on disk
         if($format == 'svg') return $this->getExportPath($user, 'svg');
@@ -468,7 +468,7 @@ class Draft
             $this->svgToPs($user); 
 
             // Tile postscript to required format
-            $cmd = "/usr/local/bin/tile -m$pf -s1 $ps > ".$this->getExportPath($user, $format.'.ps');
+            $cmd = "/usr/local/bin/tile -m$pf -s1 -t\"$patternName\" -h\"$patternHandle\" $ps > ".$this->getExportPath($user, $format.'.ps');
             // Convert to PDF
             $cmd .= " ; /usr/bin/ps2pdf14 ".$this->getExportPath($user, $format.'.ps').' '.$this->getExportPath($user, $format);
         }

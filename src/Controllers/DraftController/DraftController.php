@@ -372,7 +372,7 @@ class DraftController
         $user->loadFromId($draft->getUser());
 
         // Get location of file on disk
-        $path = $draft->export($user, $in->format);
+        $path = $draft->export($user, $in->format, $draft->getPattern(), $draft->getHandle());
 
         if($in->format == 'svg') $contentType = 'image/svg+xml';
         else $contentType = 'application/pdf';
