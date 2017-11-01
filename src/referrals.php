@@ -64,7 +64,7 @@ if(!function_exists('getReferralGroups')) {
             'SewingPlums' => [
                 'hosts' => [
                     'sewingplums.com',
-                    'sewingplums-com.cdn.ampproject.org'.
+                    'sewingplums-com.cdn.ampproject.org',
                 ],
                 'link' => 'https://sewingplums.com/',
             ],
