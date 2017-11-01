@@ -61,6 +61,13 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            'SewingPlums' => [
+                'hosts' => [
+                    'sewingplums.com',
+                    'sewingplums-com.cdn.ampproject.org'.
+                ],
+                'link' => 'https://sewingplums.com/',
+            ],
             'Textillia' => [
                 'host' => 'www.textillia.com',
                 'link' => 'https://www.textillia.com/',
@@ -91,6 +98,10 @@ if(!function_exists('getReferralGroups')) {
             'Digg' => [
                 'host' => 'digg.com',
                 'link' => 'http://digg.com/',
+            ],
+            'Tumblr' => [
+                'host' => 't.umblr.com',
+                'link' => 'https://www.tumblr.com/',
             ],
             '4Chan' => [
                 'host' => '.4chan.org',
@@ -128,6 +139,7 @@ if(!function_exists('getReferralGroups')) {
                     'deref-gmx.net/mail',
                     'deref-gmx.com/mail',
                     '://owa.',
+                    '/owa/',
                     '/zimbra/',
                 ],
             ],
