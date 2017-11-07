@@ -155,7 +155,7 @@ if(!function_exists('getReferralGroups')) {
                     '://www.bing.com',
                     '://search.',
                     'avg.nation.com',
-                    '/duckduckgo.',,
+                    '/duckduckgo.',
                     '://www.startpage.com',
                 ],
             ],
