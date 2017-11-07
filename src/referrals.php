@@ -61,6 +61,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            'Sewcialists' => [
+                'host' => 'sewcialists.wordpress.com',
+                'link' => 'https://sewcialists.wordpress.com/',
+            ],
             'SewingPlums' => [
                 'hosts' => [
                     'sewingplums.com',
@@ -141,6 +145,7 @@ if(!function_exists('getReferralGroups')) {
                     '://owa.',
                     '/owa/',
                     '/zimbra/',
+                    '/mail/',
                 ],
             ],
             'Search' => [
@@ -150,7 +155,8 @@ if(!function_exists('getReferralGroups')) {
                     '://www.bing.com',
                     '://search.',
                     'avg.nation.com',
-                    '/duckduckgo.',
+                    '/duckduckgo.',,
+                    '://www.startpage.com',
                 ],
             ],
             'Feed reader' => [
