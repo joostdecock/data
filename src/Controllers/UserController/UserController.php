@@ -669,13 +669,23 @@ class UserController
         
         // Activate user
         $user->setStatus('active');
+
+        // Login user
+        $user->setLogin();
         $user->save();
         
+        // Log
         $logger->info("Activation: User ".$user->getId()." is now active");
+        $logger->info("Login: User ".$user->getId())." auto-login upon activation";
         
         return $this->prepResponse($response, [
-            'result' => 'ok', 
+            'result' => 'ok',
             'reason' => 'signup_complete', 
+            'message' => 'login/success',
+            'token' => $TokenKit->create($user->getId()),
+            'userid' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
         ]);
     }
     
