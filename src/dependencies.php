@@ -65,6 +65,10 @@ $container['CommentController'] = function ($container) {
     return new \App\Controllers\CommentController($container);
 };
 
+$container['ToolsController'] = function ($container) {
+    return new \App\Controllers\ToolsController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \App\Tools\HandleKit($container);
 };

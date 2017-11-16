@@ -144,6 +144,9 @@ $app->post('/clone/model/{handle}', 'ModelController:klone');
 // Find users 
 $app->post('/find/users/{filter}', 'UserController:find');
 
+// Tiler
+$app->post('/tools/tile', 'ToolsController:tile');
+
 /****************/
 /* Admin routes */
 /****************/
