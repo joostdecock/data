@@ -34,7 +34,7 @@ class ToolsController
         // Store on disk
         $hash = sha1($svg);
         $filename = "$hash.svg";
-        $path = $this->container['settings']['storage']['static_path']."/tmp/tiler/$hash";
+        $path = $this->container['settings']['storage']['static_path']."/export/tiler/$hash";
         if(!file_exists($path)) mkdir($path, 0755, true);
 
         $handle = fopen("$path/$filename", 'w');
@@ -57,7 +57,7 @@ class ToolsController
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
-            'link' => $this->container['settings']['app']['data_api']."/static/tmp/tiler/$hash/$hash.".strtolower($in->format).".pdf",
+            'link' => $this->container['settings']['app']['data_api']."/static/export/tiler/$hash/$hash.".strtolower($in->format).".pdf",
         ]);
     }
     
