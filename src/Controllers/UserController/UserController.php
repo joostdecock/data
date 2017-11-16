@@ -196,6 +196,10 @@ class UserController
         $in = new \stdClass();
         $in->email = $this->scrub($request,'email','email');
         $in->username = $this->scrub($request,'username');
+        $in->twitter = $this->scrub($request,'twitter');
+        if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
+        $in->instagram = $this->scrub($request,'instagram');
+        if(substr($in->instagram,0,1) == '@') $in->instagram = substr($in->instagram,1);
         $in->picture = $this->scrub($request,'picture');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
@@ -236,6 +240,10 @@ class UserController
         $data = $user->getData();
         if($data->account->units != $in->units) $data->account->units = $in->units;
         if($data->account->theme != $in->theme) $data->account->theme = $in->theme;
+        if(strlen($in->twitter) > 2) $data->social->twitter = $in->twitter;
+        else unset($data->social->twitter);
+        if(strlen($in->instagram) > 2) $data->social->instagram = $in->instagram;
+        else unset($data->social->instagram);
 
         // Handle email change
         $pendingEmail = false;
@@ -835,6 +843,7 @@ class UserController
                 'migrated' => $user->getMigrated(), 
                 'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
             ],
+            'social' => $user->getData()->social,
             'badges' => $user->getData()->badges,
             'drafts' => $user->getDrafts(),
         ]);
