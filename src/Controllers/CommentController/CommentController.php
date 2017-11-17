@@ -257,6 +257,7 @@ class CommentController
                 $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
                 $data = json_decode($val->data);
                 if(isset($data->badges)) $val->badges = $data->badges;
+                if(isset($data->social)) $val->social = $data->social;
                 unset($val->data);
                 $comments[$val->id] = $val;
             }
@@ -298,6 +299,7 @@ class CommentController
                 $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
                 $data = json_decode($val->data);
                 if(isset($data->badges)) $val->badges = $data->badges;
+                if(isset($data->social)) $val->social = $data->social;
                 unset($val->data);
                 $comments[$val->id] = $val;
             }
