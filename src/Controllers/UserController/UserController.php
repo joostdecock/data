@@ -200,6 +200,8 @@ class UserController
         if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
         $in->instagram = $this->scrub($request,'instagram');
         if(substr($in->instagram,0,1) == '@') $in->instagram = substr($in->instagram,1);
+        $in->github = $this->scrub($request,'github');
+        if(substr($in->github,0,1) == '@') $in->github = substr($in->github,1);
         $in->picture = $this->scrub($request,'picture');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
@@ -244,6 +246,8 @@ class UserController
         else unset($data->social->twitter);
         if(strlen($in->instagram) > 2) $data->social->instagram = $in->instagram;
         else unset($data->social->instagram);
+        if(strlen($in->github) > 2) $data->social->github = $in->github;
+        else unset($data->social->github);
 
         // Handle email change
         $pendingEmail = false;
