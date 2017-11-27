@@ -49,6 +49,7 @@ return [
                 'msn.com',
                 'outlook.com',
                 'snkmail.com',
+                'yahoo.com',
             ],
             'host' => 'smtp.gmail.com',
             'port' => 587,
