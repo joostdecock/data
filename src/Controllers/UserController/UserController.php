@@ -37,21 +37,40 @@ class UserController
     public function auth($request, $response, $args)
     {
         $return = false;
+        
+        // Get ID from authentication middleware
+        $in = new \stdClass();
+        $in->id = $request->getAttribute("jwt")->user;
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+        if(isset($user->getData()->patron)) $patron = $user->getData()->patron;
+        else $patron = 0;
+        
         // Add badge if needed
         if(isset($this->container['settings']['badges']['login'])) {
-            // Get ID from authentication middleware
-            $in = new \stdClass();
-            $in->id = $request->getAttribute("jwt")->user;
-            // Get a user instance from the container
-            $user = $this->container->get('User');
-            $user->loadFromId($in->id);
             if($user->addBadge($this->container['settings']['badges']['login'])) {
                 $user->save();
-                $return = ['result' => 'ok', 'new_badge' => $this->container['settings']['badges']['login']];
+                $return = [
+                    'result' => 'ok', 
+                    'id' => $user->getId(), 
+                    'email' => $user->getEmail(), 
+                    'user' => $user->getUsername(), 
+                    'patron' => $patron, 
+                    'new_badge' => $this->container['settings']['badges']['login'],
+                ];
             }
         }
     
-        if(!$return) $return = ['result' => 'ok'];
+        if(!$return) { 
+            $return = [
+                'result' => 'ok', 
+                'id' => $user->getId(), 
+                'email' => $user->getEmail(), 
+                'user' => $user->getUsername(), 
+                'patron' => $patron, 
+            ];
+        }
         $response->getBody()->write(json_encode($return));
 
         return $response
@@ -198,10 +217,13 @@ class UserController
         $in->username = $this->scrub($request,'username');
         $in->twitter = $this->scrub($request,'twitter');
         if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
+        if($in->twitter === 'undefined') unset($in->twitter);
         $in->instagram = $this->scrub($request,'instagram');
         if(substr($in->instagram,0,1) == '@') $in->instagram = substr($in->instagram,1);
+        if($in->instagram === 'undefined') unset($in->instagram);
         $in->github = $this->scrub($request,'github');
         if(substr($in->github,0,1) == '@') $in->github = substr($in->github,1);
+        if($in->github === 'undefined') unset($in->github);
         $in->picture = $this->scrub($request,'picture');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
@@ -377,6 +399,49 @@ class UserController
         ]);
     }
 
+    /** Make a user a Patron */
+    public function makePatron($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->userHandle = $this->scrub($request,'user');
+        $in->patron = $this->scrub($request,'patron');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed set Patron status: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+
+        // Set patron status and save
+        $user->makePatron($in->patron);
+        $user->save();
+        $logger->info("Patron status set to ".$in->patron." for user ".$user->getId());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'patron' => $user->getData()->patron
+        ]);
+    }
+
     /** User login */
     public function login($request, $response, $args) {
         // Handle request data 
@@ -441,7 +506,8 @@ class UserController
         
         // Get the token kit from the container
         $TokenKit = $this->container->get('TokenKit');
-        
+        if(isset($user->getData()->patron->tier)) $tier = $user->getData()->patron->tier;
+        else $tier = 0;
         
         return $this->prepResponse($response, [
             'result' => 'ok', 
@@ -451,6 +517,7 @@ class UserController
             'userid' => $user->getId(),
             'email' => $user->getEmail(),
             'username' => $user->getUsername(),
+            'patron' => $tier,
         ]);
     }
 
@@ -815,6 +882,7 @@ class UserController
                 $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
                 $data = json_decode($val->data);
                 if(isset($data->badges)) $val->badges = $data->badges;
+                if(isset($data->patron)) $val->patron = $data->patron;
                 unset($val->data);
                 $users[$val->userhandle] = $val;
             }
@@ -838,7 +906,7 @@ class UserController
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
 
-        return $this->prepResponse($response, [
+        $return = [
             'profile' => [
                 'username' => $user->getUsername(), 
                 'handle' => $user->getHandle(), 
@@ -847,10 +915,14 @@ class UserController
                 'migrated' => $user->getMigrated(), 
                 'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
             ],
-            'social' => $user->getData()->social,
-            'badges' => $user->getData()->badges,
             'drafts' => $user->getDrafts(),
-        ]);
+        ];
+        $data = $user->getData();
+        if(isset($data->badges)) $return['badges'] = $data->badges;
+        if(isset($data->social)) $return['social'] = $data->social;
+        if(isset($data->patron)) $return['patron'] = $data->patron;
+
+        return $this->prepResponse($response, $return);
     } 
 
     public function role($request, $response, $args) 

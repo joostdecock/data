@@ -497,6 +497,23 @@ class User
         return true;
     }
 
+    /** Makes user a patron */
+    public function makePatron($tier)
+    {
+        $data = $this->getData();
+        
+        if($tier === 0) unset($data->patron);
+        else {
+            if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => date('l jS \of F Y h:i:s A')];
+            else {
+                $data->patron->tier = $tier;
+                $data->patron->since = date('l jS \of F Y h:i:s A');
+            }
+        }
+
+        return true;
+    }
+
     /** Removes a badge from the user */
     public function removeBadge($badge)
     {
