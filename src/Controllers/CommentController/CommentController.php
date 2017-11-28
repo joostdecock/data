@@ -258,6 +258,7 @@ class CommentController
                 $data = json_decode($val->data);
                 if(isset($data->badges)) $val->badges = $data->badges;
                 if(isset($data->social)) $val->social = $data->social;
+                if(isset($data->patron)) $val->patron = $data->patron;
                 unset($val->data);
                 $comments[$val->id] = $val;
             }
@@ -300,6 +301,7 @@ class CommentController
                 $data = json_decode($val->data);
                 if(isset($data->badges)) $val->badges = $data->badges;
                 if(isset($data->social)) $val->social = $data->social;
+                if(isset($data->patron)) $val->patron = $data->patron;
                 unset($val->data);
                 $comments[$val->id] = $val;
             }

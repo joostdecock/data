@@ -160,6 +160,9 @@ $app->delete('/admin/badge', 'UserController:removeBadge');
 // Set new user password (by admin)
 $app->put('/admin/password', 'UserController:setPassword');
 
+// Set patron status in user profile
+$app->post('/admin/patron', 'UserController:makePatron');
+
 /*******************/
 /* Catch-all route */
 /*******************/
