@@ -76,6 +76,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.textillia.com',
                 'link' => 'https://www.textillia.com/',
             ],
+            'Cotton & Curls' => [
+                'host' => 'www.cottonandcurls.com',
+                'link' => 'https://www.cottonandcurls.com/',
+            ],
             'HackerNews' => [
                 'urls' => [
                     '://news.ycombinator.com', 
@@ -131,6 +135,18 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.ravelry.com',
                 'link' => 'http://www.ravelry.com/',
             ],
+            'Web Godess' => [
+                'host' => 'www.web-goddess.org',
+                'link' => 'https://www.web-goddess.org/',
+            ],
+            'Cutton & Tailor' => [
+                'host' => 'www.cutterandtailor.com',
+                'link' => 'http://www.cutterandtailor.com/',
+            ],
+            'YouTube' => [
+                'host' => 'www.youtube.com',
+                'link' => 'https://www.youtube.com/',
+            ],
             'Email' => [
                 'hosts' => [
                     'mail',
@@ -146,11 +162,13 @@ if(!function_exists('getReferralGroups')) {
                     '/owa/',
                     '/zimbra/',
                     '/mail/',
+                    '.campaign-archive.com/',
                 ],
             ],
             'Search' => [
                 'host' => 'search.yahoo.com',
                 'urls' => [
+                    '://www.ask.com',
                     '://www.google.',
                     '://www.bing.com',
                     '://search.',
@@ -183,6 +201,7 @@ if(!function_exists('getReferralGroups')) {
                 'urls' => [
                     '192.168',
                     'alert.scansafe.net',
+                    '://secureurl.fwdcdn.com/',
                 ],
             ],
 
