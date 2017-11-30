@@ -504,10 +504,10 @@ class User
         
         if($tier === 0) unset($data->patron);
         else {
-            if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => date('l jS \of F Y h:i:s A')];
+            if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => time()];
             else {
                 $data->patron->tier = $tier;
-                $data->patron->since = date('l jS \of F Y h:i:s A');
+                $data->patron->since = time();
             }
         }
 
