@@ -147,6 +147,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.topstitched.net',
                 'link' => 'http://www.topstitched.net/',
             ],
+            'benesaddict.fr' => [
+                'host' => 'benesaddict.fr',
+                'link' => 'http://benesaddict.fr/',
+            ],
             'YouTube' => [
                 'host' => 'www.youtube.com',
                 'link' => 'https://www.youtube.com/',
