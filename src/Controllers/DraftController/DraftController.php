@@ -314,6 +314,7 @@ class DraftController
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
+            'handle' => $draft->getHandle(),
             'name' => $draft->getName(),
             'shared' => $draft->getShared(),
             'notes' => $draft->getNotes(),
