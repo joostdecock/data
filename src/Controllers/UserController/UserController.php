@@ -964,4 +964,47 @@ class UserController
         ]);
     } 
 
+    /** Patron list */
+    public function patronList($request, $response, $args) 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT * FROM `users` WHERE `data` LIKE '%patron%'";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $tiers = $this->container['settings']['patrons']['tiers'];
+        
+        if(!$result) return false;
+        else {
+            $patrons = array();
+            // Get the AvatarKit to get the avatar url
+            $avatarKit = $this->container->get('AvatarKit');
+            $api = $this->container['settings']['app']['data_api'];
+            // Cycle through users
+            foreach($result as $key => $user) {
+                if($user->status === 'active') {
+                    $data = json_decode($user->data);
+                    if(in_array($data->patron->tier, $tiers)) {
+                        $patron = new \stdClass();
+                        $patron->username = $user->username;
+                        $patron->handle = $user->handle;
+                        $patron->tier = $data->patron->tier;
+                        $patron->picture = $api.$avatarKit->getWebDir($user->handle, 'user').'/'.$user->picture;
+                        if(isset($data->badges)) $patron->badges = $data->badges;
+                        if(isset($data->social)) $patron->social = $data->social;
+                        $timestamp = $data->patron->since;
+                        $patron->since = $timestamp;
+                        while(isset($patrons[$timestamp])) $timestamp++;
+                        $patrons[$timestamp] = $patron;
+                    }
+                }
+            }
+        } 
+        // Newest patrons at the top
+        asort($patrons);
+    
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'patrons' => $patrons, 
+        ]);
+    } 
+
 }

@@ -84,6 +84,9 @@ You can write whatever you want here.',
         'badges' => [
             'login' => '2017',
         ],
+        'patrons' => [
+            'tiers' => [2,4,8],
+        ],
 
         // Migration settings
         'mmp' => [

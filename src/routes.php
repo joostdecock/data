@@ -74,6 +74,9 @@ $app->get('/comments/page/{page:.*}', 'CommentController:pageComments');
 // Load recent comments
 $app->get('/comments/recent/{count}', 'CommentController:recentComments');
 
+// Load patron list
+$app->get('/patrons/list', 'UserController:patronList');
+
 /************************/
 /* Authenticated routes */
 /************************/

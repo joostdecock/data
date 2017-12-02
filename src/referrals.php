@@ -143,6 +143,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.cutterandtailor.com',
                 'link' => 'http://www.cutterandtailor.com/',
             ],
+            'Topstitches.net' => [
+                'host' => 'www.topstitched.net',
+                'link' => 'http://www.topstitched.net/',
+            ],
             'YouTube' => [
                 'host' => 'www.youtube.com',
                 'link' => 'https://www.youtube.com/',
