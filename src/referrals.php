@@ -147,6 +147,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.topstitched.net',
                 'link' => 'http://www.topstitched.net/',
             ],
+            "Emma's Atelier" => [
+                'host' => 'emmasatelierblog.com',
+                'link' => 'https://emmasatelierblog.com/',
+            ],
             'benesaddict.fr' => [
                 'host' => 'benesaddict.fr',
                 'link' => 'http://benesaddict.fr/',
@@ -161,6 +165,7 @@ if(!function_exists('getReferralGroups')) {
                     'outlook.live.com',
                     'mail.google.com',
                     'mail.',
+                    'imp.free.fr',
                 ],
                 'urls' => [
                     'squirrelmail',
@@ -183,6 +188,7 @@ if(!function_exists('getReferralGroups')) {
                     'avg.nation.com',
                     '/duckduckgo.',
                     '://www.startpage.com',
+                    '.myway.com/',
                 ],
             ],
             'Feed reader' => [
