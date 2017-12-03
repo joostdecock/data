@@ -175,6 +175,7 @@ if(!function_exists('getReferralGroups')) {
                     '/owa/',
                     '/zimbra/',
                     '/mail/',
+                    '/email/',
                     '.campaign-archive.com/',
                 ],
             ],
