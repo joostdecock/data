@@ -331,6 +331,8 @@ class ModelController
         $user = $this->container->get('User');
         $user->loadFromId($id);
 
+        $dir = $user->export('test');
+
         // Get a model instance from the container and load its data
         $model = $this->container->get('Model');
         $model->loadFromHandle($in->handle);

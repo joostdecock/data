@@ -2,6 +2,8 @@
 /** App\Data\User class */
 namespace App\Data;
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * The user class.
  *
@@ -466,10 +468,30 @@ class User
     }
    
     /**
-     * Loads all drafts for a given user id
-     * but not the SVG to limit the reponse size
+     * Loads all comments for a given user id
      */
-    public function getDrafts() 
+    public function getComments() 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT * from `comments` WHERE `user` =".$db->quote($this->getId());
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        
+        if(!$result) return false;
+        else {
+            foreach($result as $key => $val) {
+                $comments[$val->id] = $val;
+            }
+        } 
+        return $comments;
+    }
+   
+    /**
+     * Loads all drafts for a given user id
+     * but not the SVG or compare code to limit the response size
+     *
+     * @param $all bool Set this to true to also include svg/compare in the return
+     */
+    public function getDrafts($all=false) 
     {
         $db = $this->container->get('db');
         $sql = "SELECT * from `drafts` WHERE `user` =".$db->quote($this->getId());
@@ -478,7 +500,10 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
-                unset($val->svg);
+                if(!$all) {
+                    unset($val->svg);
+                    unset($val->compared);
+                }
                 $drafts[$val->id] = $val;
             }
         } 
@@ -524,5 +549,128 @@ class User
         unset($data->badges->$badge);
 
         return true;
+    }
+    
+    /**
+     * Exports user data to disk (for download by user)
+     *
+     * @param string or false Name of the directory where the data is stored
+     *
+     * @return string name of the directory where the data is stored
+     */
+    public function export($token=false) 
+    {
+        // Copy user disk data to random directory
+        if(!$token) $token = sha1(print_r($this,1).time());
+        $dir = $this->container['settings']['storage']['static_path']."/export";
+        if(!is_dir($dir)) $cmd = mkdir($dir);
+        if(is_dir("$dir/$token")) `rm -rf $dir/$token`;
+        if(is_dir("$dir/".$this->getHandle())) shell_exec("rm -rf $dir/".$this->getHandle());
+        shell_exec("cp --recursive ".$this->container['settings']['storage']['static_path']."/users/".substr($this->getHandle(),0,1).'/'.$this->getHandle()." $dir ; mv $dir/".$this->getHandle()." $dir/$token");
+
+        // Export user object
+        $userData = [
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'initial' => $this->getInitial(),
+            'username' => $this->getUsername(),
+            'handle' => $this->getHandle(),
+            'status' => $this->getStatus(),
+            'created' => $this->getCreated(),
+            'migrated' => $this->getMigrated(),
+            'login' => $this->getLogin(),
+            'role' => $this->getRole(),
+            'picture' => $this->getPicture(),
+            'data' => $this->getData(),
+        ];
+        // Export as JSON
+        $file = "$dir/$token/account/account";
+        $fp = fopen("$file.json", 'w');
+        fwrite($fp, json_encode($userData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        fclose($fp);
+
+        // Export as YAML
+        $fp = fopen("$file.yaml", 'w');
+        fwrite($fp, Yaml::dump(json_decode(json_encode($userData),1),3));
+        fclose($fp);
+
+        // Export models
+        foreach($this->getModels() as $model) {
+            $file = "$dir/$token/models/".$model->handle.'/'.$model->handle;
+            $modelData = [
+                'id' => $model->id,
+                'user' => $model->user,
+                'name' => $model->name,
+                'handle' => $model->handle,
+                'body' => $model->body,
+                'picture' => $model->picture,
+                'data' => $model->data,
+                'units' => $model->units,
+                'created' => $model->created,
+                'migrated' => $model->migrated,
+                'shared' => $model->shared,
+                'notes' => $model->notes,
+            ];
+            // Export as JSON
+            $fp = fopen("$file.json", 'w');
+            fwrite($fp, json_encode($modelData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            fclose($fp);
+            // Export as YAML
+            $fp = fopen("$file.yaml", 'w');
+            fwrite($fp, Yaml::dump(json_decode(json_encode($modelData),1),3));
+            fclose($fp);
+        }
+
+        // Export drafts
+        foreach($this->getDrafts(true) as $draft) {
+            $file = "$dir/$token/drafts/".$draft->handle.'/'.$draft->handle;
+            $draftData = [
+                'id' => $draft->id,
+                'user' => $draft->user,
+                'name' => $draft->name,
+                'handle' => $draft->handle,
+                'pattern' => $draft->pattern,
+                'model' => $draft->model,
+                'data' => json_decode($draft->data,1),
+                'created' => $draft->created,
+                'shared' => $draft->shared,
+                'notes' => $draft->notes,
+                'svg' => $draft->svg,
+                'compared' => $draft->compared,
+            ];
+            // Export as JSON
+            $fp = fopen("$file.json", 'w');
+            fwrite($fp, json_encode($draftData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            fclose($fp);
+            // Export as YAML
+            $fp = fopen("$file.yaml", 'w');
+            fwrite($fp, Yaml::dump(json_decode(json_encode($draftData),1),6));
+            fclose($fp);
+        }
+
+        // Export comments
+        mkdir("$dir/$token/comments");
+        foreach($this->getComments() as $comment) {
+            $file = "$dir/$token/comments/comment-".$comment->id.'.md';
+            $commentData = "---\n";
+            $commentData .= "id: ".$comment->id."\n";
+            $commentData .= "user: ".$comment->user."\n";
+            $commentData .= "page: ".$comment->page."\n";
+            $commentData .= "status: ".$comment->status."\n";
+            $commentData .= "parent: ".$comment->parent."\n";
+            $commentData .= "time: ".$comment->time."\n";
+            $commentData .= "---\n".$comment->comment;
+
+            $fp = fopen($file, 'w');
+            fwrite($fp, $commentData);
+            fclose($fp);
+        }
+
+        // Zip it
+        `cd $dir/$token; zip -r freesewing-export *`;
+        // Clean up
+        `cd $dir/$token; rm -rf account models drafts comments`;
+
+        return '/static/export/'.$token.'/freesewing-export.zip';
     }
 }

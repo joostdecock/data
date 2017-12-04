@@ -320,7 +320,7 @@ class Model
      *
      * @return string name of the directory where the data is stored
      */
-    public function export() 
+    public function export($token=false) 
     {
         // Units
         if($this->getUnits() == 'imperial') $units = 'inch';
@@ -331,7 +331,7 @@ class Model
         ksort($measurements);
 
         // Create random directory
-        $token = sha1(print_r($this,1).time());
+        if(!$token) $token = sha1(print_r($this,1).time());
         $dir = $this->container['settings']['storage']['static_path']."/export/$token";
         mkdir($dir);
 
