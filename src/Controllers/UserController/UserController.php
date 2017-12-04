@@ -964,6 +964,28 @@ class UserController
         ]);
     } 
 
+    /** Export user data */
+    public function export($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        $logger->info("Exporting user data for: ".$user->getId()." (".$user->getEmail().")");
+        
+        $zip = $user->export();
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'archive' => $zip, 
+        ]);
+    } 
+
     /** Patron list */
     public function patronList($request, $response, $args) 
     {

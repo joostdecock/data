@@ -138,6 +138,9 @@ $app->post('/comment', 'CommentController:create');
 // Remove comment
 $app->delete('/comment/{id}', 'CommentController:remove');
 
+// Export data
+$app->get('/export', 'UserController:export');
+
 // Export model data
 $app->get('/export/model/{handle}', 'ModelController:export');
 
