@@ -216,6 +216,8 @@ class UserController
         $in->email = $this->scrub($request,'email','email');
         $in->username = $this->scrub($request,'username');
         $in->address = $this->scrub($request,'address');
+        $in->birthmonth = $this->scrub($request,'birthday-month');
+        $in->birthday = $this->scrub($request,'birthday-day');
         $in->twitter = $this->scrub($request,'twitter');
         if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
         if($in->twitter === 'undefined') unset($in->twitter);
@@ -274,6 +276,9 @@ class UserController
         else unset($data->social->github);
         if($in->address !== false && !isset($data->patron)) $data->patron = new \stdClass();
         $data->patron->address = $in->address;
+        if($in->birthmonth !== false && !isset($data->patron->birthday)) $data->patron->birthday = new \stdClass();
+        $data->patron->birthday->month = $in->birthmonth;
+        $data->patron->birthday->day = $in->birthday;
 
         // Handle email change
         $pendingEmail = false;
