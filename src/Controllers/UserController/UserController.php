@@ -215,6 +215,7 @@ class UserController
         $in = new \stdClass();
         $in->email = $this->scrub($request,'email','email');
         $in->username = $this->scrub($request,'username');
+        $in->address = $this->scrub($request,'address');
         $in->twitter = $this->scrub($request,'twitter');
         if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
         if($in->twitter === 'undefined') unset($in->twitter);
@@ -262,6 +263,7 @@ class UserController
 
         // Handle toggles
         $data = $user->getData();
+
         if($data->account->units != $in->units) $data->account->units = $in->units;
         if($data->account->theme != $in->theme) $data->account->theme = $in->theme;
         if(strlen($in->twitter) > 2) $data->social->twitter = $in->twitter;
@@ -270,6 +272,8 @@ class UserController
         else unset($data->social->instagram);
         if(strlen($in->github) > 2) $data->social->github = $in->github;
         else unset($data->social->github);
+        if($in->address !== false && !isset($data->patron)) $data->patron = new \stdClass();
+        $data->patron->address = $in->address;
 
         // Handle email change
         $pendingEmail = false;
@@ -339,6 +343,91 @@ class UserController
         $user->setPassword($in->password);
         $user->save();
         $logger->info("Password for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
+    /** Set address (by admin) */
+    public function setAddress($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->address = filter_var($request->getParsedBody()['address'], FILTER_SANITIZE_STRING);
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set address: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setAddress($in->address);
+        $user->save();
+        $logger->info("Address for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
+    /** Set birthday (by admin) */
+    public function setBirthday($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->month = filter_var($request->getParsedBody()['month'], FILTER_SANITIZE_NUMBER_INT);
+        $in->day = filter_var($request->getParsedBody()['day'], FILTER_SANITIZE_NUMBER_INT);
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set birthday: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setBirthday($in->month, $in->day);
+        $user->save();
+        $logger->info("Birthday for user ".$in->userHandle." changed by admin ".$admin->getHandle());
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
@@ -694,7 +783,32 @@ class UserController
             'reason' => 'confirm_complete', 
         ]);
     }
-    
+
+    /** Send patron email */
+    public function sendPatronEmail($request, $response, $args)
+    {
+        // Handle request data 
+        $handle = $this->scrub($request,'user');
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+
+        // Load user
+        $user = $this->container->get('User');
+        $user->loadFromHandle($handle);
+
+        // Is this a patron?
+        if($user->getData()->patron->tier < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
+
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->patron($user);
+        
+        $logger->info("Sent patron email to: ".$user->getEmail()." (user ".$user->getId().")");
+
+        return $this->prepResponse($response, ['result' => 'ok']);
+    }
+
     /** User activation */
     public function activate($request, $response, $args) {
 
@@ -777,6 +891,57 @@ class UserController
         // Get a user instance from the container and load user data
         $user = $this->container->get('User');
         $user->loadFromId($id);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        return $this->prepResponse($response, [
+            'account' => [
+                'id' => $user->getId(), 
+                'email' => $user->getEmail(), 
+                'username' => $user->getUsername(), 
+                'handle' => $user->getHandle(), 
+                'status' => $user->getStatus(), 
+                'created' => $user->getCreated(), 
+                'migrated' => $user->getMigrated(), 
+                'login' => $user->getLogin(), 
+                'picture' => $user->getPicture(), 
+                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
+                'data' => $user->getData(), 
+            ],
+            'models' => $user->getModels(),
+            'drafts' => $user->getDrafts(),
+        ]);
+    } 
+
+    /** Load user account */
+    public function adminLoad($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $admin = $this->container->get('User');
+        $admin->loadFromId($id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            // Get a logger instance from the container
+            $logger = $this->container->get('logger');
+            $logger->info("Failed to load user data: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+        
+        // Handle request data 
+        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromHandle($handle);
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');

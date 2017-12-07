@@ -65,6 +65,49 @@ class MailKit
         return true;
     }
 
+    public function patron($user) 
+    {
+        // FIXME: Handle timeout of the mailgun API gracefully
+        // Mailgun API instance
+        $mg = $this->initApi();
+
+        $data = $user->getData();
+        $tier =  $data->patron->tier;
+        $address = $data->patron->address;
+
+        if($tier == 2) $template= "patron.welcome.2";
+        else {
+            if(strlen($address)>10) $template= "patron.welcome.confirm-address.$tier";
+            else $template= "patron.welcome.provide-address.$tier";
+        }
+
+        // Send through mailgun
+        $mg->messages()->send('mg.freesewing.org', [
+          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
+          'to'      => $user->getEmail(), 
+          'subject' => 'Thank you for your support', 
+          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
+          'text'    => $this->loadTemplate("$template.txt", $user),
+          'html'    => $this->loadTemplate("$template.html", $user),
+        ]);
+
+        // Also send through Gmail if it's a SEP domain
+        // SEP: Shitty email provider
+        if($this->isSep($user->getEmail())) {
+            // Send email via swiftmailer 
+            $mailer = $this->container->get('SwiftMailer');
+            $message = (new \Swift_Message('Thank you for your support'))
+                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
+                  ->setTo($user->getEmail())
+                  ->setBody($this->loadTemplate("$template.txt", $user))
+                  ->addPart($this->loadTemplate("$template.html", $user), 'text/html')
+            ;
+            $mailer->send($message);
+        }
+
+        return true;
+    }
+
     public function emailChange($user, $newEmailAddress) 
     {
         // Mailgun API instance
@@ -229,6 +272,16 @@ class MailKit
         case 'profilecomment.reply.html':
             array_push($search, '__AUTHOR__','__COMMENT__','__COMMENT_LINK__');
             array_push($replace, $data['user'], $data['comment'], $data['commentLink']);
+            break;
+        case 'patron.welcome.confirm-address.4.txt':
+        case 'patron.welcome.confirm-address.8.txt':
+            array_push($search, '__ADDRESS__');
+            array_push($replace, $user->getData()->patron->address);
+            break;
+        case 'patron.welcome.confirm-address.4.html':
+        case 'patron.welcome.confirm-address.8.html':
+            array_push($search, '__ADDRESS__');
+            array_push($replace, nl2br($user->getData()->patron->address));
             break;
         default:
             array_push($search, '__LINK__');
