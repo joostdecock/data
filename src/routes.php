@@ -166,8 +166,20 @@ $app->delete('/admin/badge', 'UserController:removeBadge');
 // Set new user password (by admin)
 $app->put('/admin/password', 'UserController:setPassword');
 
+// Set address (by admin)
+$app->put('/admin/address', 'UserController:setAddress');
+
+// Set birthday (by admin)
+$app->put('/admin/birthday', 'UserController:setBirthday');
+
 // Set patron status in user profile
 $app->post('/admin/patron', 'UserController:makePatron');
+
+// Send patron email
+$app->post('/admin/patron/email', 'UserController:sendPatronEmail');
+
+// Load user account
+$app->get('/admin/user/{handle}', 'UserController:adminLoad');
 
 /*******************/
 /* Catch-all route */

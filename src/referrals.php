@@ -61,6 +61,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            'alliemjackson.com' => [
+                'host' => 'www.alliemjackson.com',
+                'link' => 'http://www.alliemjackson.com/',
+            ],
             'Sewcialists' => [
                 'host' => 'sewcialists.wordpress.com',
                 'link' => 'https://sewcialists.wordpress.com/',

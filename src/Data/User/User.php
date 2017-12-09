@@ -206,6 +206,24 @@ class User
         $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
+    public function setAddress($address) 
+    {
+        $data = $this->getData();
+        $data->patron->address = $address;
+        
+        return $this->setData($data);
+    }
+
+    public function setBirthday($month, $day) 
+    {
+        $data = $this->getData();
+        $data->patron->birthday = new \stdClass();
+        $data->patron->birthday->month = $month;
+        $data->patron->birthday->day = $day;
+        
+        return $this->setData($data);
+    }
+
     private function getPassword() 
     {
         return $this->password;
@@ -527,13 +545,10 @@ class User
     {
         $data = $this->getData();
         
-        if($tier === 0) unset($data->patron);
+        if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => time()];
         else {
-            if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => time()];
-            else {
-                $data->patron->tier = $tier;
-                $data->patron->since = time();
-            }
+            $data->patron->tier = $tier;
+            $data->patron->since = time();
         }
 
         return true;
