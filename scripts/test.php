@@ -80,7 +80,7 @@ if(is_object($r->account)) {
 } else { ko(); $fail++; }
 
 p('Changing username');
-$fail += testAuth('PUT','/account',['username' => 'Set by test script', 'email' => $ACCOUNT->email]);
+$fail += testAuth('PUT','/account',['username' => 'Set by test script - '.time(), 'email' => $ACCOUNT->email]);
 
 //print_r($r);
 
