@@ -61,6 +61,26 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            'Den of Angels' => [
+                'host' => 'denofangels.com',
+                'link' => 'https://denofangels.com/',
+            ],
+            'Hobby Schneiderin 24' => [
+                'host' => 'www.hobbyschneiderin24.net',
+                'link' => 'http://www.hobbyschneiderin24.net/',
+            ],
+            'Sebastian Hoofs' => [
+                'host' => 'sebastian-hoofs.de',
+                'link' => 'https://sebastian-hoofs.de/',
+            ],
+            'creativecommons.org' => [
+                'host' => 'creativecommons.org',
+                'link' => 'https://creativecommons.org/',
+            ],
+            'club.osinka.ru' => [
+                'host' => 'club.osinka.ru',
+                'link' => 'https://club.osinka.ru/',
+            ],
             'BlogLovin' => [
                 'host' => 'www.bloglovin.com',
                 'link' => 'https://www.bloglovin.com/',
@@ -76,6 +96,18 @@ if(!function_exists('getReferralGroups')) {
             'Curvy Sewing Collective' => [
                 'host' => 'curvysewingcollective.com',
                 'link' => 'http://curvysewingcollective.com/',
+            ],
+            'MenSew' => [
+                'host' => 'mensew.wordpress.com',
+                'link' => 'https://mensew.wordpress.com/',
+            ],
+            'Wordpress' => [
+                'host' => 'wordpress.com',
+                'link' => 'https://wordpress.com/',
+            ],
+            'The Monthly Stitch' => [
+                'host' => 'themonthlystitch.wordpress.com',
+                'link' => 'https://themonthlystitch.wordpress.com/',
             ],
             'alliemjackson.com' => [
                 'host' => 'www.alliemjackson.com',
