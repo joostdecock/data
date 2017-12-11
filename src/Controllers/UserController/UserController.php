@@ -1191,7 +1191,7 @@ class UserController
             }
         } 
         // Newest patrons at the top
-        asort($patrons);
+        krsort($patrons);
     
         return $this->prepResponse($response, [
             'result' => 'ok', 
