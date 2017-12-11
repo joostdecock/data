@@ -1186,16 +1186,19 @@ class UserController
                         $patron->since = $timestamp;
                         while(isset($patrons[$timestamp])) $timestamp++;
                         $patrons[$timestamp] = $patron;
+                        $keys[] = $timestamp;
                     }
                 }
             }
         } 
+
         // Newest patrons at the top
-        krsort($patrons);
+        rsort($keys);
+        foreach($keys as $t) $sorted[] = $patrons[$t];
     
         return $this->prepResponse($response, [
             'result' => 'ok', 
-            'patrons' => $patrons, 
+            'patrons' => $sorted, 
         ]);
     } 
 
