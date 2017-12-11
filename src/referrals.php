@@ -61,6 +61,22 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            'BlogLovin' => [
+                'host' => 'www.bloglovin.com',
+                'link' => 'https://www.bloglovin.com/',
+            ],
+            'La Bobine' => [
+                'host' => 'labobine.over-blog.com',
+                'link' => 'http://labobine.over-blog.com/',
+            ],
+            'English girl at home' => [
+                'host' => 'englishgirlathome.com',
+                'link' => 'https://englishgirlathome.com/',
+            ],
+            'Curvy Sewing Collective' => [
+                'host' => 'curvysewingcollective.com',
+                'link' => 'http://curvysewingcollective.com/',
+            ],
             'alliemjackson.com' => [
                 'host' => 'www.alliemjackson.com',
                 'link' => 'http://www.alliemjackson.com/',
