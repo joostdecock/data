@@ -170,6 +170,8 @@ if(!function_exists('getReferralGroups')) {
                 'urls' => [
                     "app://",
                     "://web.telegram.org",
+                    "://lastpass.com",
+                    "://www.wunderlist.com",
                 ],
             ],
             "OpenSource.com" => [
@@ -181,7 +183,10 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'https://patternreview.com',
             ],
             "PayPal" => [
-                'host' => 'www.paypal.com',
+                'hosta' => [
+                    "www.paypal.com",
+                    "mobile.paypal.com",
+                ],
                 'link' => 'https://www.paypal.com/',
             ],
             "Pinterest" => [
