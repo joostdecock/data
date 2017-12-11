@@ -73,6 +73,7 @@ if(!function_exists('getReferralGroups')) {
                     "/zimbra/",
                     "/mail/",
                     "/email/",
+                    "/Mail.html",
                     ".campaign-archive.com/",
                 ],
             ],
@@ -114,6 +115,10 @@ if(!function_exists('getReferralGroups')) {
                     "notifications.google.com",
                 ],
                 'link' => 'http://4chan.org/',
+            ],
+            "Google Translate" => [
+                'host' => 'translate.google.com',
+                'link' => 'https://translate.google.com/',
             ],
             "HackerNews" => [
                 'urls' => [
@@ -175,6 +180,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'sewing.patternreview.com',
                 'link' => 'https://patternreview.com',
             ],
+            "PayPal" => [
+                'host' => 'www.paypal.com',
+                'link' => 'https://www.paypal.com/',
+            ],
             "Pinterest" => [
                 'host' => 'pinterest.com',
                 'urls' => [
@@ -195,9 +204,11 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'search.yahoo.com',
                 'urls' => [
                     "://www.ask.com",
+                    "://www.ecosia.org",
                     "://www.google.",
                     "://www.bing.com",
                     "://search.",
+                    "://www.baidu.com",
                     "avg.nation.com",
                     "/duckduckgo.",
                     "://www.startpage.com",
@@ -207,6 +218,9 @@ if(!function_exists('getReferralGroups')) {
             "Sebastian Hoofs" => [
                 'host' => 'sebastian-hoofs.de',
                 'link' => 'https://sebastian-hoofs.de/',
+                'urls' => [
+                    "sebastian--hoofs-de.",
+                ],
             ],
             "Sewcialists" => [
                 'host' => 'sewcialists.wordpress.com',
@@ -230,6 +244,10 @@ if(!function_exists('getReferralGroups')) {
             "The Monthly Stitch" => [
                 'host' => 'themonthlystitch.wordpress.com',
                 'link' => 'https://themonthlystitch.wordpress.com/',
+            ],
+            "The Sewing Directory" => [
+                'host' => 'www.thesewingdirectory.co.uk',
+                'link' => 'http://www.thesewingdirectory.co.uk/',
             ],
             "Thread & Needles" => [
                 'host' => 'www.threadandneedles.fr',
@@ -262,6 +280,10 @@ if(!function_exists('getReferralGroups')) {
             "Wordpress" => [
                 'host' => 'wordpress.com',
                 'link' => 'https://wordpress.com/',
+            ],
+            "www.marvelousdesigner.com" => [
+                'host' => 'www.marvelousdesigner.com',
+                'link' => 'https://www.marvelousdesigner.com',
             ],
             "Yandex" => [
                 'host' => 'yandex.ru',
