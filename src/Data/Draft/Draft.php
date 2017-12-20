@@ -343,6 +343,8 @@ class Draft
         $in['unitsIn'] = strtolower($in['userUnits']);
         $in['unitsOut'] = strtolower($in['userUnits']);
         $in['reference'] = $this->getHandle();
+        $in['draftHandle'] = $this->getHandle();
+        $in['modelName'] = $model->getName();
         
         // Getting draft from core
         $in['service'] = 'draft';
