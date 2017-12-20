@@ -246,10 +246,11 @@ class Draft
         $handleKit = $this->container->get('HandleKit');
         $this->setHandle($handleKit->create('draft'));
         
-        // Pass units and handle to core
+        // Pass units, handle and model name to core
         $in['unitsIn'] = strtolower($in['userUnits']);
         $in['unitsOut'] = strtolower($in['userUnits']);
-        $in['reference'] = $this->getHandle();
+        $in['draftHandle'] = $this->getHandle();
+        $in['modelName'] = $model->getName();
 
         // Getting draft from core
         $in['service'] = 'draft';
@@ -342,6 +343,8 @@ class Draft
         $in['unitsIn'] = strtolower($in['userUnits']);
         $in['unitsOut'] = strtolower($in['userUnits']);
         $in['reference'] = $this->getHandle();
+        $in['draftHandle'] = $this->getHandle();
+        $in['modelName'] = $model->getName();
         
         // Getting draft from core
         $in['service'] = 'draft';
