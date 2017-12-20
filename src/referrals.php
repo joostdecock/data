@@ -4,6 +4,46 @@ if(!function_exists('getReferralGroups')) {
     function getReferralGroups()
     {
         return [
+            "Makery.co.uk" => [
+                'host' => 'makery.co.uk',
+                'link' => 'http://makery.co.uk/',
+            ],
+            "sewcialists.org" => [
+                'host' => 'sewcialists.org',
+                'link' => 'http://sewcialists.org/',
+            ],
+            "Flickr" => [
+                'host' => 'www.flickr.com',
+                'link' => 'https://www.flickr.com/',
+            ],
+            "Overflowing Stash" => [
+                'host' => 'overflowingstash.com',
+                'link' => 'http://overflowingstash.com/',
+            ],
+            "Closet Case Patterns" => [
+                'host' => 'closetcasepatterns.com',
+                'link' => 'https://closetcasepatterns.com/',
+            ],
+            "autostraddle.com" => [
+                'host' => 'www.autostraddle.com',
+                'link' => 'https://www.autostraddle.com/',
+            ],
+            "libregraphicsworld.org" => [
+                'host' => 'libregraphicsworld.org',
+                'link' => 'http://libregraphicsworld.org/',
+            ],
+            "konbini.com" => [
+                'host' => 'www.konbini.com',
+                'link' => 'http://www.konbini.com/',
+            ],
+            "warosu.org" => [
+                'host' => 'warosu.org',
+                'link' => 'https://warosu.org/',
+            ],
+            "Project Minima" => [
+                'host' => 'projectminima.blogspot.',
+                'link' => 'http://projectminima.blogspot.co.uk/',
+            ],
             "4Chan" => [
                 'host' => '.4chan.org',
                 'link' => 'http://4chan.org/',
@@ -92,6 +132,7 @@ if(!function_exists('getReferralGroups')) {
             ],
             "Feed reader" => [
                 'hosts' => [
+                    "www.inoreader.com",
                     "feedly.com",
                     "newsblur.com",
                     "www.feedspot.com",
@@ -106,7 +147,7 @@ if(!function_exists('getReferralGroups')) {
             ],
             "GitHub" => [
                 'host' => 'github.com',
-                'link' => 'https://reddit.com',
+                'link' => 'https://github.com',
             ],
             "Google+" => [
                 'hosts' => [
@@ -117,7 +158,10 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'http://4chan.org/',
             ],
             "Google Translate" => [
-                'host' => 'translate.google.com',
+                'hosts' => [
+                    'translate.google.com',
+                    'translate.googleusercontent.com',
+                ],
                 'link' => 'https://translate.google.com/',
             ],
             "HackerNews" => [
@@ -183,7 +227,7 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'https://patternreview.com',
             ],
             "PayPal" => [
-                'hosta' => [
+                'hosts' => [
                     "www.paypal.com",
                     "mobile.paypal.com",
                 ],
@@ -202,13 +246,19 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'http://www.ravelry.com/',
             ],
             "Reddit" => [
-                'host' => 'reddit.com',
+                'hosts' => [
+                    'reddit.com',
+                    'amp-reddit-com',
+                ],
                 'link' => 'https://reddit.com',
             ],
             "Search" => [
                 'host' => 'search.yahoo.com',
                 'urls' => [
+                    "://www.searchencrypt.com",
+                    "://startpage.com",
                     "://www.ask.com",
+                    "://www.search.ask.com",
                     "://www.ecosia.org",
                     "://www.google.",
                     "://www.bing.com",
@@ -295,7 +345,10 @@ if(!function_exists('getReferralGroups')) {
                 'link' => 'http://yandex.ru/',
             ],
             "YouTube" => [
-                'host' => 'www.youtube.com',
+                'hosts' => [
+                    'www.youtube.com',
+                    'm.youtube.com',
+                ],
                 'link' => 'https://www.youtube.com/',
             ],
         ];
