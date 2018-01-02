@@ -4,46 +4,6 @@ if(!function_exists('getReferralGroups')) {
     function getReferralGroups()
     {
         return [
-            "Makery.co.uk" => [
-                'host' => 'makery.co.uk',
-                'link' => 'http://makery.co.uk/',
-            ],
-            "sewcialists.org" => [
-                'host' => 'sewcialists.org',
-                'link' => 'http://sewcialists.org/',
-            ],
-            "Flickr" => [
-                'host' => 'www.flickr.com',
-                'link' => 'https://www.flickr.com/',
-            ],
-            "Overflowing Stash" => [
-                'host' => 'overflowingstash.com',
-                'link' => 'http://overflowingstash.com/',
-            ],
-            "Closet Case Patterns" => [
-                'host' => 'closetcasepatterns.com',
-                'link' => 'https://closetcasepatterns.com/',
-            ],
-            "autostraddle.com" => [
-                'host' => 'www.autostraddle.com',
-                'link' => 'https://www.autostraddle.com/',
-            ],
-            "libregraphicsworld.org" => [
-                'host' => 'libregraphicsworld.org',
-                'link' => 'http://libregraphicsworld.org/',
-            ],
-            "konbini.com" => [
-                'host' => 'www.konbini.com',
-                'link' => 'http://www.konbini.com/',
-            ],
-            "warosu.org" => [
-                'host' => 'warosu.org',
-                'link' => 'https://warosu.org/',
-            ],
-            "Project Minima" => [
-                'host' => 'projectminima.blogspot.',
-                'link' => 'http://projectminima.blogspot.co.uk/',
-            ],
             "4Chan" => [
                 'host' => '.4chan.org',
                 'link' => 'http://4chan.org/',
@@ -56,6 +16,10 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.annekecaramin.com',
                 'link' => 'http://www.annekecaramin.com/',
             ],
+            "autostraddle.com" => [
+                'host' => 'www.autostraddle.com',
+                'link' => 'https://www.autostraddle.com/',
+            ],
             "benesaddict.fr" => [
                 'host' => 'benesaddict.fr',
                 'link' => 'http://benesaddict.fr/',
@@ -64,9 +28,21 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'www.bloglovin.com',
                 'link' => 'https://www.bloglovin.com/',
             ],
+            "bouquetofbuttons.be" => [
+                'host' => 'bouquetofbuttons.be',
+                'link' => 'http://bouquetofbuttons.be',
+            ],
+            "Closet Case Patterns" => [
+                'host' => 'closetcasepatterns.com',
+                'link' => 'https://closetcasepatterns.com/',
+            ],
             "club.osinka.ru" => [
                 'host' => 'club.osinka.ru',
                 'link' => 'https://club.osinka.ru/',
+            ],
+            "colettehq.com" => [
+                'url' => 'colettehq.com',
+                'link' => 'https://colettehq.com',
             ],
             "Cotton & Curls" => [
                 'host' => 'www.cottonandcurls.com',
@@ -95,6 +71,10 @@ if(!function_exists('getReferralGroups')) {
             "Digg" => [
                 'host' => 'digg.com',
                 'link' => 'http://digg.com/',
+            ],
+            "disqus" => [
+                'host' => 'disq.us',
+                'link' => 'https://disqus.com',
             ],
             "Email" => [
                 'hosts' => [
@@ -141,6 +121,10 @@ if(!function_exists('getReferralGroups')) {
                     "theoldreader.com",
                 ],
             ],
+            "Flickr" => [
+                'host' => 'www.flickr.com',
+                'link' => 'https://www.flickr.com/',
+            ],
             "Freesewing" => [
                 'host' => 'freesewing.org',
                 'link' => 'https://freesewing.org/',
@@ -159,8 +143,8 @@ if(!function_exists('getReferralGroups')) {
             ],
             "Google Translate" => [
                 'hosts' => [
-                    'translate.google.com',
-                    'translate.googleusercontent.com',
+                    "translate.google.com",
+                    "translate.googleusercontent.com",
                 ],
                 'link' => 'https://translate.google.com/',
             ],
@@ -186,9 +170,25 @@ if(!function_exists('getReferralGroups')) {
                 'url' => '://knitwits-owls.blogspot.',
                 'link' => 'http://knitwits-owls.blogspot.com/',
             ],
+            "konbini.com" => [
+                'host' => 'www.konbini.com',
+                'link' => 'http://www.konbini.com/',
+            ],
             "La Bobine" => [
                 'host' => 'labobine.over-blog.com',
                 'link' => 'http://labobine.over-blog.com/',
+            ],
+            "libregraphicsworld.org" => [
+                'host' => 'libregraphicsworld.org',
+                'link' => 'http://libregraphicsworld.org/',
+            ],
+            "lineofselvage.blog" => [
+                'host' => 'lineofselvage.blog',
+                'link' => 'http://lineofselvage.blog',
+            ],
+            "localhost" => [
+                'host' => 'localhost',
+                'link' => 'https://localhost',
             ],
             "MailChimp" => [
                 'hosts' => [
@@ -202,13 +202,29 @@ if(!function_exists('getReferralGroups')) {
                 'host' => 'makemypattern.com',
                 'link' => 'https://makemypattern.com',
             ],
+            "Makery.co.uk" => [
+                'host' => 'makery.co.uk',
+                'link' => 'http://makery.co.uk/',
+            ],
             "Makery.uk" => [
                 'host' => 'www.makery.uk',
                 'link' => 'http://www.makery.uk/',
             ],
+            "meadowtreestyle.com" => [
+                'host' => 'meadowtreestyle.com',
+                'link' => 'http://meadowtreestyle.com',
+            ],
+            "meggipeg.com" => [
+                'host' => 'www.meggipeg.com',
+                'link' => 'http://www.meggipeg.com',
+            ],
             "MenSew" => [
                 'host' => 'mensew.wordpress.com',
                 'link' => 'https://mensew.wordpress.com/',
+            ],
+            "metafilter.com" => [
+                'url' => 'metafilter.com',
+                'link' => 'https://metafilter.com',
             ],
             "Mobile App" => [
                 'urls' => [
@@ -218,9 +234,25 @@ if(!function_exists('getReferralGroups')) {
                     "://www.wunderlist.com",
                 ],
             ],
+            "netvibes.com" => [
+                'host' => 'www.netvibes.com',
+                'link' => 'http://www.netvibes.com',
+            ],
             "OpenSource.com" => [
                 'host' => 'opensource.com',
                 'link' => 'https://opensource.com/',
+            ],
+            "Overflowing Stash" => [
+                'host' => 'overflowingstash.com',
+                'link' => 'http://overflowingstash.com/',
+            ],
+            "packagist.org" => [
+                'host' => 'packagist.org',
+                'link' => 'https://packagist.org',
+            ],
+            "Pastebin" => [
+                'host' => 'pastebin.com',
+                'link' => 'https://pastebin.com/',
             ],
             "PatternReview.com" => [
                 'host' => 'sewing.patternreview.com',
@@ -241,14 +273,22 @@ if(!function_exists('getReferralGroups')) {
                 ],
                 'link' => 'https://instagram.com',
             ],
+            "practicallyaweso.me" => [
+                'host' => 'www.practicallyaweso.me',
+                'link' => 'https://www.practicallyaweso.me',
+            ],
+            "Project Minima" => [
+                'host' => 'projectminima.blogspot.',
+                'link' => 'http://projectminima.blogspot.co.uk/',
+            ],
             "Ravelry" => [
                 'host' => 'www.ravelry.com',
                 'link' => 'http://www.ravelry.com/',
             ],
             "Reddit" => [
                 'hosts' => [
-                    'reddit.com',
-                    'amp-reddit-com',
+                    "reddit.com",
+                    "amp-reddit-com",
                 ],
                 'link' => 'https://reddit.com',
             ],
@@ -268,6 +308,9 @@ if(!function_exists('getReferralGroups')) {
                     "/duckduckgo.",
                     "://www.startpage.com",
                     ".myway.com/",
+                    "search.aol.com/",
+                    "qwant.com/",
+                    "suche.t-online.de/",
                 ],
             ],
             "Sebastian Hoofs" => [
@@ -277,9 +320,17 @@ if(!function_exists('getReferralGroups')) {
                     "sebastian--hoofs-de.",
                 ],
             ],
+            "sewblooms.blogspot.com" => [
+                'url' => 'sewblooms.blogspot',
+                'link' => 'http://sewblooms.blogspot.com',
+            ],
             "Sewcialists" => [
                 'host' => 'sewcialists.wordpress.com',
                 'link' => 'https://sewcialists.wordpress.com/',
+            ],
+            "sewcialists.org" => [
+                'host' => 'sewcialists.org',
+                'link' => 'http://sewcialists.org/',
             ],
             "SewingPlums" => [
                 'hosts' => [
@@ -288,13 +339,25 @@ if(!function_exists('getReferralGroups')) {
                 ],
                 'link' => 'https://sewingplums.com/',
             ],
+            "slowfashionnext.com" => [
+                'host' => 'www.slowfashionnext.com',
+                'link' => 'https://www.slowfashionnext.com',
+            ],
             "StayStrongDreamBig" => [
                 'host' => 'staystrongdreambig.com',
                 'link' => 'http://staystrongdreambig.com/',
             ],
+            "sykroken.no" => [
+                'host' => 'www.sykroken.no',
+                'link' => 'https://www.sykroken.no',
+            ],
             "Textillia" => [
                 'host' => 'www.textillia.com',
                 'link' => 'https://www.textillia.com/',
+            ],
+            "thefoldline.com" => [
+                'host' => 'thefoldline.com',
+                'link' => 'https://thefoldline.com',
             ],
             "The Monthly Stitch" => [
                 'host' => 'themonthlystitch.wordpress.com',
@@ -328,6 +391,14 @@ if(!function_exists('getReferralGroups')) {
                     "://secureurl.fwdcdn.com/",
                 ],
             ],
+            "valentina-project.org" => [
+                'url' => 'valentina-project.org',
+                'link' => 'https://valentina-project.org',
+            ],
+            "warosu.org" => [
+                'host' => 'warosu.org',
+                'link' => 'https://warosu.org/',
+            ],
             "Web Godess" => [
                 'host' => 'www.web-goddess.org',
                 'link' => 'https://www.web-goddess.org/',
@@ -346,10 +417,14 @@ if(!function_exists('getReferralGroups')) {
             ],
             "YouTube" => [
                 'hosts' => [
-                    'www.youtube.com',
-                    'm.youtube.com',
+                    "www.youtube.com",
+                    "m.youtube.com",
                 ],
                 'link' => 'https://www.youtube.com/',
+            ],
+            "zenlearn.com" => [
+                'url' => 'zenlearn.com',
+                'link' => 'https://zenlearn.com',
             ],
         ];
     }
