@@ -41,10 +41,12 @@ class InfoController
     /** Info bundle */
     private function infoBundle() 
     {
-        // Get patterns from info service
-        $patternlist = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info'))->patterns;
+        // Get data from info service
+        $coreinfo = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info'));
+        $info['version']['core'] = $coreinfo->version;
 
         // Iterate over patterns to get remaining info
+        $patternlist = $coreinfo->patterns;
         $female = $this->container['settings']['app']['female_measurements'];
         //$male = $this->container['settings']['app']['female_measurements'];
         $measurementTitles = $this->container['settings']['app']['female_measurements'];

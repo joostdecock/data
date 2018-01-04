@@ -252,11 +252,20 @@ class Draft
         $in['draftHandle'] = $this->getHandle();
         $in['modelName'] = $model->getName();
 
+        // Switch theme to its JSON variant
+        $originalTheme = $in['theme'];
+        $in['theme'] = $in['theme'].'Json';
+
         // Getting draft from core
         $in['service'] = 'draft';
-        $this->setSvg($this->getDraft($in));
+        $json = json_decode($this->getDraft($in));
+        $this->setSvg($json->svg);
+        
+        // Restoring original theme
+        $in['theme'] = $originalTheme;
         
         // Prep data
+        $data['version'] = $json->version;
         $data['options'] = $in;
         $data['units'] = strtolower($in['userUnits']);
         $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
@@ -271,7 +280,6 @@ class Draft
         $this->setUser($user->getId());
         $this->setModel($model->getId());
         $this->setPattern($in['pattern']);
-        
 
         // Store in database
         $db = $this->container->get('db');
@@ -346,11 +354,20 @@ class Draft
         $in['draftHandle'] = $this->getHandle();
         $in['modelName'] = $model->getName();
         
+        // Switch theme to its JSON variant
+        $originalTheme = $in['theme'];
+        $in['theme'] = $in['theme'].'Json';
+        
         // Getting draft from core
         $in['service'] = 'draft';
-        $this->setSvg($this->getDraft($in));
+        $json = json_decode($this->getDraft($in));
+        $this->setSvg($json->svg);
+        
+        // Restoring original theme
+        $in['theme'] = $originalTheme;
         
         // Prep data
+        $data['version'] = $json->version;
         $data['options'] = $in;
         $data['units'] = $model->getUnits();
         $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
