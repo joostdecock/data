@@ -522,6 +522,7 @@ class User
                     unset($val->svg);
                     unset($val->compared);
                 }
+                $val->data = json_decode($val->data);
                 $drafts[$val->id] = $val;
             }
         } 
