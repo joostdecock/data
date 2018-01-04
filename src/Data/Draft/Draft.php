@@ -321,8 +321,10 @@ class Draft
         mkdir($dir, 0755, true);
         $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
         fwrite($handle, $this->getSvg());
+        fclose($handle);
         $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
         fwrite($handle, $this->getCompared());
+        fclose($handle);
     }
 
     /**
@@ -388,8 +390,10 @@ class Draft
         $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
         $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
         fwrite($handle, $this->getSvg());
+        fclose($handle);
         $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
         fwrite($handle, $this->getCompared());
+        fclose($handle);
     }
 
     private function getDraft($args)
