@@ -387,27 +387,32 @@ class DraftController
     /** Patches all drafts to use the new SVG attributes */
     public function patchAll($request, $response, $args)
     {
-        $count = 0;
-        foreach($this->loadUnpatchedDrafts(100) as $id) {
-            $draft = clone $this->container->get('Draft');
-            $draft->loadFromId($id['id']);
-            $draft->setSvg($this->patchSvg($draft->getSvg()));
-            $data = $draft->getData();
-            $data->version = "unknown, predates v1.3.0";
-            $draft->setData($data);
-            // Save draft to database
-            $draft->save();
+        $drafts = $this->loadUnpatchedDrafts(100);
+        if($drafts !== false) {
+            $count = 0;
+            foreach($this->loadUnpatchedDrafts(100) as $id) {
+                $draft = clone $this->container->get('Draft');
+                $draft->loadFromId($id['id']);
+                $draft->setSvg($this->patchSvg($draft->getSvg()));
+                $data = $draft->getData();
+                $data->version = "unknown, predates v1.3.0";
+                $draft->setData($data);
+                // Save draft to database
+                $draft->save();
 
-            // Store on disk
-            $user = clone $this->container->get('User');
-            $user->loadFromId($draft->getUser());
-            $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle();
-            $handle = fopen($dir.'/'.$draft->getHandle().'.svg', 'w');
-            fwrite($handle, $draft->getSvg());
-            fclose($handle);
-            $count++;
+                // Store on disk
+                $user = clone $this->container->get('User');
+                $user->loadFromId($draft->getUser());
+                $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle();
+                $handle = fopen($dir.'/'.$draft->getHandle().'.svg', 'w');
+                fwrite($handle, $draft->getSvg());
+                fclose($handle);
+                $count++;
+            }
+            echo "Patched $count drafts. Reload this page to patch the next batch.";
+        } else {
+            echo "No drafts found to patch";
         }
-        echo "Patched $count drafts. Reload this page to patch the next batch.";
     }
 
     private function patchSvg($svgstr) 
