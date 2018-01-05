@@ -21,9 +21,6 @@ $app->get('/status', 'InfoController:status');
 // Group ungrouped referrals
 $app->get('/referrals/group', 'ReferralController:group');
 
-// Batch-patch all drafts to new SVG attributes
-$app->get('/batch/patchall', 'DraftController:patchAll');
-
 /********************/
 /* Anonymous routes */
 /********************/
