@@ -15,6 +15,18 @@ session_start();
 
 // Instantiate the app
 $settings = require __DIR__ . '/../src/settings.php';
+
+// Rollbar integration
+use \Rollbar\Rollbar;
+use \Rollbar\Payload\Level;
+if($settings['settings']['rollbar']['rollbar_enabled'] !== false) {
+    Rollbar::init([
+        'access_token' => $settings['settings']['rollbar']['access_token'],
+        'environment' => $settings['settings']['rollbar']['environment'],
+        'included_errno' => (E_ERROR | E_WARNING | E_PARSE | E_CORE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_NOTICE)
+    ]);
+}
+
 $app = new \Slim\App($settings);
 
 // Set up dependencies
