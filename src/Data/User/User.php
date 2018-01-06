@@ -182,6 +182,18 @@ class User
         return $this->picture;
     } 
 
+    public function getPictureUrl() 
+    {
+        $avatarKit = $this->container->get('AvatarKit');
+        $api = $this->container['settings']['app']['data_api'];
+        return $api.$avatarKit->getWebDir($this->getHandle(), 'user').'/'.$this->getPicture();
+    } 
+
+    public function getDataAsJson() 
+    {
+        return (string) $this->data;
+    } 
+
     public function getData() 
     {
         return $this->data->export();

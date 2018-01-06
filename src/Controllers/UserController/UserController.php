@@ -295,7 +295,7 @@ class UserController
                 'result' => 'ok', 
                 'message' => 'account/updated',
                 'pendingEmail' => $user->getPendingEmail(),
-                'data' => json_encode($user->getData()),
+                'data' => $user->getDataAsJson(),
             ]);
         } else {
             // Save changes 
@@ -304,7 +304,7 @@ class UserController
             return $this->prepResponse($response, [
                 'result' => 'ok', 
                 'message' => 'account/updated',
-                'data' => json_encode($user->getData()),
+                'data' => $user->getDataAsJson(),
             ]);
         }
     }
@@ -1154,29 +1154,26 @@ class UserController
     public function patronList($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT * FROM `users` WHERE `data` LIKE '%patron%'";
+        $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"patron\":%'";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
         $tiers = $this->container['settings']['patrons']['tiers'];
-        
         if(!$result) return false;
         else {
             $patrons = array();
-            // Get the AvatarKit to get the avatar url
-            $avatarKit = $this->container->get('AvatarKit');
-            $api = $this->container['settings']['app']['data_api'];
             // Cycle through users
-            foreach($result as $key => $user) {
-                if($user->status === 'active') {
-                    $data = json_decode($user->data);
-                    if(in_array($data->patron->tier, $tiers)) {
+            foreach($result as $id) {
+                // Load account
+                $user = clone $this->container->get('User');
+                $user->loadFromId($id);
+                if($user->getStatus() === 'active' && in_array($user->getPatronTier(), $tiers)) {
                         $patron = new \stdClass();
-                        $patron->username = $user->username;
-                        $patron->handle = $user->handle;
-                        $patron->tier = $data->patron->tier;
-                        $patron->picture = $api.$avatarKit->getWebDir($user->handle, 'user').'/'.$user->picture;
-                        if(isset($data->badges)) $patron->badges = $data->badges;
-                        if(isset($data->social)) $patron->social = $data->social;
-                        $timestamp = $data->patron->since;
+                        $patron->username = $user->getUsername();
+                        $patron->handle = $user->getHandle();
+                        $patron->tier = $user->getPatronTier();
+                        $patron->picture = $user->getPictureUrl();
+                        $patron->badges = $user->getBadges();
+                        $patron->social = $user->getSocial();
+                        $timestamp = $user->getPatronSince();
                         $patron->since = $timestamp;
                         while(isset($patrons[$timestamp])) $timestamp++;
                         $patrons[$timestamp] = $patron;

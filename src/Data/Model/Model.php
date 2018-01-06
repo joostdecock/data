@@ -170,6 +170,11 @@ class Model
         return $this->units;
     } 
 
+    public function getDataAsJson() 
+    {
+        return (string) $this->data;
+    } 
+
     public function getData() 
     {
         return $this->data->export();

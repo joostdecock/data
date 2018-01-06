@@ -66,8 +66,10 @@ class JsonStore
     
     public function getNode($location) 
     {
-        if(strpos($location,'.') === false)  return $this->data->$location;
-        else {
+        if(strpos($location,'.') === false)  {
+            if(isset($this->data->$location)) return $this->data->$location;
+            else return false;
+        } else {
             $levels = explode('.',$location);
             $target = array_pop($levels);
             $data = $this->data;
