@@ -44,7 +44,7 @@ class UserController
         // Get a user instance from the container
         $user = $this->container->get('User');
         $user->loadFromId($in->id);
-        if(isset($user->getData()->patron)) $patron = $user->getData()->patron;
+        if($user->isPatron()) $patron = $user->getPatronTier();
         else $patron = 0;
         
         // Add badge if needed
@@ -219,18 +219,11 @@ class UserController
         $in->birthmonth = $this->scrub($request,'birthday-month');
         $in->birthday = $this->scrub($request,'birthday-day');
         $in->twitter = $this->scrub($request,'twitter');
-        if(substr($in->twitter,0,1) == '@') $in->twitter = substr($in->twitter,1);
-        if($in->twitter === 'undefined') unset($in->twitter);
         $in->instagram = $this->scrub($request,'instagram');
-        if(substr($in->instagram,0,1) == '@') $in->instagram = substr($in->instagram,1);
-        if($in->instagram === 'undefined') unset($in->instagram);
         $in->github = $this->scrub($request,'github');
-        if(substr($in->github,0,1) == '@') $in->github = substr($in->github,1);
-        if($in->github === 'undefined') unset($in->github);
         $in->picture = $this->scrub($request,'picture');
         ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
-     
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -264,21 +257,17 @@ class UserController
         }
 
         // Handle toggles
-        $data = $user->getData();
+        if($user->getAccountUnits() != $in->units) $user->setAccountUnits($in->units);
+        if($user->getAccountTheme() != $in->theme) $user->setAccountTheme($in->theme);
+        
+        // Handle 3rd party accounts
+        $user->setTwitterHandle($in->twitter);
+        $user->setInstagramHandle($in->instagram);
+        $user->setGithubHandle($in->github);
 
-        if($data->account->units != $in->units) $data->account->units = $in->units;
-        if($data->account->theme != $in->theme) $data->account->theme = $in->theme;
-        if(strlen($in->twitter) > 2) $data->social->twitter = $in->twitter;
-        else unset($data->social->twitter);
-        if(strlen($in->instagram) > 2) $data->social->instagram = $in->instagram;
-        else unset($data->social->instagram);
-        if(strlen($in->github) > 2) $data->social->github = $in->github;
-        else unset($data->social->github);
-        if($in->address !== false && !isset($data->patron)) $data->patron = new \stdClass();
-        $data->patron->address = $in->address;
-        if($in->birthmonth !== false && !isset($data->patron->birthday)) $data->patron->birthday = new \stdClass();
-        $data->patron->birthday->month = $in->birthmonth;
-        $data->patron->birthday->day = $in->birthday;
+        // Patron info 
+        if($in->address !== false) $user->setPatronAddress($in->address);
+        if($in->birthday !== false) $user->setPatronBirthday($in->birthday, $in->birthmonth);
 
         // Handle email change
         $pendingEmail = false;
@@ -296,21 +285,28 @@ class UserController
             $mailKit = $this->container->get('MailKit');
             $mailKit->emailChange($user, $in->email);
             $logger->info("Email change requested for user ".$user->getId().": From ".$user->getEmail()." to ".$in->email);
-            $pendingEmail = $in->email;
             // Store future email address pending confirmation
-            $data->account->pendingEmail = $in->email;
+            $user->setPendingEmail($in->email);
+            
+            // Save changes 
+            $user->save();
+
+            return $this->prepResponse($response, [
+                'result' => 'ok', 
+                'message' => 'account/updated',
+                'pendingEmail' => $user->getPendingEmail(),
+                'data' => json_encode($user->getData()),
+            ]);
+        } else {
+            // Save changes 
+            $user->save();
+
+            return $this->prepResponse($response, [
+                'result' => 'ok', 
+                'message' => 'account/updated',
+                'data' => json_encode($user->getData()),
+            ]);
         }
-
-        // Save changes 
-        $user->setData($data);
-        $user->save();
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'message' => 'account/updated',
-            'pendingEmail' => $pendingEmail,
-            'data' => json_encode($data),
-        ]);
     }
     
     /** Set password (by admin) */
@@ -387,7 +383,7 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromHandle($in->userHandle);
         
-        $user->setAddress($in->address);
+        $user->setPatronAddress($in->address);
         $user->save();
         $logger->info("Address for user ".$in->userHandle." changed by admin ".$admin->getHandle());
 
@@ -430,7 +426,7 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromHandle($in->userHandle);
         
-        $user->setBirthday($in->month, $in->day);
+        $user->setPatronBirthday($in->day, $in->month);
         $user->save();
         $logger->info("Birthday for user ".$in->userHandle." changed by admin ".$admin->getHandle());
 
@@ -489,7 +485,7 @@ class UserController
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
-            'badges' => $user->getData()->badges
+            'badges' => $user->getBadges(),
         ]);
     }
 
@@ -532,7 +528,7 @@ class UserController
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
-            'patron' => $user->getData()->patron
+            'patron' => $user->getPatron(),
         ]);
     }
 
@@ -586,7 +582,6 @@ class UserController
             $logger->info("Login failed: Incorrect password for user ".$user->getId());
             
             return $this->prepResponse($response, [
-                'user' => print_r($user,1),
                 'result' => 'error', 
                 'reason' => 'login_failed', 
                 'message' => 'login/failed',
@@ -600,7 +595,7 @@ class UserController
         
         // Get the token kit from the container
         $TokenKit = $this->container->get('TokenKit');
-        if(isset($user->getData()->patron->tier)) $tier = $user->getData()->patron->tier;
+        if($user->isPatron()) $tier = $user->getPatronTier();
         else $tier = 0;
         
         return $this->prepResponse($response, [
@@ -776,9 +771,8 @@ class UserController
         $TokenKit = $this->container->get('TokenKit');
         
         // Confirm address
-        $user->setEmail($user->getData()->account->pendingEmail);
-        $data = $user->getData();
-        unset($data->account->pendingEmail);
+        $user->setEmail($user->getPendingEmail());
+        $user->unsetPendingEmail();
         $user->save();
         
         $logger->info("Confirmation: User ".$user->getId()." is now confirmed for address ".$user->getEmail());
@@ -803,7 +797,7 @@ class UserController
         $user->loadFromHandle($handle);
 
         // Is this a patron?
-        if($user->getData()->patron->tier < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
+        if($user->getPatronTier < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');

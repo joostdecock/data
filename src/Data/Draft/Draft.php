@@ -57,6 +57,7 @@ class Draft
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
+        $this->data = new \App\Data\JsonStore();
     }
 
     public function getId() 
@@ -170,14 +171,82 @@ class Draft
 
     public function getData() 
     {
-        return $this->data;
+        return $this->data->export();
+    } 
+
+    public function getDataAsJson() 
+    {
+        return (string) $this->data;
     } 
 
     public function setData($data) 
     {
-        $this->data = $data;
+        $this->data->import($data);
     } 
 
+    public function setMeasurement($key, $val)
+    {
+        $this->data->setNode("measurements.$key", $val);
+    }
+
+    public function getMeasurement($key)
+    {
+        return $this->data->getNode("measurements.$key");
+    }
+
+    public function getMeasurements()
+    {
+        return $this->data->getNode('measurements');
+    }
+
+    public function setCoreUrl($url)
+    {
+        $this->data->setNode('coreUrl', $url);
+    }
+
+    public function getCoreUrl()
+    {
+        return $this->data->getNode('coreUrl');
+    }
+
+    public function setUnits($units)
+    {
+        $this->data->setNode('units', strtolower($units));
+    }
+
+    public function getUnits()
+    {
+        return $this->data->getNode('units');
+    }
+
+    public function setVersion($version)
+    {
+        $this->data->setNode('version', $version);
+    }
+
+    public function getVersion($version)
+    {
+        return $this->data->getNode('version');
+    }
+
+    public function setOption($key, $val)
+    {
+        $this->data->setNode("options.$key", $val);
+    }
+    public function setOptions($options)
+    {
+        $this->data->setNode('options', $options);
+    }
+
+    public function getOption($option)
+    {
+        return $this->data->getNode("options.$option");
+    }
+
+    public function getOptions()
+    {
+        return $this->data->getNode('options');
+    }
 
     /**
      * Loads a draft based on a unique identifier
@@ -195,7 +264,7 @@ class Draft
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
-            if($key == 'data' && $val != '') $this->$key = json_decode($val);
+            if($key == 'data' && $val != '') $this->data->import($val);
             else $this->$key = $val;
         }
     }
@@ -239,7 +308,7 @@ class Draft
                 else $val = $val / 2.54;
             }
             $in[$key] = $val;
-            $data['measurements'][$key] = $val;
+            $this->setMeasurement($key, $val);
         }
 
         // Get the HandleKit to create the handle
@@ -265,11 +334,10 @@ class Draft
         $in['theme'] = $originalTheme;
         
         // Prep data
-        $data['version'] = $json->version;
-        $data['options'] = $in;
-        $data['units'] = strtolower($in['userUnits']);
-        $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $this->setVersion($json->version);
+        $this->setOptions($in);
+        $this->setUnits($in['userUnits']);
+        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
         
         // Getting compare from core
         $in['service'] = 'compare';
@@ -298,7 +366,7 @@ class Draft
             ".$db->quote($this->getPattern()).",
             ".$db->quote($this->getModel()).",
             ".$db->quote($this->getHandle()).",
-            ".$db->quote($data).",
+            ".$db->quote($this->getDataAsJson()).",
             ".$db->quote($this->getSvg()).",
             ".$db->quote($this->getCompared()).",
             ".$db->quote($this->container['settings']['app']['motd']).",
@@ -346,7 +414,7 @@ class Draft
                 else $val = $val / 2.54;
             }
             $in[$key] = $val;
-            $data['measurements'][$key] = $val;
+            $this->setMeasurement($key, $val);
         }
             
         // Pass units and handle to core
@@ -368,21 +436,17 @@ class Draft
         // Restoring original theme
         $in['theme'] = $originalTheme;
         
-        // Prep data
-        $data['version'] = $json->version;
-        $data['options'] = $in;
-        $data['units'] = $model->getUnits();
-        $data['coreUrl'] = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($in);
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        // Storing data
+        $this->setVersion($json->version);
+        $this->setOptions($in);
+        $this->setUnits($model->getUnits());
+        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
         
         // Getting compare from core
         $in['service'] = 'compare';
         $in['theme'] = 'Compare';
         $this->setCompared($this->getDraft($in));
         
-        // Update info    
-        $this->setData($data);
-
         // Save draft to database
         $this->save();
 
@@ -415,16 +479,12 @@ class Draft
     /** Saves the draft to the database */
     public function save() 
     {
-        // Don't double encode
-        $data = $this->getData();
-        if(!is_string($data)) $data = json_encode($this->getData(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-
         $db = $this->container->get('db');
         $sql = "UPDATE `drafts` set 
             `name` = ".$db->quote($this->getName()).",
             `svg` = ".$db->quote($this->getSvg()).",
             `compared` = ".$db->quote($this->getCompared()).",
-            `data` = ".$db->quote($data).",
+            `data` = ".$db->quote($this->getDataAsJson()).",
             `shared`   = ".$db->quote($this->getShared()).",
             `notes`     = ".$db->quote($this->getNotes())."
             WHERE 
