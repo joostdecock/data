@@ -287,6 +287,11 @@ class User
         return $this->data->getNode('badges');
     } 
 
+    public function getSocial() 
+    {
+        return $this->data->getNode('social');
+    } 
+
     public function getPatron() 
     {
         return $this->data->getNode('patron');

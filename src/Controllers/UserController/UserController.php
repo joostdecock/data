@@ -1155,7 +1155,7 @@ class UserController
     {
         $db = $this->container->get('db');
         $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"patron\":%'";
-        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $tiers = $this->container['settings']['patrons']['tiers'];
         if(!$result) return false;
         else {
@@ -1164,21 +1164,20 @@ class UserController
             foreach($result as $id) {
                 // Load account
                 $user = clone $this->container->get('User');
-                $user->loadFromId($id);
+                $user->loadFromId($id['id']);
                 if($user->getStatus() === 'active' && in_array($user->getPatronTier(), $tiers)) {
-                        $patron = new \stdClass();
-                        $patron->username = $user->getUsername();
-                        $patron->handle = $user->getHandle();
-                        $patron->tier = $user->getPatronTier();
-                        $patron->picture = $user->getPictureUrl();
-                        $patron->badges = $user->getBadges();
-                        $patron->social = $user->getSocial();
-                        $timestamp = $user->getPatronSince();
-                        $patron->since = $timestamp;
-                        while(isset($patrons[$timestamp])) $timestamp++;
-                        $patrons[$timestamp] = $patron;
-                        $keys[] = $timestamp;
-                    }
+                    $patron = new \stdClass();
+                    $patron->username = $user->getUsername();
+                    $patron->handle = $user->getHandle();
+                    $patron->tier = $user->getPatronTier();
+                    $patron->picture = $user->getPictureUrl();
+                    $patron->badges = $user->getBadges();
+                    $patron->social = $user->getSocial();
+                    $timestamp = $user->getPatronSince();
+                    $patron->since = $timestamp;
+                    while(isset($patrons[$timestamp])) $timestamp++;
+                    $patrons[$timestamp] = $patron;
+                    $keys[] = $timestamp;
                 }
             }
         } 
