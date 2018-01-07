@@ -218,7 +218,10 @@ class Model
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
-            if($key == 'data' && $val != '') $this->data->import($val);
+            if($key == 'data') {
+                if($val != '') $this->data->import($val);
+                else $this->data = new \App\Data\JsonStore();
+            }
             else $this->$key = $val;
             }
     }
