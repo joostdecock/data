@@ -72,7 +72,7 @@ class ModelController
         // Update model with user input and save
         $model->setBody($in->body);
         $model->setName($in->name);
-        $model->setUnits($user->getData()->account->units);
+        $model->setUnits($user->getAccountUnits());
         $model->save();
 
         // Add badge if needed
