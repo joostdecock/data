@@ -372,8 +372,10 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
-                if($key == 'data' && $val != '') $this->data->import($val);
-                else $this->$key = $val;
+                if($key == 'data') {
+                    if($val != '') $this->data->import($val);
+                    else $this->data = new \App\Data\JsonStore();
+                } else $this->$key = $val;
             }
         }
     }
@@ -432,7 +434,7 @@ class User
         // Set basic info    
         $this->setPassword($password);
         $this->setEmail($email);
-        
+
         // Get the HandleKit to create the handle
         $handleKit = $this->container->get('HandleKit');
         $this->setHandle($handleKit->create('user'));
@@ -450,6 +452,7 @@ class User
             `handle`,
             `status`,
             `created`,
+            `data`,
             `role`,
             `picture`,
             `password`,
@@ -461,6 +464,7 @@ class User
             ".$db->quote($this->getHandle()).",
             'inactive',
             NOW(),
+            ".$db->quote(json_encode(['account' => ['units' => 'metric', 'theme' => 'classic']])).",
             'user',
             ".$db->quote($this->getPicture()).",
             ".$db->quote($this->getPassword()).",
