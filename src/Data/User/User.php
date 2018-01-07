@@ -60,7 +60,7 @@ class User
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-
+        $this->data = new \App\Data\JsonStore();
     }
 
     public function getId() 
@@ -182,23 +182,26 @@ class User
         return $this->picture;
     } 
 
-    public function setData($data) 
+    public function getPictureUrl() 
     {
-        $this->data = $data;
-        return true;
+        $avatarKit = $this->container->get('AvatarKit');
+        $api = $this->container['settings']['app']['data_api'];
+        return $api.$avatarKit->getWebDir($this->getHandle(), 'user').'/'.$this->getPicture();
+    } 
+
+    public function getDataAsJson() 
+    {
+        return (string) $this->data;
     } 
 
     public function getData() 
     {
-        if(!is_object($this->data)) {
-            $this->data = new \stdClass();
-            $this->data->account = new \stdClass();
-            $this->data->account->units = 'metric';
-            $this->data->account->theme = 'classic';
-            return $this->data;
-        }
+        return $this->data->export();
+    } 
 
-        return $this->data;
+    public function setData($data) 
+    {
+        $this->data->import($data);
     } 
 
     public function setPassword($password) 
@@ -206,27 +209,147 @@ class User
         $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    public function setAddress($address) 
-    {
-        $data = $this->getData();
-        $data->patron->address = $address;
-        
-        return $this->setData($data);
-    }
-
-    public function setBirthday($month, $day) 
-    {
-        $data = $this->getData();
-        $data->patron->birthday = new \stdClass();
-        $data->patron->birthday->month = $month;
-        $data->patron->birthday->day = $day;
-        
-        return $this->setData($data);
-    }
-
     private function getPassword() 
     {
         return $this->password;
+    } 
+
+    public function setPendingEmail($email) 
+    {
+        $this->data->setNode('account.pendingEmail', $email);
+    } 
+
+    public function unsetPendingEmail() 
+    {
+        $this->data->unsetNode('account.pendingEmail');
+    } 
+
+    public function getPendingEmail() 
+    {
+        return $this->data->getNode('account.pendingEmail');
+    } 
+
+    public function setAccountUnits($units) 
+    {
+        $this->data->setNode('account.units', $units);
+    }
+
+    public function getAccountUnits() 
+    {
+        return $this->data->getNode('account.units');
+    } 
+
+    public function setAccountTheme($theme) 
+    {
+        $this->data->setNode('account.theme', $theme);
+    }
+
+    public function getAccountTheme() 
+    {
+        return $this->data->getNode('account.theme');
+    } 
+
+    public function setTwitterHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.twitter', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.twitter');
+    }
+
+    public function getTwitterHandle() 
+    {
+        return $this->data->getNode('social.twitter');
+    } 
+
+    public function setInstagramHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.instagram', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.instagram');
+    }
+
+    public function getInstagramHandle() 
+    {
+        return $this->data->getNode('social.instagram');
+    } 
+
+    public function setGithubHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.github', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.github');
+    }
+
+    public function getGithubHandle() 
+    {
+        return $this->data->getNode('social.github');
+    } 
+
+    public function getBadges() 
+    {
+        return $this->data->getNode('badges');
+    } 
+
+    public function getSocial() 
+    {
+        return $this->data->getNode('social');
+    } 
+
+    public function getPatron() 
+    {
+        return $this->data->getNode('patron');
+    } 
+
+    public function setPatron($tier, $since, $address=false, $birthday=false, $birthmonth=false) 
+    {
+        $this->setPatronTier($tier);
+        $this->setPatronSince($since);
+        if($address) $this->setPatronAddress($address);
+        if($birthday) $this->setPatronBirthday($birthday, $birthmonth);
+    }
+
+    public function getPatronTier() 
+    {
+        return $this->data->getNode('patron.tier');
+    }
+
+    public function setPatronTier($tier) 
+    {
+        $this->data->setNode('patron.tier', $tier);
+    }
+
+    public function setPatronSince($date) 
+    {
+        $this->data->setNode('patron.since', $date);
+    }
+
+    public function getPatronSince() 
+    {
+        return $this->data->getNode('patron.since');
+    } 
+
+    public function setPatronAddress($address) 
+    {
+        $this->data->setNode('patron.address', $address);
+    }
+
+    public function getPatronAddress() 
+    {
+        return $this->data->getNode('patron.address');
+    } 
+
+    public function setPatronBirthday($day, $month) 
+    {
+        $this->data->setNode('patron.birthday.day', $day);
+        $this->data->setNode('patron.birthday.nonth', $month);
+    }
+
+    public function getPatronBirthday() 
+    {
+        return $this->data->getNode('patron.birthday.day').'/'.$this->data->getNode('patron.birthday.month');
+    } 
+
+    public function isPatron() 
+    {
+        if(is_int($this->getPatronTier())) return true;
+        else return false;
     } 
 
 
@@ -249,7 +372,7 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
-                if($key == 'data' && $val != '') $this->$key = json_decode($val);
+                if($key == 'data' && $val != '') $this->data->import($val);
                 else $this->$key = $val;
             }
         }
@@ -532,11 +655,8 @@ class User
     /** Adds a badge to the user */
     public function addBadge($badge)
     {
-        $data = $this->getData();
-        if(isset($data->badges->$badge)) return false;
-
-        if(!isset($data->badges)) $data->badges = new  \stdClass();
-        $data->badges->$badge = true;
+        if ($this->data->getNode("badges.$badge") == true) return false;
+        else $this->data->setNode("badges.$badge", true);
 
         return true;
     }
@@ -544,27 +664,14 @@ class User
     /** Makes user a patron */
     public function makePatron($tier)
     {
-        $data = $this->getData();
-        
-        if(!isset($data->patron)) $data->patron = (object)['tier' => $tier, 'since' => time()];
-        else {
-            $data->patron->tier = $tier;
-            $data->patron->since = time();
-        }
-
-        return true;
+        $this->data->setNode('patron.tier', $tier);
+        $this->date->setNode('patron.since', time());
     }
 
     /** Removes a badge from the user */
     public function removeBadge($badge)
     {
-        $data = $this->getData();
-        if(!isset($data->badges->$badge)) return true;
-        if(!isset($data->badges)) return true;
-        
-        unset($data->badges->$badge);
-
-        return true;
+        $this->data->unsetNode("badges.$badge");
     }
     
     /**
@@ -647,7 +754,7 @@ class User
                 'handle' => $draft->handle,
                 'pattern' => $draft->pattern,
                 'model' => $draft->model,
-                'data' => json_decode($draft->data,1),
+                'data' => $draft->data,
                 'created' => $draft->created,
                 'shared' => $draft->shared,
                 'notes' => $draft->notes,

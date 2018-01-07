@@ -56,6 +56,7 @@ class Model
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
+        $this->data = new \App\Data\JsonStore();
     }
 
     public function getId() 
@@ -169,17 +170,36 @@ class Model
         return $this->units;
     } 
 
+    public function getDataAsJson() 
+    {
+        return (string) $this->data;
+    } 
+
     public function getData() 
     {
-        return $this->data;
+        return $this->data->export();
     } 
 
     public function setData($data) 
     {
-        $this->data = $data;
+        $this->data->import($data);
     } 
 
+    public function setMeasurement($key, $val)
+    {
+        $this->data->setNode("measurements.$key", $val);
+    }
 
+    public function getMeasurement($key)
+    {
+        return $this->data->getNode("measurements.$key");
+    }
+
+    public function getMeasurements()
+    {
+        return $this->data->getNode('measurements');
+    }
+    
     /**
      * Loads a model based on a unique identifier
      *
@@ -198,7 +218,7 @@ class Model
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
-            if($key == 'data' && $val != '') $this->$key = json_decode($val);
+            if($key == 'data' && $val != '') $this->data->import($val);
             else $this->$key = $val;
             }
     }
@@ -282,7 +302,7 @@ class Model
             `name` = ".$db->quote($this->getName()).",
             `body`   = ".$db->quote($this->getBody()).",
             `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote(json_encode($this->data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)).",
+            `data`     = ".$db->quote($this->getDataAsJson()).",
             `units`     = ".$db->quote($this->units).",
             `migrated`     = ".$db->quote($this->migrated).",
             `shared`   = ".$db->quote($this->getShared()).",
@@ -327,7 +347,7 @@ class Model
         else $units = 'cm';
 
         // Load measurements
-        $measurements = (array)$this->getData()->measurements;
+        $measurements = (array) $this->getMeasurements();
         ksort($measurements);
 
         // Create random directory

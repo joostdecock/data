@@ -34,7 +34,7 @@ return [
         
         // Rollbar
         'rollbar' => [
-            'rollbar_enabled' => true,
+            'rollbar_enabled' => false,
             'access_token' => getenv('ROLLBAR_ACCESS_TOKEN'),
             'environment' => getenv('ROLLBAR_ENVIRONMENT'),
         ],
