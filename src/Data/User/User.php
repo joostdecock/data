@@ -63,6 +63,12 @@ class User
         $this->data = new \App\Data\JsonStore();
     }
 
+    // Getters
+    private function getPassword() 
+    {
+        return $this->password;
+    } 
+
     public function getId() 
     {
         return $this->id;
@@ -83,22 +89,9 @@ class User
         return $this->created;
     } 
 
-    private function setHandle($handle) 
-    {
-        $this->handle = $handle;
-        return true;
-    } 
-
     public function getHandle() 
     {
         return $this->handle;
-    } 
-
-    public function setLogin($time=false) 
-    {
-        if($time === false) $time = date('Y-m-d H:i:s');
-        $this->login = $time;
-        return true;
     } 
 
     public function getLogin() 
@@ -106,21 +99,9 @@ class User
         return $this->login;
     } 
 
-    public function setEmail($email) 
-    {
-        $this->email = $email;
-        return true;
-    } 
-
     public function getEmail() 
     {
         return $this->email;
-    } 
-
-    public function setUsername($username) 
-    {
-        $this->username = $username;
-        return true;
     } 
 
     public function getUsername() 
@@ -128,26 +109,9 @@ class User
         return $this->username;
     } 
 
-    public function setStatus($status) 
-    {
-        if(in_array($status, $this->container['settings']['app']['user_status'])) {
-            $this->status = $status;
-
-            return true;
-        } 
-    
-        return false;
-    } 
-
     public function getStatus() 
     {
         return $this->status;
-    } 
-
-    public function setMigrated($migrated) 
-    {
-        $this->migrated = $migrated;
-        return true;
     } 
 
     public function getMigrated() 
@@ -155,28 +119,11 @@ class User
         return $this->migrated;
     } 
 
-    public function setRole($role) 
-    {
-        if(in_array($role, $this->container['settings']['app']['user_role'])) {
-            $this->role = $role;
-
-            return true;
-        } 
-    
-        return false;
-    } 
-
     public function getRole() 
     {
         return $this->role;
     } 
-
-    public function setPicture($picture) 
-    {
-        $this->picture = $picture;
-        return true;
-    } 
-
+    
     public function getPicture() 
     {
         return $this->picture;
@@ -196,32 +143,7 @@ class User
 
     public function getData() 
     {
-        return $this->data->export();
-    } 
-
-    public function setData($data) 
-    {
-        $this->data->import($data);
-    } 
-
-    public function setPassword($password) 
-    {
-        $this->password = password_hash($password, PASSWORD_DEFAULT);
-    }
-
-    private function getPassword() 
-    {
-        return $this->password;
-    } 
-
-    public function setPendingEmail($email) 
-    {
-        $this->data->setNode('account.pendingEmail', $email);
-    } 
-
-    public function unsetPendingEmail() 
-    {
-        $this->data->unsetNode('account.pendingEmail');
+        return $this->data;
     } 
 
     public function getPendingEmail() 
@@ -229,53 +151,25 @@ class User
         return $this->data->getNode('account.pendingEmail');
     } 
 
-    public function setAccountUnits($units) 
-    {
-        $this->data->setNode('account.units', $units);
-    }
-
     public function getAccountUnits() 
     {
         return $this->data->getNode('account.units');
     } 
-
-    public function setAccountTheme($theme) 
-    {
-        $this->data->setNode('account.theme', $theme);
-    }
 
     public function getAccountTheme() 
     {
         return $this->data->getNode('account.theme');
     } 
 
-    public function setTwitterHandle($handle) 
-    {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.twitter', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.twitter');
-    }
-
     public function getTwitterHandle() 
     {
         return $this->data->getNode('social.twitter');
     } 
 
-    public function setInstagramHandle($handle) 
-    {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.instagram', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.instagram');
-    }
-
     public function getInstagramHandle() 
     {
         return $this->data->getNode('social.instagram');
     } 
-
-    public function setGithubHandle($handle) 
-    {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.github', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.github');
-    }
 
     public function getGithubHandle() 
     {
@@ -297,17 +191,133 @@ class User
         return $this->data->getNode('patron');
     } 
 
+    public function getPatronTier() 
+    {
+        return $this->data->getNode('patron.tier');
+    }
+
+    public function getPatronSince() 
+    {
+        return $this->data->getNode('patron.since');
+    } 
+
+    public function getPatronAddress() 
+    {
+        return $this->data->getNode('patron.address');
+    } 
+
+    public function getPatronBirthday() 
+    {
+        return $this->data->getNode('patron.birthday.day').'/'.$this->data->getNode('patron.birthday.month');
+    } 
+
+    // Setters
+    private function setHandle($handle) 
+    {
+        $this->handle = $handle;
+        return true;
+    } 
+
+    public function setLogin($time=false) 
+    {
+        if($time === false) $time = date('Y-m-d H:i:s');
+        $this->login = $time;
+        return true;
+    } 
+
+    public function setEmail($email) 
+    {
+        $this->email = $email;
+        return true;
+    } 
+
+    public function setUsername($username) 
+    {
+        $this->username = $username;
+        return true;
+    } 
+
+    public function setStatus($status) 
+    {
+        if(in_array($status, $this->container['settings']['app']['user_status'])) {
+            $this->status = $status;
+
+            return true;
+        } 
+    
+        return false;
+    } 
+
+    public function setMigrated($migrated) 
+    {
+        $this->migrated = $migrated;
+        return true;
+    } 
+
+    public function setRole($role) 
+    {
+        if(in_array($role, $this->container['settings']['app']['user_role'])) {
+            $this->role = $role;
+            return true;
+        } 
+    
+        return false;
+    } 
+
+    public function setPicture($picture) 
+    {
+        $this->picture = $picture;
+        return true;
+    } 
+
+    public function setData($data) 
+    {
+        $this->data = $data;
+    } 
+
+    public function setPassword($password) 
+    {
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    public function setPendingEmail($email) 
+    {
+        $this->data->setNode('account.pendingEmail', $email);
+    } 
+
+    public function setAccountUnits($units) 
+    {
+        $this->data->setNode('account.units', $units);
+    }
+
+    public function setAccountTheme($theme) 
+    {
+        $this->data->setNode('account.theme', $theme);
+    }
+
+    public function setTwitterHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.twitter', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.twitter');
+    }
+
+    public function setInstagramHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.instagram', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.instagram');
+    }
+
+    public function setGithubHandle($handle) 
+    {
+        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.github', str_replace('@','',$handle));
+        else $this->data->unsetNode('social.github');
+    }
     public function setPatron($tier, $since, $address=false, $birthday=false, $birthmonth=false) 
     {
         $this->setPatronTier($tier);
         $this->setPatronSince($since);
         if($address) $this->setPatronAddress($address);
         if($birthday) $this->setPatronBirthday($birthday, $birthmonth);
-    }
-
-    public function getPatronTier() 
-    {
-        return $this->data->getNode('patron.tier');
     }
 
     public function setPatronTier($tier) 
@@ -320,35 +330,26 @@ class User
         $this->data->setNode('patron.since', $date);
     }
 
-    public function getPatronSince() 
-    {
-        return $this->data->getNode('patron.since');
-    } 
-
     public function setPatronAddress($address) 
     {
         $this->data->setNode('patron.address', $address);
     }
 
-    public function getPatronAddress() 
-    {
-        return $this->data->getNode('patron.address');
-    } 
-
     public function setPatronBirthday($day, $month) 
     {
         $this->data->setNode('patron.birthday.day', $day);
-        $this->data->setNode('patron.birthday.nonth', $month);
+        $this->data->setNode('patron.birthday.month', $month);
     }
 
-    public function getPatronBirthday() 
+    public function unsetPendingEmail() 
     {
-        return $this->data->getNode('patron.birthday.day').'/'.$this->data->getNode('patron.birthday.month');
+        $this->data->unsetNode('account.pendingEmail');
     } 
 
     public function isPatron() 
     {
-        if(is_int($this->getPatronTier())) return true;
+        $tiers = $this->container['settings']['patrons']['tiers'];
+        if(in_array($this->getPatronTier(), $tiers)) return true;
         else return false;
     } 
 
@@ -506,10 +507,10 @@ class User
      *
      * @return bool true if it's free, false if not
      */
-    public function usernameTaken($email) 
+    public function usernameTaken($username) 
     {
         $db = $this->container->get('db');
-        $sql = 'SELECT `username` FROM `users` WHERE  `username` = '.$db->quote($email).' LIMIT 1';
+        $sql = 'SELECT `username` FROM `users` WHERE  `username` = '.$db->quote($username).' LIMIT 1';
         
         if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
         else return false;

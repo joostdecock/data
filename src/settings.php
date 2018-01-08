@@ -16,6 +16,11 @@ return [
             'path' => getenv('LOG_FILE'),
             'level' => \Monolog\Logger::DEBUG,
         ],
+        'testlogger' => [
+            'name' => 'slim-app',
+            'path' => '/tmp/data.freesewing.test.log',
+            'level' => \Monolog\Logger::DEBUG,
+        ],
         
         // Database
         'db' => [
@@ -81,6 +86,10 @@ return [
         // Storage settings
         'storage' => [
             'static_path' => dirname(__DIR__) . '/public/static',
+            'temp_path' => '/tmp',
+        ],
+        'teststorage' => [
+            'static_path' => '/tmp',
             'temp_path' => '/tmp',
         ],
 
