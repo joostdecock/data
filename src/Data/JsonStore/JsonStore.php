@@ -11,69 +11,47 @@ namespace App\Data;
  */
 class JsonStore
 {
-    /** @var object $data Data stored in this object */
-    private $data;
-
-    public function __construct() 
-    {
-        $this->data = new \stdClass();
-    }
-
     public function __toString()
     {
-        return json_encode($this->data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return json_encode($this, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     }
-
-    public function export() 
-    {
-        return $this->data;
-    } 
-
-    public function import($data) 
-    {
-        if(is_object($data)) $this->data = $data;
-        else $this->data = json_decode($data);
-    } 
 
     public function setNode($location, $value) 
     {
-        if(strpos($location,'.') === false)  $this->data->$location = $value;
+        if(strpos($location,'.') === false)  $this->$location = $value;
         else {
             $levels = explode('.',$location);
-            $data = $this->data;
-            $temp = &$data;
-            foreach($levels as $key) $temp = &$temp->$key;
-            $temp = $value;
-            unset($temp);
-            $this->data = $data;
+            $target = array_pop($levels);
+            $temp = &$this;
+            foreach($levels as $key) {
+                if(!isset($temp->$key)) $temp->$key = new \stdClass();
+                $temp = &$temp->$key;
+            }
+            $temp->$target = $value;
         }
     } 
 
     public function unsetNode($location) 
     {
-        if(strpos($location,'.') === false)  unset($this->data->$location);
+        if(strpos($location,'.') === false)  unset($this->$location);
         else {
             $levels = explode('.',$location);
             $target = array_pop($levels);
-            $data = $this->data;
-            $temp = &$data;
+            $temp = &$this;
             foreach($levels as $key) $temp = &$temp->$key;
             unset($temp->$target);
-            $this->data = $data;
-            unset($temp);
         }
     } 
     
     public function getNode($location) 
     {
         if(strpos($location,'.') === false)  {
-            if(isset($this->data->$location)) return $this->data->$location;
+            if(isset($this->$location)) return $this->$location;
             else return false;
         } else {
             $levels = explode('.',$location);
             $target = array_pop($levels);
-            $data = $this->data;
-            $temp = &$data;
+            $temp = &$this;
             foreach($levels as $key) $temp = &$temp->$key;
             if(isset($temp->$target)) return $temp->$target;
             else return false;
