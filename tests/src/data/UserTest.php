@@ -3,74 +3,17 @@
 namespace App\Tests;
 
 use \Slim\Container;
+require_once __DIR__.'/../assets/SlimTest.php';
 
 class UserTest extends \PHPUnit\Framework\TestCase
 {
-
-    private function bootstrap()
-    {
-
-        // Instantiate the app
-        $settings = require __DIR__ . '/../../../src/settings.php';
-        // Overwrite storage path for testing
-        $settings['settings']['storage'] = $settings['settings']['teststorage'];
-
-        $app = new \Slim\App($settings);
-        $container = $app->getContainer();
-
-        // database
-        $container['db'] = function ($c) {
-            $db = $c['settings']['testdb'];
-            $pdo = new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'],
-            $db['user'], $db['password']);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
-            return $pdo;
-        };
-
-        // monolog
-        $container['logger'] = function ($c) {
-            $settings = $c->get('settings')['testlogger'];
-            $logger = new \Monolog\Logger($settings['name']);
-            $logger->pushProcessor(new \Monolog\Processor\UidProcessor());
-            $logger->pushHandler(new \Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
-            return $logger;
-        };
-        
-        $container['HandleKit'] = function ($container) {
-            return new \App\Tools\HandleKit($container);
-        };
-
-        $container['AvatarKit'] = function ($container) {
-            return new \App\Tools\AvatarKit($container);
-        };
-        
-        $container['MigrationKit'] = function ($container) {
-            return new \App\Tools\MigrationKit($container);
-        };
-        
-        $container['MailKit'] = function ($container) {
-            return new \App\Tools\MailKit($container);
-        };
-        
-        $container['TokenKit'] = function ($container) {
-            return new \App\Tools\TokenKit($container);
-        };
-        
-        $container['UnitsKit'] = function ($container) {
-            return new \App\Tools\UnitsKit($container);
-        };
-
-        return $app;
-    }
-
 
     /** 
      * Tests constructor
      */
     public function testConstructor()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
 
         $obj = new \App\Data\User($app->getContainer());
         $json = new \App\Data\JsonStore();
@@ -86,7 +29,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
 
         $obj = new \App\Data\User($app->getContainer());
         $setMethod = 'set'.$methodSuffix;
@@ -118,7 +61,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testSetPatron()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $obj->setPatron(8, '1515406642');
@@ -134,7 +77,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testUnsetPendingEmail()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $obj->setPendingEmail('test@freesewing.org');
@@ -146,7 +89,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testIsPatron()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $obj->setPatronTier(8);
@@ -158,7 +101,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testCreate()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testCreate@freesewing.org';
@@ -172,7 +115,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromId()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj1 = new \App\Data\User($app->getContainer());
         
         $email = time().'.testLoadFromId@freesewing.org';
@@ -190,7 +133,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromHandle()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj1 = new \App\Data\User($app->getContainer());
         
         $email = time().'.testLoadFromHandle@freesewing.org';
@@ -208,7 +151,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testEmailTaken()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testEmailTaken@freesewing.org';
@@ -219,7 +162,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testUsernameTaken()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testUsernameTaken@freesewing.org';
@@ -234,7 +177,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testGetActivationToken()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testGetActivationToken@freesewing.org';
@@ -250,7 +193,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testGetResetToken()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testGetResetToken@freesewing.org';
@@ -266,7 +209,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testCheckPassword()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testCheckPassword@freesewing.org';
@@ -278,7 +221,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testRemove()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testRemove@freesewing.org';
@@ -292,7 +235,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testAddRemoveBadge()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testAddRemoveBadge@freesewing.org';
@@ -310,7 +253,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testMakePatron()
     {
-        $app = $this->bootstrap();
+        $app = SlimTest::bootstrap();
         $obj = new \App\Data\User($app->getContainer());
         
         $email = time().'.testMakePatron@freesewing.org';
