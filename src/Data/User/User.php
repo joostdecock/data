@@ -667,7 +667,7 @@ class User
     public function makePatron($tier)
     {
         $this->data->setNode('patron.tier', $tier);
-        $this->date->setNode('patron.since', time());
+        $this->data->setNode('patron.since', time());
     }
 
     /** Removes a badge from the user */

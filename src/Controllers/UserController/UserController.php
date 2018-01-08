@@ -797,7 +797,7 @@ class UserController
         $user->loadFromHandle($handle);
 
         // Is this a patron?
-        if($user->getPatronTier < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
+        if($user->getPatronTier() < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
