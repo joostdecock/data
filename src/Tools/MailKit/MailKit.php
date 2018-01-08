@@ -73,10 +73,10 @@ class MailKit
 
         $data = $user->getData();
         $tier =  $data->patron->tier;
-        $address = $data->patron->address;
 
         if($tier == 2) $template= "patron.welcome.2";
         else {
+            $address = $data->patron->address;
             if(strlen($address)>10) $template= "patron.welcome.confirm-address.$tier";
             else $template= "patron.welcome.provide-address.$tier";
         }
