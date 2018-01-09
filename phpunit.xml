@@ -1,17 +1,23 @@
 <phpunit
-    bootstrap="vendor/autoload.php"
+    bootstrap="tests/bootstrap.php"
+    backupGlobals="false"
+    beStrictAboutCoversAnnotation="true"
+    beStrictAboutOutputDuringTests="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutTodoAnnotatedTests="true"
     colors="true"
-    verbose="false"
-    >
+    verbose="false">
     <testsuites>
-        <testsuite name="SlimSkeleton">
+        <testsuite>
             <directory>tests</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <file>./public/index.php</file>
-            <directory suffix=".php">./src</directory>
+            <directory suffix=".php">src</directory>
         </whitelist>
+        <blacklist>
+           <directory>./vendor</directory>
+        </blacklist>
     </filter>
 </phpunit>

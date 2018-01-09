@@ -2,32 +2,13 @@
 
 namespace App\Tests;
 
-use \Slim\Container;
+use App\Tests\TestApp;
 
 class JsonStoreTest extends \PHPUnit\Framework\TestCase
 {
-
-    private function bootstrap()
-    {
-
-        // Instantiate the app
-        $settings = require __DIR__ . '/../../../src/settings.php';
-        $app = new \Slim\App($settings);
-        $container = $app->getContainer();
-
-        // database
-        $container['db'] = function ($c) {
-            $db = $c['settings']['testdb'];
-            $pdo = new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'],
-            $db['user'], $db['password']);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
-            return $pdo;
-        };
-
-        return $app;
+    protected function setup() {
+        if(!isset($this->app)) $this->app = new TestApp();
     }
-
 
     /** 
      * Tests setting and retrieving of JSON data
@@ -75,7 +56,7 @@ class JsonStoreTest extends \PHPUnit\Framework\TestCase
 
     private function loadFixture($fixture)
     {
-        $dir = __DIR__.'/../fixtures';
+        $dir = __DIR__.'/../../fixtures';
         $file = "$dir/JsonStore.$fixture.data";
         return file_get_contents($file);
     }
@@ -83,7 +64,7 @@ class JsonStoreTest extends \PHPUnit\Framework\TestCase
     private function saveFixture($fixture, $data)
     {
         return true;
-        $dir = __DIR__.'/../fixtures';
+        $dir = __DIR__.'/../../fixtures';
         $file = "$dir/JsonStore.$fixture.data";
         $f = fopen($file,'w');
         fwrite($f,$data);

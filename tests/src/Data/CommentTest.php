@@ -2,31 +2,12 @@
 
 namespace App\Tests;
 
-use \Slim\Container;
+use App\Tests\TestApp;
 
 class CommentTest extends \PHPUnit\Framework\TestCase
 {
-
-    private function bootstrap()
-    {
-
-        // Instantiate the app
-        $settings = require __DIR__ . '/../../../src/settings.php';
-        $app = new \Slim\App($settings);
-        $container = $app->getContainer();
-
-        // database
-        $container['db'] = function ($c) {
-            $db = $c['settings']['testdb'];
-            $pdo = new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'],
-            $db['user'], $db['password']);
-            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            $pdo->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_OBJ);
-            return $pdo;
-        };
-
-        return $app;
-
+    protected function setup() {
+        if(!isset($this->app)) $this->app = new TestApp();
     }
 
     /**
@@ -52,14 +33,9 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         ];
     }
 
-    /** 
-     * Tests basic object creation
-     */
     public function testCommentProperties()
     {
-        $app = $this->bootstrap();
-
-        $obj = new \App\Data\Comment($app->getContainer());
+        $obj = new \App\Data\Comment($this->app->getContainer());
         $obj->setUser(3);
         $obj->setComment("This is a **test** comment");
         $obj->setPage('/unit/test');
@@ -77,23 +53,22 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getStatus(),'restricted');
     }
 
-    /** 
-     * Tests basic object creation
-     */
     public function testSaveComment()
     {
-        $app = $this->bootstrap();
-
-        $obj = new \App\Data\Comment($app->getContainer());
+        $obj = new \App\Data\Comment($this->app->getContainer());
         $obj->setComment("This is a **test** comment");
         $obj->setPage('/unit/test');
         $obj->setParent(2);
         $obj->setStatusActive();
 
-        $user = new \App\Data\User($app->getContainer());
+        // We need a user object to save a comment
+        $user = new \App\Data\User($this->app->getContainer());
+        $email = time().'.testSaveComment@freesewing.org';
+        $user->create($email, 'boobies');
+        $id = $user->getId();
         $obj->create($user);
 
-        $this->assertEquals($obj->getUser(),3);
+        $this->assertEquals($obj->getUser(),$id);
         $this->assertEquals($obj->getComment(),"This is a **test** comment");
         $this->assertEquals($obj->getPage(),'/unit/test');
         $this->assertEquals($obj->getStatus(),'active');

@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS `comments`;
+DROP TABLE IF EXISTS `drafts` ;
+DROP TABLE IF EXISTS `mmpmodels`;
+DROP TABLE IF EXISTS `mmpusers`;
+DROP TABLE IF EXISTS `models`;
+DROP TABLE IF EXISTS `referrals`;
+DROP TABLE IF EXISTS `users`;

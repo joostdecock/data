@@ -1,19 +1,20 @@
 <?php
-
 namespace App\Tests;
 
-abstract class SlimTest
+
+class TestApp extends \Slim\App 
 {
-    public static function bootstrap()
+    public function __construct()
     {
 
         // Instantiate the app
-        $settings = require __DIR__ . '/../../../src/settings.php';
+        $settings = require __DIR__ . '/../../src/settings.php';
         // Overwrite storage path for testing
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
 
-        $app = new \Slim\App($settings);
-        $container = $app->getContainer();
+        parent::__construct($settings);
+
+        $container = $this->getContainer();
 
         // database
         $container['db'] = function ($c) {
@@ -33,7 +34,7 @@ abstract class SlimTest
             $logger->pushHandler(new \Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
             return $logger;
         };
-        
+
         $container['HandleKit'] = function ($container) {
             return new \App\Tools\HandleKit($container);
         };
@@ -41,23 +42,24 @@ abstract class SlimTest
         $container['AvatarKit'] = function ($container) {
             return new \App\Tools\AvatarKit($container);
         };
-        
+
         $container['MigrationKit'] = function ($container) {
             return new \App\Tools\MigrationKit($container);
         };
-        
+
         $container['MailKit'] = function ($container) {
             return new \App\Tools\MailKit($container);
         };
-        
+
         $container['TokenKit'] = function ($container) {
             return new \App\Tools\TokenKit($container);
         };
-        
+
         $container['UnitsKit'] = function ($container) {
             return new \App\Tools\UnitsKit($container);
         };
 
-        return $app;
+        return $this;
     }
 }
+

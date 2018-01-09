@@ -2,20 +2,20 @@
 
 namespace App\Tests;
 
-use \Slim\Container;
-require_once __DIR__.'/../assets/SlimTest.php';
+use App\Tests\TestApp;
 
 class ModelTest extends \PHPUnit\Framework\TestCase
 {
+    protected function setup() {
+        if(!isset($this->app)) $this->app = new TestApp();
+    }
 
     /** 
      * Tests constructor
      */
     public function testConstructor()
     {
-        $app = SlimTest::bootstrap();
-
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         $json = new \App\Data\JsonStore();
 
         $this->assertEquals($obj->getData(),$json);
@@ -29,9 +29,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $app = SlimTest::bootstrap();
-
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         $setMethod = 'set'.$methodSuffix;
         $getMethod = 'get'.$methodSuffix;
         $obj->{$setMethod}($expectedResult);
@@ -53,8 +51,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
 
     public function testSetMeasurement()
     {
-        $app = SlimTest::bootstrap();
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         
         $obj->setMeasurement('chestCircumference', '111');
         $this->assertEquals($obj->getMeasurement('chestCircumference'),111);
@@ -66,11 +63,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $app = SlimTest::bootstrap();
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($app->getContainer());
+        $user = new \App\Data\User($this->app->getContainer());
         $email = time().'.testCreateModel@freesewing.org';
         $user->create($email, 'boobies');
 
@@ -85,11 +81,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromId()
     {
-        $app = SlimTest::bootstrap();
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($app->getContainer());
+        $user = new \App\Data\User($this->app->getContainer());
         $email = time().'.testLoadModelFromId@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -97,7 +92,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $id = $obj->getId();
         unset($obj);
 
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         $obj->loadFromId($id);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -109,11 +104,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromHandle()
     {
-        $app = SlimTest::bootstrap();
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($app->getContainer());
+        $user = new \App\Data\User($this->app->getContainer());
         $email = time().'.testLoadModelFromHandle@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -121,7 +115,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $handle = $obj->getHandle();
         unset($obj);
 
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         $obj->loadFromHandle($handle);
         $this->assertEquals($obj->getHandle(), $handle);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -133,11 +127,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testRemove()
     {
-        $app = SlimTest::bootstrap();
-        $obj = new \App\Data\Model($app->getContainer());
+        $obj = new \App\Data\Model($this->app->getContainer());
         
         // We need a user object to remove a model
-        $user = new \App\Data\User($app->getContainer());
+        $user = new \App\Data\User($this->app->getContainer());
         $email = time().'.testRemoveModel@freesewing.org';
         $user->create($email, 'boobies');
 

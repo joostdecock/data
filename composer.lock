@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5e3ed315f7f079daa35274001903e377",
-    "content-hash": "2457be599c95f320b8c399841b27f2e7",
+    "hash": "fe84dc0e440f16ab444d393d9be8ca00",
+    "content-hash": "7b91d8c6773afeffa8f95389662eefb8",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -1906,7 +1906,7 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "4.0.x-dev",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
@@ -2868,9 +2868,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "phpunit/php-code-coverage": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
