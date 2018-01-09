@@ -111,4 +111,96 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getStatus(),'removed');
     }
 
+    public function testCreate()
+    {
+        $obj = new \App\Data\Comment($this->app->getContainer());
+        
+        // We need a user object to create a comment
+        $user = new \App\Data\User($this->app->getContainer());
+        $email = time().'.testCreateComment@freesewing.org';
+        $user->create($email, 'boobies');
+
+        $obj->setComment("This is a **test** comment");
+        $obj->setPage('/unit/test');
+        $obj->setParent(2);
+        $obj->create($user);
+        
+        $this->assertEquals($obj->getUser(),$user->getId());
+        $this->assertEquals($obj->getComment(),"This is a **test** comment");
+        $this->assertEquals($obj->getPage(),'/unit/test');
+        $this->assertEquals($obj->getStatus(),'active');
+        $this->assertEquals($obj->getParent(),2);
+    }
+    
+    public function testLoad()
+    {
+        $obj1 = new \App\Data\Comment($this->app->getContainer());
+        
+        // We need a user object to create a comment
+        $user = new \App\Data\User($this->app->getContainer());
+        $email = time().'.testLoadComment@freesewing.org';
+        $user->create($email, 'boobies');
+
+        $obj1->setComment("This is a **test** comment");
+        $obj1->setPage('/unit/test');
+        $obj1->setParent(2);
+        $obj1->create($user);
+        $id = $obj1->getId();
+
+        unset($obj1);
+        
+        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj->load($id);
+
+        $this->assertEquals($obj->getUser(),$user->getId());
+        $this->assertEquals($obj->getComment(),"This is a **test** comment");
+        $this->assertEquals($obj->getPage(),'/unit/test');
+        $this->assertEquals($obj->getStatus(),'active');
+        $this->assertEquals($obj->getParent(),2);
+    }
+    
+    public function testRemove()
+    {
+        $obj = new \App\Data\Comment($this->app->getContainer());
+        
+        // We need a user object to remove a comment
+        $user = new \App\Data\User($this->app->getContainer());
+        $email = time().'.testRemoveComment@freesewing.org';
+        $user->create($email, 'boobies');
+
+        $id = $obj->getId();
+        $obj->remove();
+
+        $this->assertFalse($obj->load($id));
+    }
+
+    public function testHasChildren()
+    {
+        $obj1 = new \App\Data\Comment($this->app->getContainer());
+        $obj2 = new \App\Data\Comment($this->app->getContainer());
+        $obj3 = new \App\Data\Comment($this->app->getContainer());
+        
+        // We need a user object to create a comment
+        $user = new \App\Data\User($this->app->getContainer());
+        $email = time().'.testCommentHasChildren@freesewing.org';
+        $user->create($email, 'boobies');
+
+        $obj1->setComment("This is a **test** comment");
+        $obj1->setPage('/unit/test');
+        $obj1->create($user);
+
+        $id = $obj1->getId();
+        
+        $obj2->setComment("This is a **test** reply");
+        $obj2->setPage('/unit/test');
+        $obj2->setParent($id);
+        $obj2->create($user);
+
+        $obj1->remove();
+        $obj3->load($id);
+        $this->assertEquals($obj3->getUser(),$user->getId());
+        $this->assertEquals($obj3->getComment(),"This is a **test** comment");
+        $this->assertEquals($obj3->getPage(),'/unit/test');
+        $this->assertEquals($obj3->getStatus(),'active');
+    }
 }
