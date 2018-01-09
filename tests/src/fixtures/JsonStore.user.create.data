@@ -1,0 +1,2010 @@
+App\Data\User Object
+(
+    [container:protected] => Slim\Container Object
+        (
+            [defaultSettings:Slim\Container:private] => Array
+                (
+                    [httpVersion] => 1.1
+                    [responseChunkSize] => 4096
+                    [outputBuffering] => append
+                    [determineRouteBeforeAppMiddleware] => 
+                    [displayErrorDetails] => 
+                    [addContentLengthHeader] => 1
+                    [routerCacheFile] => 
+                )
+
+            [values:Pimple\Container:private] => Array
+                (
+                    [settings] => Slim\Collection Object
+                        (
+                            [data:protected] => Array
+                                (
+                                    [httpVersion] => 1.1
+                                    [responseChunkSize] => 4096
+                                    [outputBuffering] => append
+                                    [determineRouteBeforeAppMiddleware] => 
+                                    [displayErrorDetails] => 
+                                    [addContentLengthHeader] => 
+                                    [routerCacheFile] => 
+                                    [renderer] => Array
+                                        (
+                                            [template_path] => /home/joost/git/data/templates/
+                                        )
+
+                                    [logger] => Array
+                                        (
+                                            [name] => slim-app
+                                            [path] => 
+                                            [level] => 100
+                                        )
+
+                                    [testlogger] => Array
+                                        (
+                                            [name] => slim-app
+                                            [path] => /tmp/data.freesewing.test.log
+                                            [level] => 100
+                                        )
+
+                                    [db] => Array
+                                        (
+                                            [host] => 
+                                            [database] => 
+                                            [user] => 
+                                            [password] => 
+                                        )
+
+                                    [testdb] => Array
+                                        (
+                                            [host] => joost.data.freesewing.org
+                                            [database] => test_data
+                                            [user] => test
+                                            [password] => AHjg0uoT3hCnQd4wr5y8ghCq8YCX0ZGR
+                                        )
+
+                                    [mailgun] => Array
+                                        (
+                                            [api_key] => 
+                                            [template_path] => /home/joost/git/data/templates/email
+                                            [instance] => 
+                                        )
+
+                                    [rollbar] => Array
+                                        (
+                                            [rollbar_enabled] => 
+                                            [access_token] => 
+                                            [environment] => 
+                                        )
+
+                                    [swiftmailer] => Array
+                                        (
+                                            [domains] => Array
+                                                (
+                                                    [0] => btinternet.com
+                                                    [1] => hotmail.be
+                                                    [2] => hotmail.de
+                                                    [3] => hotmail.fr
+                                                    [4] => hotmail.com
+                                                    [5] => hotmail.co.uk
+                                                    [6] => live.ca
+                                                    [7] => live.com
+                                                    [8] => live.co.uk
+                                                    [9] => live.com.au
+                                                    [10] => live.nl
+                                                    [11] => msn.com
+                                                    [12] => outlook.com
+                                                    [13] => snkmail.com
+                                                    [14] => yahoo.com
+                                                    [15] => yahoo.co.uk
+                                                    [16] => yahoo.co.nz
+                                                    [17] => yahoo.de
+                                                    [18] => yahoo.fr
+                                                    [19] => ymail.com
+                                                )
+
+                                            [host] => smtp.gmail.com
+                                            [port] => 587
+                                            [encryption] => tls
+                                            [username] => 
+                                            [password] => 
+                                        )
+
+                                    [storage] => Array
+                                        (
+                                            [static_path] => /tmp
+                                            [temp_path] => /tmp
+                                        )
+
+                                    [teststorage] => Array
+                                        (
+                                            [static_path] => /tmp
+                                            [temp_path] => /tmp
+                                        )
+
+                                    [app] => Array
+                                        (
+                                            [data_api] => 
+                                            [core_api] => 
+                                            [site] => 
+                                            [jwt_secret] => 
+                                            [jwt_lifetime] => 1 month
+                                            [origin] => 
+                                            [user_status] => Array
+                                                (
+                                                    [0] => active
+                                                    [1] => inactive
+                                                    [2] => blocked
+                                                )
+
+                                            [user_role] => Array
+                                                (
+                                                    [0] => user
+                                                    [1] => moderator
+                                                    [2] => admin
+                                                )
+
+                                            [handle_type] => Array
+                                                (
+                                                    [0] => user
+                                                    [1] => model
+                                                    [2] => draft
+                                                )
+
+                                            [static_path] => /static
+                                            [female_measurements] => Array
+                                                (
+                                                    [0] => underBust
+                                                )
+
+                                            [motd] => 
+**Tip**: These are your notes.
+You can write whatever you want here.
+                                        )
+
+                                    [badges] => Array
+                                        (
+                                            [login] => 2018
+                                        )
+
+                                    [patrons] => Array
+                                        (
+                                            [tiers] => Array
+                                                (
+                                                    [0] => 2
+                                                    [1] => 4
+                                                    [2] => 8
+                                                )
+
+                                        )
+
+                                    [mmp] => Array
+                                        (
+                                            [public_path] => https://makemypattern.com/sites/default/files/styles/user_picture/public
+                                        )
+
+                                    [measurements] => Array
+                                        (
+                                            [acrossBack] => Across back
+                                            [bicepsCircumference] => Biceps circumference
+                                            [centerBackNeckToWaist] => Centerback neck to waist
+                                            [chestCircumference] => Chest circumference
+                                            [headCircumference] => Head circumference
+                                            [hipsCircumference] => Hips circumference
+                                            [hipsToUpperLeg] => Hips to upper leg
+                                            [inseam] => Inseam
+                                            [naturalWaist] => Natural waist
+                                            [naturalWaistToFloor] => Natural waist to floor
+                                            [naturalWaistToHip] => Natural waist to hip
+                                            [naturalWaistToSeat] => Natural waist to seat
+                                            [naturalWaistToUnderbust] => Natural waist to underbust
+                                            [neckCircumference] => Neck circumference
+                                            [seatCircumference] => Seat circumference
+                                            [seatDepth] => Seat depth
+                                            [shoulderSlope] => Shoulder slope
+                                            [shoulderToElbow] => Shoulder to elbow
+                                            [shoulderToShoulder] => Shoulder to shoulder
+                                            [shoulderToWrist] => Shoulder to wrist
+                                            [underBust] => Underbust
+                                            [upperLegCircumference] => Upper leg circumference
+                                            [wristCircumference] => Wrist circumference
+                                        )
+
+                                    [referrals] => Array
+                                        (
+                                            [4Chan] => Array
+                                                (
+                                                    [host] => .4chan.org
+                                                    [link] => http://4chan.org/
+                                                )
+
+                                            [alliemjackson.com] => Array
+                                                (
+                                                    [host] => www.alliemjackson.com
+                                                    [link] => http://www.alliemjackson.com/
+                                                )
+
+                                            [AnnekeCaramin] => Array
+                                                (
+                                                    [host] => www.annekecaramin.com
+                                                    [link] => http://www.annekecaramin.com/
+                                                )
+
+                                            [autostraddle.com] => Array
+                                                (
+                                                    [host] => www.autostraddle.com
+                                                    [link] => https://www.autostraddle.com/
+                                                )
+
+                                            [benesaddict.fr] => Array
+                                                (
+                                                    [host] => benesaddict.fr
+                                                    [link] => http://benesaddict.fr/
+                                                )
+
+                                            [BlogLovin] => Array
+                                                (
+                                                    [host] => www.bloglovin.com
+                                                    [link] => https://www.bloglovin.com/
+                                                )
+
+                                            [bouquetofbuttons.be] => Array
+                                                (
+                                                    [host] => bouquetofbuttons.be
+                                                    [link] => http://bouquetofbuttons.be
+                                                )
+
+                                            [Closet Case Patterns] => Array
+                                                (
+                                                    [host] => closetcasepatterns.com
+                                                    [link] => https://closetcasepatterns.com/
+                                                )
+
+                                            [club.osinka.ru] => Array
+                                                (
+                                                    [host] => club.osinka.ru
+                                                    [link] => https://club.osinka.ru/
+                                                )
+
+                                            [colettehq.com] => Array
+                                                (
+                                                    [url] => colettehq.com
+                                                    [link] => https://colettehq.com
+                                                )
+
+                                            [Cotton & Curls] => Array
+                                                (
+                                                    [host] => www.cottonandcurls.com
+                                                    [link] => https://www.cottonandcurls.com/
+                                                )
+
+                                            [creativecommons.org] => Array
+                                                (
+                                                    [host] => creativecommons.org
+                                                    [link] => https://creativecommons.org/
+                                                )
+
+                                            [Curvy Sewing Collective] => Array
+                                                (
+                                                    [host] => curvysewingcollective.com
+                                                    [link] => http://curvysewingcollective.com/
+                                                )
+
+                                            [Cutton & Tailor] => Array
+                                                (
+                                                    [host] => www.cutterandtailor.com
+                                                    [link] => http://www.cutterandtailor.com/
+                                                )
+
+                                            [Den of Angels] => Array
+                                                (
+                                                    [host] => denofangels.com
+                                                    [link] => https://denofangels.com/
+                                                )
+
+                                            [Diary of a Chainstitcher] => Array
+                                                (
+                                                    [url] => ://chainstitcher.blogspot.
+                                                    [link] => http:/chainstitcher.blogspot.com/
+                                                )
+
+                                            [Digg] => Array
+                                                (
+                                                    [host] => digg.com
+                                                    [link] => http://digg.com/
+                                                )
+
+                                            [disqus] => Array
+                                                (
+                                                    [host] => disq.us
+                                                    [link] => https://disqus.com
+                                                )
+
+                                            [Email] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => mail
+                                                            [1] => outlook.live.com
+                                                            [2] => mail.google.com
+                                                            [3] => mail.
+                                                            [4] => imp.free.fr
+                                                        )
+
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => squirrelmail
+                                                            [1] => deref-gmx.net/mail
+                                                            [2] => deref-gmx.com/mail
+                                                            [3] => ://owa.
+                                                            [4] => /owa/
+                                                            [5] => /zimbra/
+                                                            [6] => /mail/
+                                                            [7] => /email/
+                                                            [8] => /Mail.html
+                                                            [9] => .campaign-archive.com/
+                                                        )
+
+                                                )
+
+                                            [Emma's Atelier] => Array
+                                                (
+                                                    [host] => emmasatelierblog.com
+                                                    [link] => https://emmasatelierblog.com/
+                                                )
+
+                                            [English girl at home] => Array
+                                                (
+                                                    [host] => englishgirlathome.com
+                                                    [link] => https://englishgirlathome.com/
+                                                )
+
+                                            [Facebook] => Array
+                                                (
+                                                    [host] => facebook.com
+                                                    [url] => ://l.messenger.com
+                                                    [link] => https://facebook.com
+                                                )
+
+                                            [Feed reader] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => www.inoreader.com
+                                                            [1] => feedly.com
+                                                            [2] => newsblur.com
+                                                            [3] => www.feedspot.com
+                                                            [4] => getpocket.com
+                                                            [5] => keep.google.com
+                                                            [6] => theoldreader.com
+                                                        )
+
+                                                )
+
+                                            [Flickr] => Array
+                                                (
+                                                    [host] => www.flickr.com
+                                                    [link] => https://www.flickr.com/
+                                                )
+
+                                            [Freesewing] => Array
+                                                (
+                                                    [host] => freesewing.org
+                                                    [link] => https://freesewing.org/
+                                                )
+
+                                            [GitHub] => Array
+                                                (
+                                                    [host] => github.com
+                                                    [link] => https://github.com
+                                                )
+
+                                            [Google+] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => plus.google.com
+                                                            [1] => plus.url.google.com
+                                                            [2] => notifications.google.com
+                                                        )
+
+                                                    [link] => http://4chan.org/
+                                                )
+
+                                            [Google Translate] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => translate.google.com
+                                                            [1] => translate.googleusercontent.com
+                                                        )
+
+                                                    [link] => https://translate.google.com/
+                                                )
+
+                                            [HackerNews] => Array
+                                                (
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => ://news.ycombinator.com
+                                                            [1] => ://hn.algolia.com
+                                                        )
+
+                                                    [link] => https://news.ycombinator.com/
+                                                )
+
+                                            [Hobby Schneiderin 24] => Array
+                                                (
+                                                    [host] => www.hobbyschneiderin24.net
+                                                    [link] => http://www.hobbyschneiderin24.net/
+                                                )
+
+                                            [Instagram] => Array
+                                                (
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => ://l.instagram.com
+                                                            [1] => ://www.instagram.com
+                                                        )
+
+                                                    [link] => https://instagram.com
+                                                )
+
+                                            [KnitWitsOwls] => Array
+                                                (
+                                                    [url] => ://knitwits-owls.blogspot.
+                                                    [link] => http://knitwits-owls.blogspot.com/
+                                                )
+
+                                            [konbini.com] => Array
+                                                (
+                                                    [host] => www.konbini.com
+                                                    [link] => http://www.konbini.com/
+                                                )
+
+                                            [La Bobine] => Array
+                                                (
+                                                    [host] => labobine.over-blog.com
+                                                    [link] => http://labobine.over-blog.com/
+                                                )
+
+                                            [libregraphicsworld.org] => Array
+                                                (
+                                                    [host] => libregraphicsworld.org
+                                                    [link] => http://libregraphicsworld.org/
+                                                )
+
+                                            [lineofselvage.blog] => Array
+                                                (
+                                                    [host] => lineofselvage.blog
+                                                    [link] => http://lineofselvage.blog
+                                                )
+
+                                            [localhost] => Array
+                                                (
+                                                    [host] => localhost
+                                                    [link] => https://localhost
+                                                )
+
+                                            [MailChimp] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => .campaign-archive2.com
+                                                            [1] => .campaign-archive1.com
+                                                            [2] => mailchi.mp
+                                                        )
+
+                                                    [link] => https://mailchimp.com/
+                                                )
+
+                                            [MakeMyPattern] => Array
+                                                (
+                                                    [host] => makemypattern.com
+                                                    [link] => https://makemypattern.com
+                                                )
+
+                                            [Makery.co.uk] => Array
+                                                (
+                                                    [host] => makery.co.uk
+                                                    [link] => http://makery.co.uk/
+                                                )
+
+                                            [Makery.uk] => Array
+                                                (
+                                                    [host] => www.makery.uk
+                                                    [link] => http://www.makery.uk/
+                                                )
+
+                                            [meadowtreestyle.com] => Array
+                                                (
+                                                    [host] => meadowtreestyle.com
+                                                    [link] => http://meadowtreestyle.com
+                                                )
+
+                                            [meggipeg.com] => Array
+                                                (
+                                                    [host] => www.meggipeg.com
+                                                    [link] => http://www.meggipeg.com
+                                                )
+
+                                            [MenSew] => Array
+                                                (
+                                                    [host] => mensew.wordpress.com
+                                                    [link] => https://mensew.wordpress.com/
+                                                )
+
+                                            [metafilter.com] => Array
+                                                (
+                                                    [url] => metafilter.com
+                                                    [link] => https://metafilter.com
+                                                )
+
+                                            [Mobile App] => Array
+                                                (
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => app://
+                                                            [1] => ://web.telegram.org
+                                                            [2] => ://lastpass.com
+                                                            [3] => ://www.wunderlist.com
+                                                        )
+
+                                                )
+
+                                            [netvibes.com] => Array
+                                                (
+                                                    [host] => www.netvibes.com
+                                                    [link] => http://www.netvibes.com
+                                                )
+
+                                            [OpenSource.com] => Array
+                                                (
+                                                    [host] => opensource.com
+                                                    [link] => https://opensource.com/
+                                                )
+
+                                            [Overflowing Stash] => Array
+                                                (
+                                                    [host] => overflowingstash.com
+                                                    [link] => http://overflowingstash.com/
+                                                )
+
+                                            [packagist.org] => Array
+                                                (
+                                                    [host] => packagist.org
+                                                    [link] => https://packagist.org
+                                                )
+
+                                            [Pastebin] => Array
+                                                (
+                                                    [host] => pastebin.com
+                                                    [link] => https://pastebin.com/
+                                                )
+
+                                            [PatternReview.com] => Array
+                                                (
+                                                    [host] => sewing.patternreview.com
+                                                    [link] => https://patternreview.com
+                                                )
+
+                                            [PayPal] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => www.paypal.com
+                                                            [1] => mobile.paypal.com
+                                                        )
+
+                                                    [link] => https://www.paypal.com/
+                                                )
+
+                                            [Pinterest] => Array
+                                                (
+                                                    [host] => pinterest.com
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => ://www.pinterest.
+                                                            [1] => ://pinterest.
+                                                        )
+
+                                                    [link] => https://instagram.com
+                                                )
+
+                                            [practicallyaweso.me] => Array
+                                                (
+                                                    [host] => www.practicallyaweso.me
+                                                    [link] => https://www.practicallyaweso.me
+                                                )
+
+                                            [Project Minima] => Array
+                                                (
+                                                    [host] => projectminima.blogspot.
+                                                    [link] => http://projectminima.blogspot.co.uk/
+                                                )
+
+                                            [Ravelry] => Array
+                                                (
+                                                    [host] => www.ravelry.com
+                                                    [link] => http://www.ravelry.com/
+                                                )
+
+                                            [Reddit] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => reddit.com
+                                                            [1] => amp-reddit-com
+                                                        )
+
+                                                    [link] => https://reddit.com
+                                                )
+
+                                            [Search] => Array
+                                                (
+                                                    [host] => search.yahoo.com
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => ://www.searchencrypt.com
+                                                            [1] => ://startpage.com
+                                                            [2] => ://www.ask.com
+                                                            [3] => ://www.search.ask.com
+                                                            [4] => ://www.ecosia.org
+                                                            [5] => ://www.google.
+                                                            [6] => ://www.bing.com
+                                                            [7] => ://search.
+                                                            [8] => ://www.baidu.com
+                                                            [9] => avg.nation.com
+                                                            [10] => /duckduckgo.
+                                                            [11] => ://www.startpage.com
+                                                            [12] => .myway.com/
+                                                            [13] => search.aol.com/
+                                                            [14] => qwant.com/
+                                                            [15] => suche.t-online.de/
+                                                        )
+
+                                                )
+
+                                            [Sebastian Hoofs] => Array
+                                                (
+                                                    [host] => sebastian-hoofs.de
+                                                    [link] => https://sebastian-hoofs.de/
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => sebastian--hoofs-de.
+                                                        )
+
+                                                )
+
+                                            [sewblooms.blogspot.com] => Array
+                                                (
+                                                    [url] => sewblooms.blogspot
+                                                    [link] => http://sewblooms.blogspot.com
+                                                )
+
+                                            [Sewcialists] => Array
+                                                (
+                                                    [host] => sewcialists.wordpress.com
+                                                    [link] => https://sewcialists.wordpress.com/
+                                                )
+
+                                            [sewcialists.org] => Array
+                                                (
+                                                    [host] => sewcialists.org
+                                                    [link] => http://sewcialists.org/
+                                                )
+
+                                            [SewingPlums] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => sewingplums.com
+                                                            [1] => sewingplums-com.cdn.ampproject.org
+                                                        )
+
+                                                    [link] => https://sewingplums.com/
+                                                )
+
+                                            [slowfashionnext.com] => Array
+                                                (
+                                                    [host] => www.slowfashionnext.com
+                                                    [link] => https://www.slowfashionnext.com
+                                                )
+
+                                            [StayStrongDreamBig] => Array
+                                                (
+                                                    [host] => staystrongdreambig.com
+                                                    [link] => http://staystrongdreambig.com/
+                                                )
+
+                                            [sykroken.no] => Array
+                                                (
+                                                    [host] => www.sykroken.no
+                                                    [link] => https://www.sykroken.no
+                                                )
+
+                                            [Textillia] => Array
+                                                (
+                                                    [host] => www.textillia.com
+                                                    [link] => https://www.textillia.com/
+                                                )
+
+                                            [thefoldline.com] => Array
+                                                (
+                                                    [host] => thefoldline.com
+                                                    [link] => https://thefoldline.com
+                                                )
+
+                                            [The Monthly Stitch] => Array
+                                                (
+                                                    [host] => themonthlystitch.wordpress.com
+                                                    [link] => https://themonthlystitch.wordpress.com/
+                                                )
+
+                                            [The Sewing Directory] => Array
+                                                (
+                                                    [host] => www.thesewingdirectory.co.uk
+                                                    [link] => http://www.thesewingdirectory.co.uk/
+                                                )
+
+                                            [Thread & Needles] => Array
+                                                (
+                                                    [host] => www.threadandneedles.fr
+                                                    [link] => http://www.threadandneedles.fr/
+                                                )
+
+                                            [Topstitches.net] => Array
+                                                (
+                                                    [host] => www.topstitched.net
+                                                    [link] => http://www.topstitched.net/
+                                                )
+
+                                            [Tumblr] => Array
+                                                (
+                                                    [host] => t.umblr.com
+                                                    [link] => https://www.tumblr.com/
+                                                )
+
+                                            [Twitter] => Array
+                                                (
+                                                    [host] => twitter.com
+                                                    [url] => ://t.co/
+                                                    [link] => https://twitter.com
+                                                )
+
+                                            [Unknown] => Array
+                                                (
+                                                    [urls] => Array
+                                                        (
+                                                            [0] => 192.168
+                                                            [1] => alert.scansafe.net
+                                                            [2] => ://secureurl.fwdcdn.com/
+                                                        )
+
+                                                )
+
+                                            [valentina-project.org] => Array
+                                                (
+                                                    [url] => valentina-project.org
+                                                    [link] => https://valentina-project.org
+                                                )
+
+                                            [warosu.org] => Array
+                                                (
+                                                    [host] => warosu.org
+                                                    [link] => https://warosu.org/
+                                                )
+
+                                            [Web Godess] => Array
+                                                (
+                                                    [host] => www.web-goddess.org
+                                                    [link] => https://www.web-goddess.org/
+                                                )
+
+                                            [Wordpress] => Array
+                                                (
+                                                    [host] => wordpress.com
+                                                    [link] => https://wordpress.com/
+                                                )
+
+                                            [www.marvelousdesigner.com] => Array
+                                                (
+                                                    [host] => www.marvelousdesigner.com
+                                                    [link] => https://www.marvelousdesigner.com
+                                                )
+
+                                            [Yandex] => Array
+                                                (
+                                                    [host] => yandex.ru
+                                                    [link] => http://yandex.ru/
+                                                )
+
+                                            [YouTube] => Array
+                                                (
+                                                    [hosts] => Array
+                                                        (
+                                                            [0] => www.youtube.com
+                                                            [1] => m.youtube.com
+                                                        )
+
+                                                    [link] => https://www.youtube.com/
+                                                )
+
+                                            [zenlearn.com] => Array
+                                                (
+                                                    [url] => zenlearn.com
+                                                    [link] => https://zenlearn.com
+                                                )
+
+                                        )
+
+                                )
+
+                        )
+
+                    [environment] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                        )
+
+                    [request] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [response] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [router] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [foundHandler] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                        )
+
+                    [phpErrorHandler] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [errorHandler] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [notFoundHandler] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                        )
+
+                    [notAllowedHandler] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                        )
+
+                    [callableResolver] => Closure Object
+                        (
+                            [this] => Slim\DefaultServicesProvider Object
+                                (
+                                )
+
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [db] => PDO Object
+                        (
+                        )
+
+                    [logger] => Monolog\Logger Object
+                        (
+                            [name:protected] => slim-app
+                            [handlers:protected] => Array
+                                (
+                                    [0] => Monolog\Handler\StreamHandler Object
+                                        (
+                                            [stream:protected] => Resource id #217
+                                            [url:protected] => /tmp/data.freesewing.test.log
+                                            [errorMessage:Monolog\Handler\StreamHandler:private] => 
+                                            [filePermission:protected] => 
+                                            [useLocking:protected] => 
+                                            [dirCreated:Monolog\Handler\StreamHandler:private] => 1
+                                            [level:protected] => 100
+                                            [bubble:protected] => 1
+                                            [formatter:protected] => Monolog\Formatter\LineFormatter Object
+                                                (
+                                                    [format:protected] => [%datetime%] %channel%.%level_name%: %message% %context% %extra%
+
+                                                    [allowInlineLineBreaks:protected] => 
+                                                    [ignoreEmptyContextAndExtra:protected] => 
+                                                    [includeStacktraces:protected] => 
+                                                    [dateFormat:protected] => Y-m-d H:i:s
+                                                )
+
+                                            [processors:protected] => Array
+                                                (
+                                                )
+
+                                        )
+
+                                )
+
+                            [processors:protected] => Array
+                                (
+                                    [0] => Monolog\Processor\UidProcessor Object
+                                        (
+                                            [uid:Monolog\Processor\UidProcessor:private] => 56cab38
+                                        )
+
+                                )
+
+                            [microsecondTimestamps:protected] => 1
+                        )
+
+                    [HandleKit] => App\Tools\HandleKit Object
+                        (
+                            [container:protected] => Slim\Container Object
+ *RECURSION*
+                        )
+
+                    [AvatarKit] => App\Tools\AvatarKit Object
+                        (
+                            [container:protected] => Slim\Container Object
+ *RECURSION*
+                        )
+
+                    [MigrationKit] => App\Tools\MigrationKit Object
+                        (
+                            [container] => Slim\Container Object
+ *RECURSION*
+                            [account] => 
+                        )
+
+                    [MailKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [TokenKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [UnitsKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                )
+
+            [factories:Pimple\Container:private] => SplObjectStorage Object
+                (
+                    [storage:SplObjectStorage:private] => Array
+                        (
+                        )
+
+                )
+
+            [protected:Pimple\Container:private] => SplObjectStorage Object
+                (
+                    [storage:SplObjectStorage:private] => Array
+                        (
+                        )
+
+                )
+
+            [frozen:Pimple\Container:private] => Array
+                (
+                    [settings] => 1
+                    [logger] => 1
+                    [HandleKit] => 1
+                    [db] => 1
+                    [AvatarKit] => 1
+                    [MigrationKit] => 1
+                )
+
+            [raw:Pimple\Container:private] => Array
+                (
+                    [settings] => Closure Object
+                        (
+                            [static] => Array
+                                (
+                                    [userSettings] => Array
+                                        (
+                                            [displayErrorDetails] => 
+                                            [addContentLengthHeader] => 
+                                            [renderer] => Array
+                                                (
+                                                    [template_path] => /home/joost/git/data/templates/
+                                                )
+
+                                            [logger] => Array
+                                                (
+                                                    [name] => slim-app
+                                                    [path] => 
+                                                    [level] => 100
+                                                )
+
+                                            [testlogger] => Array
+                                                (
+                                                    [name] => slim-app
+                                                    [path] => /tmp/data.freesewing.test.log
+                                                    [level] => 100
+                                                )
+
+                                            [db] => Array
+                                                (
+                                                    [host] => 
+                                                    [database] => 
+                                                    [user] => 
+                                                    [password] => 
+                                                )
+
+                                            [testdb] => Array
+                                                (
+                                                    [host] => joost.data.freesewing.org
+                                                    [database] => test_data
+                                                    [user] => test
+                                                    [password] => AHjg0uoT3hCnQd4wr5y8ghCq8YCX0ZGR
+                                                )
+
+                                            [mailgun] => Array
+                                                (
+                                                    [api_key] => 
+                                                    [template_path] => /home/joost/git/data/templates/email
+                                                    [instance] => 
+                                                )
+
+                                            [rollbar] => Array
+                                                (
+                                                    [rollbar_enabled] => 
+                                                    [access_token] => 
+                                                    [environment] => 
+                                                )
+
+                                            [swiftmailer] => Array
+                                                (
+                                                    [domains] => Array
+                                                        (
+                                                            [0] => btinternet.com
+                                                            [1] => hotmail.be
+                                                            [2] => hotmail.de
+                                                            [3] => hotmail.fr
+                                                            [4] => hotmail.com
+                                                            [5] => hotmail.co.uk
+                                                            [6] => live.ca
+                                                            [7] => live.com
+                                                            [8] => live.co.uk
+                                                            [9] => live.com.au
+                                                            [10] => live.nl
+                                                            [11] => msn.com
+                                                            [12] => outlook.com
+                                                            [13] => snkmail.com
+                                                            [14] => yahoo.com
+                                                            [15] => yahoo.co.uk
+                                                            [16] => yahoo.co.nz
+                                                            [17] => yahoo.de
+                                                            [18] => yahoo.fr
+                                                            [19] => ymail.com
+                                                        )
+
+                                                    [host] => smtp.gmail.com
+                                                    [port] => 587
+                                                    [encryption] => tls
+                                                    [username] => 
+                                                    [password] => 
+                                                )
+
+                                            [storage] => Array
+                                                (
+                                                    [static_path] => /tmp
+                                                    [temp_path] => /tmp
+                                                )
+
+                                            [teststorage] => Array
+                                                (
+                                                    [static_path] => /tmp
+                                                    [temp_path] => /tmp
+                                                )
+
+                                            [app] => Array
+                                                (
+                                                    [data_api] => 
+                                                    [core_api] => 
+                                                    [site] => 
+                                                    [jwt_secret] => 
+                                                    [jwt_lifetime] => 1 month
+                                                    [origin] => 
+                                                    [user_status] => Array
+                                                        (
+                                                            [0] => active
+                                                            [1] => inactive
+                                                            [2] => blocked
+                                                        )
+
+                                                    [user_role] => Array
+                                                        (
+                                                            [0] => user
+                                                            [1] => moderator
+                                                            [2] => admin
+                                                        )
+
+                                                    [handle_type] => Array
+                                                        (
+                                                            [0] => user
+                                                            [1] => model
+                                                            [2] => draft
+                                                        )
+
+                                                    [static_path] => /static
+                                                    [female_measurements] => Array
+                                                        (
+                                                            [0] => underBust
+                                                        )
+
+                                                    [motd] => 
+**Tip**: These are your notes.
+You can write whatever you want here.
+                                                )
+
+                                            [badges] => Array
+                                                (
+                                                    [login] => 2018
+                                                )
+
+                                            [patrons] => Array
+                                                (
+                                                    [tiers] => Array
+                                                        (
+                                                            [0] => 2
+                                                            [1] => 4
+                                                            [2] => 8
+                                                        )
+
+                                                )
+
+                                            [mmp] => Array
+                                                (
+                                                    [public_path] => https://makemypattern.com/sites/default/files/styles/user_picture/public
+                                                )
+
+                                            [measurements] => Array
+                                                (
+                                                    [acrossBack] => Across back
+                                                    [bicepsCircumference] => Biceps circumference
+                                                    [centerBackNeckToWaist] => Centerback neck to waist
+                                                    [chestCircumference] => Chest circumference
+                                                    [headCircumference] => Head circumference
+                                                    [hipsCircumference] => Hips circumference
+                                                    [hipsToUpperLeg] => Hips to upper leg
+                                                    [inseam] => Inseam
+                                                    [naturalWaist] => Natural waist
+                                                    [naturalWaistToFloor] => Natural waist to floor
+                                                    [naturalWaistToHip] => Natural waist to hip
+                                                    [naturalWaistToSeat] => Natural waist to seat
+                                                    [naturalWaistToUnderbust] => Natural waist to underbust
+                                                    [neckCircumference] => Neck circumference
+                                                    [seatCircumference] => Seat circumference
+                                                    [seatDepth] => Seat depth
+                                                    [shoulderSlope] => Shoulder slope
+                                                    [shoulderToElbow] => Shoulder to elbow
+                                                    [shoulderToShoulder] => Shoulder to shoulder
+                                                    [shoulderToWrist] => Shoulder to wrist
+                                                    [underBust] => Underbust
+                                                    [upperLegCircumference] => Upper leg circumference
+                                                    [wristCircumference] => Wrist circumference
+                                                )
+
+                                            [referrals] => Array
+                                                (
+                                                    [4Chan] => Array
+                                                        (
+                                                            [host] => .4chan.org
+                                                            [link] => http://4chan.org/
+                                                        )
+
+                                                    [alliemjackson.com] => Array
+                                                        (
+                                                            [host] => www.alliemjackson.com
+                                                            [link] => http://www.alliemjackson.com/
+                                                        )
+
+                                                    [AnnekeCaramin] => Array
+                                                        (
+                                                            [host] => www.annekecaramin.com
+                                                            [link] => http://www.annekecaramin.com/
+                                                        )
+
+                                                    [autostraddle.com] => Array
+                                                        (
+                                                            [host] => www.autostraddle.com
+                                                            [link] => https://www.autostraddle.com/
+                                                        )
+
+                                                    [benesaddict.fr] => Array
+                                                        (
+                                                            [host] => benesaddict.fr
+                                                            [link] => http://benesaddict.fr/
+                                                        )
+
+                                                    [BlogLovin] => Array
+                                                        (
+                                                            [host] => www.bloglovin.com
+                                                            [link] => https://www.bloglovin.com/
+                                                        )
+
+                                                    [bouquetofbuttons.be] => Array
+                                                        (
+                                                            [host] => bouquetofbuttons.be
+                                                            [link] => http://bouquetofbuttons.be
+                                                        )
+
+                                                    [Closet Case Patterns] => Array
+                                                        (
+                                                            [host] => closetcasepatterns.com
+                                                            [link] => https://closetcasepatterns.com/
+                                                        )
+
+                                                    [club.osinka.ru] => Array
+                                                        (
+                                                            [host] => club.osinka.ru
+                                                            [link] => https://club.osinka.ru/
+                                                        )
+
+                                                    [colettehq.com] => Array
+                                                        (
+                                                            [url] => colettehq.com
+                                                            [link] => https://colettehq.com
+                                                        )
+
+                                                    [Cotton & Curls] => Array
+                                                        (
+                                                            [host] => www.cottonandcurls.com
+                                                            [link] => https://www.cottonandcurls.com/
+                                                        )
+
+                                                    [creativecommons.org] => Array
+                                                        (
+                                                            [host] => creativecommons.org
+                                                            [link] => https://creativecommons.org/
+                                                        )
+
+                                                    [Curvy Sewing Collective] => Array
+                                                        (
+                                                            [host] => curvysewingcollective.com
+                                                            [link] => http://curvysewingcollective.com/
+                                                        )
+
+                                                    [Cutton & Tailor] => Array
+                                                        (
+                                                            [host] => www.cutterandtailor.com
+                                                            [link] => http://www.cutterandtailor.com/
+                                                        )
+
+                                                    [Den of Angels] => Array
+                                                        (
+                                                            [host] => denofangels.com
+                                                            [link] => https://denofangels.com/
+                                                        )
+
+                                                    [Diary of a Chainstitcher] => Array
+                                                        (
+                                                            [url] => ://chainstitcher.blogspot.
+                                                            [link] => http:/chainstitcher.blogspot.com/
+                                                        )
+
+                                                    [Digg] => Array
+                                                        (
+                                                            [host] => digg.com
+                                                            [link] => http://digg.com/
+                                                        )
+
+                                                    [disqus] => Array
+                                                        (
+                                                            [host] => disq.us
+                                                            [link] => https://disqus.com
+                                                        )
+
+                                                    [Email] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => mail
+                                                                    [1] => outlook.live.com
+                                                                    [2] => mail.google.com
+                                                                    [3] => mail.
+                                                                    [4] => imp.free.fr
+                                                                )
+
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => squirrelmail
+                                                                    [1] => deref-gmx.net/mail
+                                                                    [2] => deref-gmx.com/mail
+                                                                    [3] => ://owa.
+                                                                    [4] => /owa/
+                                                                    [5] => /zimbra/
+                                                                    [6] => /mail/
+                                                                    [7] => /email/
+                                                                    [8] => /Mail.html
+                                                                    [9] => .campaign-archive.com/
+                                                                )
+
+                                                        )
+
+                                                    [Emma's Atelier] => Array
+                                                        (
+                                                            [host] => emmasatelierblog.com
+                                                            [link] => https://emmasatelierblog.com/
+                                                        )
+
+                                                    [English girl at home] => Array
+                                                        (
+                                                            [host] => englishgirlathome.com
+                                                            [link] => https://englishgirlathome.com/
+                                                        )
+
+                                                    [Facebook] => Array
+                                                        (
+                                                            [host] => facebook.com
+                                                            [url] => ://l.messenger.com
+                                                            [link] => https://facebook.com
+                                                        )
+
+                                                    [Feed reader] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => www.inoreader.com
+                                                                    [1] => feedly.com
+                                                                    [2] => newsblur.com
+                                                                    [3] => www.feedspot.com
+                                                                    [4] => getpocket.com
+                                                                    [5] => keep.google.com
+                                                                    [6] => theoldreader.com
+                                                                )
+
+                                                        )
+
+                                                    [Flickr] => Array
+                                                        (
+                                                            [host] => www.flickr.com
+                                                            [link] => https://www.flickr.com/
+                                                        )
+
+                                                    [Freesewing] => Array
+                                                        (
+                                                            [host] => freesewing.org
+                                                            [link] => https://freesewing.org/
+                                                        )
+
+                                                    [GitHub] => Array
+                                                        (
+                                                            [host] => github.com
+                                                            [link] => https://github.com
+                                                        )
+
+                                                    [Google+] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => plus.google.com
+                                                                    [1] => plus.url.google.com
+                                                                    [2] => notifications.google.com
+                                                                )
+
+                                                            [link] => http://4chan.org/
+                                                        )
+
+                                                    [Google Translate] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => translate.google.com
+                                                                    [1] => translate.googleusercontent.com
+                                                                )
+
+                                                            [link] => https://translate.google.com/
+                                                        )
+
+                                                    [HackerNews] => Array
+                                                        (
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => ://news.ycombinator.com
+                                                                    [1] => ://hn.algolia.com
+                                                                )
+
+                                                            [link] => https://news.ycombinator.com/
+                                                        )
+
+                                                    [Hobby Schneiderin 24] => Array
+                                                        (
+                                                            [host] => www.hobbyschneiderin24.net
+                                                            [link] => http://www.hobbyschneiderin24.net/
+                                                        )
+
+                                                    [Instagram] => Array
+                                                        (
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => ://l.instagram.com
+                                                                    [1] => ://www.instagram.com
+                                                                )
+
+                                                            [link] => https://instagram.com
+                                                        )
+
+                                                    [KnitWitsOwls] => Array
+                                                        (
+                                                            [url] => ://knitwits-owls.blogspot.
+                                                            [link] => http://knitwits-owls.blogspot.com/
+                                                        )
+
+                                                    [konbini.com] => Array
+                                                        (
+                                                            [host] => www.konbini.com
+                                                            [link] => http://www.konbini.com/
+                                                        )
+
+                                                    [La Bobine] => Array
+                                                        (
+                                                            [host] => labobine.over-blog.com
+                                                            [link] => http://labobine.over-blog.com/
+                                                        )
+
+                                                    [libregraphicsworld.org] => Array
+                                                        (
+                                                            [host] => libregraphicsworld.org
+                                                            [link] => http://libregraphicsworld.org/
+                                                        )
+
+                                                    [lineofselvage.blog] => Array
+                                                        (
+                                                            [host] => lineofselvage.blog
+                                                            [link] => http://lineofselvage.blog
+                                                        )
+
+                                                    [localhost] => Array
+                                                        (
+                                                            [host] => localhost
+                                                            [link] => https://localhost
+                                                        )
+
+                                                    [MailChimp] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => .campaign-archive2.com
+                                                                    [1] => .campaign-archive1.com
+                                                                    [2] => mailchi.mp
+                                                                )
+
+                                                            [link] => https://mailchimp.com/
+                                                        )
+
+                                                    [MakeMyPattern] => Array
+                                                        (
+                                                            [host] => makemypattern.com
+                                                            [link] => https://makemypattern.com
+                                                        )
+
+                                                    [Makery.co.uk] => Array
+                                                        (
+                                                            [host] => makery.co.uk
+                                                            [link] => http://makery.co.uk/
+                                                        )
+
+                                                    [Makery.uk] => Array
+                                                        (
+                                                            [host] => www.makery.uk
+                                                            [link] => http://www.makery.uk/
+                                                        )
+
+                                                    [meadowtreestyle.com] => Array
+                                                        (
+                                                            [host] => meadowtreestyle.com
+                                                            [link] => http://meadowtreestyle.com
+                                                        )
+
+                                                    [meggipeg.com] => Array
+                                                        (
+                                                            [host] => www.meggipeg.com
+                                                            [link] => http://www.meggipeg.com
+                                                        )
+
+                                                    [MenSew] => Array
+                                                        (
+                                                            [host] => mensew.wordpress.com
+                                                            [link] => https://mensew.wordpress.com/
+                                                        )
+
+                                                    [metafilter.com] => Array
+                                                        (
+                                                            [url] => metafilter.com
+                                                            [link] => https://metafilter.com
+                                                        )
+
+                                                    [Mobile App] => Array
+                                                        (
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => app://
+                                                                    [1] => ://web.telegram.org
+                                                                    [2] => ://lastpass.com
+                                                                    [3] => ://www.wunderlist.com
+                                                                )
+
+                                                        )
+
+                                                    [netvibes.com] => Array
+                                                        (
+                                                            [host] => www.netvibes.com
+                                                            [link] => http://www.netvibes.com
+                                                        )
+
+                                                    [OpenSource.com] => Array
+                                                        (
+                                                            [host] => opensource.com
+                                                            [link] => https://opensource.com/
+                                                        )
+
+                                                    [Overflowing Stash] => Array
+                                                        (
+                                                            [host] => overflowingstash.com
+                                                            [link] => http://overflowingstash.com/
+                                                        )
+
+                                                    [packagist.org] => Array
+                                                        (
+                                                            [host] => packagist.org
+                                                            [link] => https://packagist.org
+                                                        )
+
+                                                    [Pastebin] => Array
+                                                        (
+                                                            [host] => pastebin.com
+                                                            [link] => https://pastebin.com/
+                                                        )
+
+                                                    [PatternReview.com] => Array
+                                                        (
+                                                            [host] => sewing.patternreview.com
+                                                            [link] => https://patternreview.com
+                                                        )
+
+                                                    [PayPal] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => www.paypal.com
+                                                                    [1] => mobile.paypal.com
+                                                                )
+
+                                                            [link] => https://www.paypal.com/
+                                                        )
+
+                                                    [Pinterest] => Array
+                                                        (
+                                                            [host] => pinterest.com
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => ://www.pinterest.
+                                                                    [1] => ://pinterest.
+                                                                )
+
+                                                            [link] => https://instagram.com
+                                                        )
+
+                                                    [practicallyaweso.me] => Array
+                                                        (
+                                                            [host] => www.practicallyaweso.me
+                                                            [link] => https://www.practicallyaweso.me
+                                                        )
+
+                                                    [Project Minima] => Array
+                                                        (
+                                                            [host] => projectminima.blogspot.
+                                                            [link] => http://projectminima.blogspot.co.uk/
+                                                        )
+
+                                                    [Ravelry] => Array
+                                                        (
+                                                            [host] => www.ravelry.com
+                                                            [link] => http://www.ravelry.com/
+                                                        )
+
+                                                    [Reddit] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => reddit.com
+                                                                    [1] => amp-reddit-com
+                                                                )
+
+                                                            [link] => https://reddit.com
+                                                        )
+
+                                                    [Search] => Array
+                                                        (
+                                                            [host] => search.yahoo.com
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => ://www.searchencrypt.com
+                                                                    [1] => ://startpage.com
+                                                                    [2] => ://www.ask.com
+                                                                    [3] => ://www.search.ask.com
+                                                                    [4] => ://www.ecosia.org
+                                                                    [5] => ://www.google.
+                                                                    [6] => ://www.bing.com
+                                                                    [7] => ://search.
+                                                                    [8] => ://www.baidu.com
+                                                                    [9] => avg.nation.com
+                                                                    [10] => /duckduckgo.
+                                                                    [11] => ://www.startpage.com
+                                                                    [12] => .myway.com/
+                                                                    [13] => search.aol.com/
+                                                                    [14] => qwant.com/
+                                                                    [15] => suche.t-online.de/
+                                                                )
+
+                                                        )
+
+                                                    [Sebastian Hoofs] => Array
+                                                        (
+                                                            [host] => sebastian-hoofs.de
+                                                            [link] => https://sebastian-hoofs.de/
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => sebastian--hoofs-de.
+                                                                )
+
+                                                        )
+
+                                                    [sewblooms.blogspot.com] => Array
+                                                        (
+                                                            [url] => sewblooms.blogspot
+                                                            [link] => http://sewblooms.blogspot.com
+                                                        )
+
+                                                    [Sewcialists] => Array
+                                                        (
+                                                            [host] => sewcialists.wordpress.com
+                                                            [link] => https://sewcialists.wordpress.com/
+                                                        )
+
+                                                    [sewcialists.org] => Array
+                                                        (
+                                                            [host] => sewcialists.org
+                                                            [link] => http://sewcialists.org/
+                                                        )
+
+                                                    [SewingPlums] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => sewingplums.com
+                                                                    [1] => sewingplums-com.cdn.ampproject.org
+                                                                )
+
+                                                            [link] => https://sewingplums.com/
+                                                        )
+
+                                                    [slowfashionnext.com] => Array
+                                                        (
+                                                            [host] => www.slowfashionnext.com
+                                                            [link] => https://www.slowfashionnext.com
+                                                        )
+
+                                                    [StayStrongDreamBig] => Array
+                                                        (
+                                                            [host] => staystrongdreambig.com
+                                                            [link] => http://staystrongdreambig.com/
+                                                        )
+
+                                                    [sykroken.no] => Array
+                                                        (
+                                                            [host] => www.sykroken.no
+                                                            [link] => https://www.sykroken.no
+                                                        )
+
+                                                    [Textillia] => Array
+                                                        (
+                                                            [host] => www.textillia.com
+                                                            [link] => https://www.textillia.com/
+                                                        )
+
+                                                    [thefoldline.com] => Array
+                                                        (
+                                                            [host] => thefoldline.com
+                                                            [link] => https://thefoldline.com
+                                                        )
+
+                                                    [The Monthly Stitch] => Array
+                                                        (
+                                                            [host] => themonthlystitch.wordpress.com
+                                                            [link] => https://themonthlystitch.wordpress.com/
+                                                        )
+
+                                                    [The Sewing Directory] => Array
+                                                        (
+                                                            [host] => www.thesewingdirectory.co.uk
+                                                            [link] => http://www.thesewingdirectory.co.uk/
+                                                        )
+
+                                                    [Thread & Needles] => Array
+                                                        (
+                                                            [host] => www.threadandneedles.fr
+                                                            [link] => http://www.threadandneedles.fr/
+                                                        )
+
+                                                    [Topstitches.net] => Array
+                                                        (
+                                                            [host] => www.topstitched.net
+                                                            [link] => http://www.topstitched.net/
+                                                        )
+
+                                                    [Tumblr] => Array
+                                                        (
+                                                            [host] => t.umblr.com
+                                                            [link] => https://www.tumblr.com/
+                                                        )
+
+                                                    [Twitter] => Array
+                                                        (
+                                                            [host] => twitter.com
+                                                            [url] => ://t.co/
+                                                            [link] => https://twitter.com
+                                                        )
+
+                                                    [Unknown] => Array
+                                                        (
+                                                            [urls] => Array
+                                                                (
+                                                                    [0] => 192.168
+                                                                    [1] => alert.scansafe.net
+                                                                    [2] => ://secureurl.fwdcdn.com/
+                                                                )
+
+                                                        )
+
+                                                    [valentina-project.org] => Array
+                                                        (
+                                                            [url] => valentina-project.org
+                                                            [link] => https://valentina-project.org
+                                                        )
+
+                                                    [warosu.org] => Array
+                                                        (
+                                                            [host] => warosu.org
+                                                            [link] => https://warosu.org/
+                                                        )
+
+                                                    [Web Godess] => Array
+                                                        (
+                                                            [host] => www.web-goddess.org
+                                                            [link] => https://www.web-goddess.org/
+                                                        )
+
+                                                    [Wordpress] => Array
+                                                        (
+                                                            [host] => wordpress.com
+                                                            [link] => https://wordpress.com/
+                                                        )
+
+                                                    [www.marvelousdesigner.com] => Array
+                                                        (
+                                                            [host] => www.marvelousdesigner.com
+                                                            [link] => https://www.marvelousdesigner.com
+                                                        )
+
+                                                    [Yandex] => Array
+                                                        (
+                                                            [host] => yandex.ru
+                                                            [link] => http://yandex.ru/
+                                                        )
+
+                                                    [YouTube] => Array
+                                                        (
+                                                            [hosts] => Array
+                                                                (
+                                                                    [0] => www.youtube.com
+                                                                    [1] => m.youtube.com
+                                                                )
+
+                                                            [link] => https://www.youtube.com/
+                                                        )
+
+                                                    [zenlearn.com] => Array
+                                                        (
+                                                            [url] => zenlearn.com
+                                                            [link] => https://zenlearn.com
+                                                        )
+
+                                                )
+
+                                        )
+
+                                    [defaultSettings] => Array
+                                        (
+                                            [httpVersion] => 1.1
+                                            [responseChunkSize] => 4096
+                                            [outputBuffering] => append
+                                            [determineRouteBeforeAppMiddleware] => 
+                                            [displayErrorDetails] => 
+                                            [addContentLengthHeader] => 1
+                                            [routerCacheFile] => 
+                                        )
+
+                                )
+
+                            [this] => Slim\Container Object
+ *RECURSION*
+                        )
+
+                    [logger] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$c] => <required>
+                                )
+
+                        )
+
+                    [HandleKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [db] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$c] => <required>
+                                )
+
+                        )
+
+                    [AvatarKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                    [MigrationKit] => Closure Object
+                        (
+                            [parameter] => Array
+                                (
+                                    [$container] => <required>
+                                )
+
+                        )
+
+                )
+
+            [keys:Pimple\Container:private] => Array
+                (
+                    [settings] => 1
+                    [environment] => 1
+                    [request] => 1
+                    [response] => 1
+                    [router] => 1
+                    [foundHandler] => 1
+                    [phpErrorHandler] => 1
+                    [errorHandler] => 1
+                    [notFoundHandler] => 1
+                    [notAllowedHandler] => 1
+                    [callableResolver] => 1
+                    [db] => 1
+                    [logger] => 1
+                    [HandleKit] => 1
+                    [AvatarKit] => 1
+                    [MigrationKit] => 1
+                    [MailKit] => 1
+                    [TokenKit] => 1
+                    [UnitsKit] => 1
+                )
+
+        )
+
+    [id:App\Data\User:private] => 396
+    [email:App\Data\User:private] => 1515487071.testCreate@freesewing.org
+    [username:App\Data\User:private] => user 396
+    [handle:App\Data\User:private] => dyvsz
+    [status:App\Data\User:private] => inactive
+    [created:App\Data\User:private] => 2018-01-09 08:37:51
+    [migrated:App\Data\User:private] => 
+    [login:App\Data\User:private] => 
+    [role:App\Data\User:private] => user
+    [picture:App\Data\User:private] => dyvsz.svg
+    [data:App\Data\User:private] => App\Data\JsonStore Object
+        (
+            [account] => stdClass Object
+                (
+                    [units] => metric
+                    [theme] => classic
+                )
+
+        )
+
+    [password:App\Data\User:private] => $2y$10$vvgFpjWUdDjhzNOsOlN4wuFHmGkKNKHzstpd8cL9jfKX8B.kW2LT2
+    [initial:App\Data\User:private] => 1515487071.testCreate@freesewing.org
+    [pepper] => 750bdcb171ff7e680f2cc7679d5d4335a725466d656f8f5198e5c1d324fad5bc
+)

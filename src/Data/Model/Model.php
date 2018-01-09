@@ -59,6 +59,7 @@ class Model
         $this->data = new \App\Data\JsonStore();
     }
 
+    // Getters
     public function getId() 
     {
         return $this->id;
@@ -69,27 +70,9 @@ class Model
         return $this->user;
     } 
 
-    private function setUser($user) 
-    {
-        $this->user = $user;
-        return true;
-    } 
-
-    private function setHandle($handle) 
-    {
-        $this->handle = $handle;
-        return true;
-    } 
-
     public function getHandle() 
     {
         return $this->handle;
-    } 
-
-    public function setName($name) 
-    {
-        $this->name = $name;
-        return true;
     } 
 
     public function getName() 
@@ -97,21 +80,9 @@ class Model
         return $this->name;
     } 
 
-    public function setNotes($notes) 
-    {
-        $this->notes = $notes;
-        return true;
-    } 
-
     public function getNotes() 
     {
         return $this->notes;
-    } 
-
-    public function setBody($body) 
-    {
-        $this->body = $body;
-        return true;
     } 
 
     public function getBody() 
@@ -119,10 +90,9 @@ class Model
         return $this->body;
     } 
 
-    public function setMigrated($migrated) 
+    public function getShared() 
     {
-        $this->migrated = $migrated;
-        return true;
+        return $this->shared;
     } 
 
     public function getMigrated() 
@@ -130,39 +100,14 @@ class Model
         return $this->migrated;
     } 
 
-    public function setShared($shared) 
-    {
-        $this->shared = $shared;
-        return true;
-    } 
-
-    public function getShared() 
-    {
-        return $this->shared;
-    } 
-
     public function getCreated() 
     {
         return $this->created;
     } 
 
-    public function setPicture($picture) 
-    {
-        $this->picture = $picture;
-        return true;
-    } 
-
     public function getPicture() 
     {
         return $this->picture;
-    } 
-
-    public function setUnits($units) 
-    {
-        if($units === 'metric' || $units === 'imperial') $this->units = $units;
-        else return false;
-
-        return true;
     } 
 
     public function getUnits() 
@@ -177,18 +122,8 @@ class Model
 
     public function getData() 
     {
-        return $this->data->export();
+        return $this->data;
     } 
-
-    public function setData($data) 
-    {
-        $this->data->import($data);
-    } 
-
-    public function setMeasurement($key, $val)
-    {
-        $this->data->setNode("measurements.$key", $val);
-    }
 
     public function getMeasurement($key)
     {
@@ -199,6 +134,69 @@ class Model
     {
         return $this->data->getNode('measurements');
     }
+    
+    // Setters
+    private function setUser($user) 
+    {
+        $this->user = $user;
+        return true;
+    } 
+
+    private function setHandle($handle) 
+    {
+        $this->handle = $handle;
+        return true;
+    } 
+
+    public function setName($name) 
+    {
+        $this->name = $name;
+        return true;
+    } 
+
+    public function setNotes($notes) 
+    {
+        $this->notes = $notes;
+        return true;
+    } 
+
+    public function setBody($body) 
+    {
+        $this->body = $body;
+        return true;
+    } 
+
+    public function setMigrated($migrated) 
+    {
+        $this->migrated = $migrated;
+        return true;
+    } 
+
+    public function setShared($shared) 
+    {
+        $this->shared = $shared;
+        return true;
+    } 
+
+    public function setPicture($picture) 
+    {
+        $this->picture = $picture;
+        return true;
+    } 
+
+    public function setUnits($units) 
+    {
+        if($units === 'metric' || $units === 'imperial') $this->units = $units;
+        else return false;
+
+        return true;
+    } 
+
+    public function setMeasurement($key, $val)
+    {
+        $this->data->setNode("measurements.$key", $val);
+    }
+
     
     /**
      * Loads a model based on a unique identifier

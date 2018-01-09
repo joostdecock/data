@@ -109,7 +109,8 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($obj->getStatus(), 'inactive');
         $this->assertEquals($obj->getRole(), 'user');
-        $this->assertEquals((string)$obj->getData(), '{}');
+        $this->saveFixture('user.json.create',$obj->getDataAsJson());
+        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.create'));
         $this->assertEquals($obj->getEmail(), $email);
     }
     
@@ -127,7 +128,8 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $obj->loadFromId($id);
         $this->assertEquals($obj->getStatus(), 'inactive');
         $this->assertEquals($obj->getRole(), 'user');
-        $this->assertEquals((string)$obj->getData(), '{}');
+        $this->saveFixture('user.json.load.from.id',$obj->getDataAsJson());
+        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.load.from.id'));
         $this->assertEquals($obj->getEmail(), $email);
     }
     
@@ -145,7 +147,8 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $obj->loadFromHandle($handle);
         $this->assertEquals($obj->getStatus(), 'inactive');
         $this->assertEquals($obj->getRole(), 'user');
-        $this->assertEquals((string)$obj->getData(), '{}');
+        $this->saveFixture('user.json.load.from.handle',$obj->getDataAsJson());
+        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.load.from.handle'));
         $this->assertEquals($obj->getEmail(), $email);
     }
     
@@ -263,5 +266,22 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($obj->getPatronTier(), 8);
         $this->assertTrue(is_int($obj->getPatronSince()));
+    }
+    
+    private function loadFixture($fixture)
+    {
+        $dir = __DIR__.'/../fixtures';
+        $file = "$dir/JsonStore.$fixture.data";
+        return file_get_contents($file);
+    }
+
+    private function saveFixture($fixture, $data)
+    {
+        return true;
+        $dir = __DIR__.'/../fixtures';
+        $file = "$dir/JsonStore.$fixture.data";
+        $f = fopen($file,'w');
+        fwrite($f,$data);
+        fclose($f);
     }
 }

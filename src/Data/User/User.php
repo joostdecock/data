@@ -444,7 +444,11 @@ class User
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
         $this->setPicture($avatarKit->create($this->getHandle(), 'user'));
-        
+
+        // Set defaults
+        $this->setAccountUnits('metric');
+        $this->setAccountTheme('classic');
+
         // Store in database
         $db = $this->container->get('db');
         $sql = "INSERT into `users`(
@@ -453,6 +457,7 @@ class User
             `handle`,
             `status`,
             `created`,
+            `data`,
             `role`,
             `picture`,
             `password`,
@@ -464,6 +469,7 @@ class User
             ".$db->quote($this->getHandle()).",
             'inactive',
             NOW(),
+            ".$db->quote($this->getDataAsJson()).",
             'user',
             ".$db->quote($this->getPicture()).",
             ".$db->quote($this->getPassword()).",

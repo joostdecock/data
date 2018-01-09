@@ -39,19 +39,13 @@ class Comment
     /** @var int $parent The id of the comment this is a reply to (or null) */
     private $parent;
 
-    /** @var string $username The username of the user owning the comment */
-    private $username;
-
-    /** @var string $userhandle The handle of the user owning the comment */
-    private $userhandle;
-
-
     // constructor receives container instance
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
     }
 
+    // Getters
     public function getId() 
     {
         return $this->id;
@@ -62,6 +56,27 @@ class Comment
         return $this->user;
     } 
 
+    public function getComment() 
+    {
+        return $this->comment;
+    } 
+
+    public function getPage() 
+    {
+        return $this->page;
+    } 
+
+    public function getStatus() 
+    {
+        return $this->status;
+    } 
+
+    public function getParent() 
+    {
+        return $this->parent;
+    } 
+
+    // Setters
     public function setUser($user) 
     {
         $this->user = $user;
@@ -72,29 +87,14 @@ class Comment
         $this->comment = $comment;
     } 
 
-    public function getComment() 
-    {
-        return $this->comment;
-    } 
-
     public function setPage($page) 
     {
         $this->page = $page;
     } 
 
-    public function getPage() 
+    public function setParent($parent) 
     {
-        return $this->page;
-    } 
-
-    public function setTime($time) 
-    {
-        $this->time = $time;
-    } 
-
-    public function getTime() 
-    {
-        return $this->time;
+        $this->parent = $parent;
     } 
 
     public function setStatusActive() 
@@ -111,22 +111,6 @@ class Comment
     {
         $this->status = 'restricted';
     } 
-
-    public function getStatus() 
-    {
-        return $this->status;
-    } 
-
-    public function setParent($parent) 
-    {
-        $this->parent = $parent;
-    } 
-
-    public function getParent() 
-    {
-        return $this->parent;
-    } 
-
 
     /**
      * Loads a comment based on the id
