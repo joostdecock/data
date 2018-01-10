@@ -31,6 +31,9 @@ class MailKit
 
     public function signUp($user) 
     {
+        // Don't send messages for unit tests
+        if(defined('IS_TEST')) return true;
+        
         // FIXME: Handle timeout of the mailgun API gracefully
         // Mailgun API instance
         $mg = $this->initApi();
