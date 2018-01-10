@@ -618,23 +618,30 @@ class UserController
      */
     public function signup($request, $response, $args) {
         // Handle request data 
-        $data = $request->getParsedBody();
-        $signup_data = [
-            'email' => filter_var($data['signup-email'], FILTER_SANITIZE_EMAIL),
-            'password' => filter_var($data['signup-password'], FILTER_SANITIZE_STRING),
-        ];
+        $in = new stdClass();
+        $in->email = $this->scrub($request, 'signup-email');
+        $in->password = $this->scrub($request, 'signup-email');
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
-        $logger->info("Signup request from: ".$signup_data['email']);
+        $logger->info("Signup request from: ".$in->email);
+
+        // Don't continue if we don't have the required input
+        if($in->email === false || $in->password === false || $in->password == '') {
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'invalid_input', 
+                'message' => 'generic/error',
+            ], 400);
+        }
         
         // Get a user instance from the container
         $user = $this->container->get('User');
-        $user->loadFromEmail($signup_data['email']);
+        $user->loadFromEmail($in->email);
 
-        // Does this user already exist?
+        // Don't continue if this user already exists
         if ($user->getId() != '') { 
-            $logger->info("Signup rejected: ".$signup_data['email']." already has an account");
+            $logger->info("Signup rejected: ".$in->email." already has an account");
             
             return $this->prepResponse($response, [
                 'result' => 'error', 
@@ -644,14 +651,14 @@ class UserController
         } 
         
         // Create new user
-        $user->create($signup_data['email'], $signup_data['password']);
+        $user->create($in->email, $in->password);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
-        if($mailKit->signup($user)) $logger->info("Activation email sent to: ".$signup_data['email']);
-        else $logger->info("Could not send activation email to: ".$signup_data['email']);
-        
-        $logger->info("Signup: ".$signup_data['email']." is user ".$user->getId());
+        $mailKit->signup($user);
+        $logger->info("Activation email sent to: ".$in->email);
+        $logger->info("Signup: ".$in->email." is user ".$user->getId());
+
         return $this->prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'signup_complete', 
