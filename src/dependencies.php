@@ -1,4 +1,6 @@
 <?php
+if(is_a($app, '\Freesewing\Data\Tests\TestApp')) if(!defined('IS_TEST')) define('IS_TEST', true);
+
 // DIC configuration
 
 $container = $app->getContainer();
@@ -11,7 +13,8 @@ $container['renderer'] = function ($c) {
 
 // monolog
 $container['logger'] = function ($c) {
-    $settings = $c->get('settings')['logger'];
+    if(defined('IS_TEST')) $settings = $c->get('settings')['testlogger'];
+    else $settings = $c->get('settings')['logger'];
     $logger = new Monolog\Logger($settings['name']);
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
@@ -20,7 +23,8 @@ $container['logger'] = function ($c) {
 
 // database
 $container['db'] = function ($c) {
-    $db = $c['settings']['db'];
+    if(defined('IS_TEST')) $db = $c['settings']['testdb'];
+    else $db = $c['settings']['db'];
     $pdo = new PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'],
         $db['user'], $db['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

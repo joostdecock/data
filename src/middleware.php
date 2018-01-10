@@ -1,7 +1,7 @@
 <?php
 // Application middleware
 
-if(IS_TEST) $secure = false;
+if(defined('IS_TEST')) $secure = false;
 else $secure = true;
 
 $jwtOptions = [
