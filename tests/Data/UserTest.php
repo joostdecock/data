@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests;
+namespace Freesewing\Data\Tests\Data;
 
-use App\Tests\TestApp;
+use Freesewing\Data\Tests\TestApp;
 
 class UserTest extends \PHPUnit\Framework\TestCase
 {
@@ -255,7 +255,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     private function loadFixture($fixture)
     {
-        $dir = __DIR__.'/../../fixtures';
+        $dir = __DIR__.'/../fixtures';
         $file = "$dir/JsonStore.$fixture.data";
         return file_get_contents($file);
     }
@@ -263,7 +263,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     private function saveFixture($fixture, $data)
     {
         return true;
-        $dir = __DIR__.'/../../fixtures';
+        $dir = __DIR__.'/../fixtures';
         $file = "$dir/JsonStore.$fixture.data";
         $f = fopen($file,'w');
         fwrite($f,$data);

@@ -38,6 +38,7 @@ class Referral
         $this->container = $container;
     }
 
+    // Getters
     public function getId() 
     {
         return $this->id;
@@ -53,19 +54,9 @@ class Referral
         return $this->host;
     } 
 
-    private function setHost($host) 
-    {
-        $this->host = $host;
-    } 
-
     public function getPath() 
     {
         return $this->path;
-    } 
-
-    private function setPath($path) 
-    {
-        $this->path = $path;
     } 
 
     public function getUrl() 
@@ -73,14 +64,25 @@ class Referral
         return $this->url;
     } 
 
-    private function setUrl($url) 
-    {
-        $this->url = $url;
-    } 
-
     public function getSite() 
     {
         return $this->site;
+    } 
+
+    // Setters
+    private function setHost($host) 
+    {
+        $this->host = $host;
+    } 
+
+    private function setPath($path) 
+    {
+        $this->path = $path;
+    } 
+
+    private function setUrl($url) 
+    {
+        $this->url = $url;
     } 
 
     private function setSite($site) 
@@ -88,9 +90,8 @@ class Referral
         $this->site = $site;
     } 
 
-
     /**
-     * Loads a draft based on its id
+     * Loads a referral based on its id
      *
      */
     public function load($id) 

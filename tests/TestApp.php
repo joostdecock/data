@@ -1,6 +1,6 @@
 <?php
-namespace App\Tests;
 
+namespace Freesewing\Data\Tests;
 
 class TestApp extends \Slim\App 
 {
@@ -8,7 +8,7 @@ class TestApp extends \Slim\App
     {
 
         // Instantiate the app
-        $settings = require __DIR__ . '/../../src/settings.php';
+        $settings = require __DIR__ . '/../src/settings.php';
         // Overwrite storage path for testing
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
 

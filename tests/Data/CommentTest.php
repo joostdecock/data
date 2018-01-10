@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests;
+namespace Freesewing\Data\Tests\Data;
 
-use App\Tests\TestApp;
+use Freesewing\Data\Tests\TestApp;
 
 class CommentTest extends \PHPUnit\Framework\TestCase
 {
@@ -201,6 +201,6 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj3->getUser(),$user->getId());
         $this->assertEquals($obj3->getComment(),"This is a **test** comment");
         $this->assertEquals($obj3->getPage(),'/unit/test');
-        $this->assertEquals($obj3->getStatus(),'active');
+        $this->assertEquals($obj3->getStatus(),'removed');
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests;
+namespace Freesewing\Data\Tests\Data;
 
-use App\Tests\TestApp;
+use Freesewing\Data\Tests\TestApp;
 
 class ModelTest extends \PHPUnit\Framework\TestCase
 {
