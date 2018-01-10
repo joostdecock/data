@@ -11,18 +11,18 @@ class TestApp extends \Slim\App
     public function __construct()
     {
 
-        // Instantiate the app
-        $settings = require __DIR__ . '/../src/settings.php';
-
         // Overwrite settings for testing
+        $settings = require __DIR__ . '/../src/settings.php';
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
         $settings['settings']['displayErrorDetails'] = true;
         $settings['settings']['forceEncryption'] = false;
 
+        // Run the Slim\App contructor
+        parent::__construct($settings);
+
         // We need to have the $app var be our Slim\App object to load these
         $app = $this;
-        parent::__construct($settings);
         require __DIR__ . '/../src/dependencies.php';
         require __DIR__ . '/../src/middleware.php';
         require __DIR__ . '/../src/routes.php';
@@ -40,8 +40,6 @@ class TestApp extends \Slim\App
         $request = Request::createFromEnvironment($environment);
         if (isset($data)) $request = $request->withParsedBody($data);
 
-        $response = $this->process($request, new Response());
-
-        return $response;
+        return $this->process($request, new Response());
     }
 }
