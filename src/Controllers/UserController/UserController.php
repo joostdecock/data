@@ -616,11 +616,12 @@ class UserController
      * Handles POST requests to /user/signup 
      * Expects email and password in request params
      */
-    public function signup($request, $response, $args) {
+    public function signup($request, $response, $args) 
+    {
         // Handle request data 
-        $in = new stdClass();
+        $in = new \stdClass();
         $in->email = $this->scrub($request, 'signup-email');
-        $in->password = $this->scrub($request, 'signup-email');
+        $in->password = $this->scrub($request, 'signup-password');
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
@@ -647,7 +648,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_exists', 
                 'message' => 'signup/account-exists',
-            ], 409);
+            ], 400);
         } 
         
         // Create new user

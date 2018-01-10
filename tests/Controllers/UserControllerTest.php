@@ -42,9 +42,54 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
         
         $body = (string)$response->getBody();
         
-        $this->assertEquals($response->getStatusCode(), 409);
+        $this->assertEquals($response->getStatusCode(), 400);
         $this->saveFixture('signup.existing',$body);
         $this->assertEquals($body,$this->loadFixture('signup.existing'));
+    }
+
+    public function testSignupNoEmail()
+    {
+        $data = [
+            'signup-password' => 'boobies'
+        ];
+
+        $response = $this->app->call('POST','/signup', $data);
+        
+        $body = (string)$response->getBody();
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->saveFixture('signup.noEmail',$body);
+        $this->assertEquals($body,$this->loadFixture('signup.noEmail'));
+    }
+
+    public function testSignupNoPassword()
+    {
+        $data = [
+            'signup-email' => time().'.testSignupNoPassword@freesewing.org',
+        ];
+
+        $response = $this->app->call('POST','/signup', $data);
+        
+        $body = (string)$response->getBody();
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->saveFixture('signup.noPassword',$body);
+        $this->assertEquals($body,$this->loadFixture('signup.noPassword'));
+    }
+
+    public function testSignupEmptyPassword()
+    {
+        $data = [
+            'signup-email' => time().'.testSignupEmptyPassword@freesewing.org',
+        ];
+
+        $response = $this->app->call('POST','/signup', $data);
+        
+        $body = (string)$response->getBody();
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->saveFixture('signup.emptyPassword',$body);
+        $this->assertEquals($body,$this->loadFixture('signup.emptyPassword'));
     }
 
     private function loadFixture($fixture)
