@@ -18,7 +18,7 @@ class TestApp extends \Slim\App
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
         $settings['settings']['displayErrorDetails'] = true;
-
+        $settings['settings']['forceEncryption'] = false;
 
         // We need to have the $app var be our Slim\App object to load these
         $app = $this;

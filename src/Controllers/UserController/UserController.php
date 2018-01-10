@@ -25,9 +25,10 @@ class UserController
      *
      * @param $data The data to return
      */
-    private function prepResponse($response, $data)
+    private function prepResponse($response, $data, $status=200)
     {
         return $response
+            ->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
@@ -639,7 +640,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_exists', 
                 'message' => 'signup/account-exists',
-            ]);
+            ], 409);
         } 
         
         // Create new user

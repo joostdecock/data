@@ -1,11 +1,8 @@
 <?php
 // Application middleware
 
-if(defined('IS_TEST')) $secure = false;
-else $secure = true;
-
 $jwtOptions = [
-    "secure" => $secure,
+    "secure" => $settings['settings']['forceEncryption'],
     'path' => '/',
     'passthrough' => ['/signup', '/login', '/recover', '/reset', '/activate', '/resend','/confirm','/info/','/shared/','/download/','/referral','/comments/','/status', '/email/', '/referrals/group', '/debug', '/patrons/list',],
     'attribute' => 'jwt',

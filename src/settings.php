@@ -4,6 +4,7 @@ return [
     'settings' => [
         'displayErrorDetails' => false, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
+        'forceEncryption' => true, // Don't allow to access this over an unencrypted connection
 
         // Renderer settings
         'renderer' => [
