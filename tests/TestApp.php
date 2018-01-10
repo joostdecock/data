@@ -10,7 +10,6 @@ class TestApp extends \Slim\App
 {
     public function __construct()
     {
-
         // Overwrite settings for testing
         $settings = require __DIR__ . '/../src/settings.php';
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
