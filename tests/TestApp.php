@@ -13,9 +13,11 @@ class TestApp extends \Slim\App
 
         // Instantiate the app
         $settings = require __DIR__ . '/../src/settings.php';
-        // Overwrite storage paths for testing
+
+        // Overwrite settings for testing
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
+        $settings['settings']['displayErrorDetails'] = true;
 
 
         // We need to have the $app var be our Slim\App object to load these
@@ -36,7 +38,7 @@ class TestApp extends \Slim\App
 
         // Create request, add data if needed
         $request = Request::createFromEnvironment($environment);
-        if (isset($requestData)) $request = $request->withParsedBody($data);
+        if (isset($data)) $request = $request->withParsedBody($data);
 
         $response = $this->process($request, new Response());
 

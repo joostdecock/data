@@ -15,28 +15,35 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
     public function testSignup()
     {
-        $environment = Environment::mock([
-             'REQUEST_METHOD' => 'GET',
-             'REQUEST_URI' => '/'
-        ]);
+        $email = time().'.testSignup@freesewing.org';
+        $data = [
+            'signup-email' => $email,
+            'signup-password' => 'boobies'
+        ];
 
-		// Set up a request object based on the environment
-        $request = Request::createFromEnvironment($environment);
+        $response = $this->app->call('POST','/signup', $data);
         
-		// Add request data, if it exists
-        if (isset($requestData)) {
-            $request = $request->withParsedBody(['foo' => 'bar']);
-        }
+        $body = (string)$response->getBody();
 
-        // Set up a response object
-        $response = new Response();
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->saveFixture('signup',$body);
+        $this->assertEquals($body,$this->loadFixture('signup'));
+    }
 
-        $app = new TestApp();
-        
-		// Process the application
-        $response = $app->process($request, $response);
-        
-        // Return the response
-        echo "$response";
+    private function loadFixture($fixture)
+    {
+        $dir = __DIR__.'/../fixtures';
+        $file = "$dir/UserController.$fixture.data";
+        return file_get_contents($file);
+    }
+
+    private function saveFixture($fixture, $data)
+    {
+        //return true;
+        $dir = __DIR__.'/../fixtures';
+        $file = "$dir/UserController.$fixture.data";
+        $f = fopen($file,'w');
+        fwrite($f,$data);
+        fclose($f);
     }
 }
