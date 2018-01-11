@@ -6,6 +6,8 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Environment;
 use Freesewing\Data\Tests\TestApp;
+use Mailgun\Mailgun;
+use Mailgun\Api\Message;
 
 class UserControllerTest extends \PHPUnit\Framework\TestCase
 {
@@ -19,10 +21,11 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
             'signup-email' => time().'.testSignup@freesewing.org',
             'signup-password' => 'boobies'
         ];
-
+        
         $response = $this->app->call('POST','/signup', $data);
         
         $body = (string)$response->getBody();
+        $this->saveFixture('debug',print_r($body,1));
 
         $this->assertEquals($response->getStatusCode(), 200);
         $this->saveFixture('signup',$body);
@@ -101,7 +104,7 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
     private function saveFixture($fixture, $data)
     {
-        return true;
+//        return true;
         $dir = __DIR__.'/../fixtures';
         $file = "$dir/UserController.$fixture.data";
         $f = fopen($file,'w');

@@ -31,18 +31,16 @@ class MailKit
 
     public function signUp($user) 
     {
-        // Don't send messages for unit tests
-        if(defined('IS_TEST')) return true;
-        
         // FIXME: Handle timeout of the mailgun API gracefully
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
 
         if($user->getMigrated() != null) $template= 'migrated';
         else $template = 'default';
 
         // Send through mailgun
-        $mg->messages()->send('mg.freesewing.org', [
+        try {
+            $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Confirm your freesewing account', 
@@ -50,6 +48,9 @@ class MailKit
           'text'    => $this->loadTemplate("signup.$template.txt", $user),
           'html'    => $this->loadTemplate("signup.$template.html", $user),
         ]);
+        } catch (Exception $e) {
+            die( 'Caught exception: '.  $e->getMessage(). "\n");
+        }
 
         // Also send through Gmail if it's a SEP domain
         // SEP: Shitty email provider
@@ -72,7 +73,7 @@ class MailKit
     {
         // FIXME: Handle timeout of the mailgun API gracefully
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
 
         $data = $user->getData();
         $tier =  $data->patron->tier;
@@ -114,7 +115,7 @@ class MailKit
     public function emailChange($user, $newEmailAddress) 
     {
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
         
         $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
@@ -147,7 +148,7 @@ class MailKit
     public function recover($user) 
     {
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
         
         $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
@@ -178,7 +179,7 @@ class MailKit
     public function goodbye($user) 
     {
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
         
         return $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
@@ -193,7 +194,7 @@ class MailKit
     public function commentNotify($user, $comment, $parentAuthor, $parentComment)
     {
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
 
         $instance = $this->container['settings']['mailgun']['instance'];
         if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
@@ -221,7 +222,7 @@ class MailKit
     public function profileCommentNotify($user, $comment, $profile)
     {
         // Mailgun API instance
-        $mg = $this->initApi();
+        $mg = $this->container->get('Mailgun');
 
         $instance = $this->container['settings']['mailgun']['instance'];
         if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
@@ -293,9 +294,4 @@ class MailKit
 
         return str_replace($search, $replace, $t);
     }
-
-    private function initApi() 
-    {
-        return Mailgun::create($this->container['settings']['mailgun']['api_key']);
-    }    
 }

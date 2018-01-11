@@ -32,6 +32,11 @@ $container['db'] = function ($c) {
     return $pdo;
 };
 
+// Mailgun
+$container['Mailgun'] = function ($c) {
+    return \Mailgun\Mailgun::create($c['settings']['mailgun']['api_key']);
+};
+
 // swift mailer
 $container['SwiftMailer'] = function ($c) {
     $settings = $c->settings['swiftmailer'];
