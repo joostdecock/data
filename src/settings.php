@@ -44,13 +44,6 @@ return [
             'instance' => getenv('MAILGUN_INSTANCE'),
         ],
         
-        // Rollbar
-        'rollbar' => [
-            'rollbar_enabled' => false,
-            'access_token' => getenv('ROLLBAR_ACCESS_TOKEN'),
-            'environment' => getenv('ROLLBAR_ENVIRONMENT'),
-        ],
-
         // SEPs (shitty email providers - basically Microsoft domains) will not deliver
         // MailGun messages, so we send email through GMAIL for these domains
         // using SwiftMailer

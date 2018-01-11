@@ -131,7 +131,6 @@ class InfoController
             if(isset($groups[$ref['site']]['link'])) $referrals[$rid]['link'] = $groups[$ref['site']]['link'];
         }
         $status['referrals'] = $referrals;
-        $status['rollbar'] = $this->getRollbarItems();
 
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
@@ -152,24 +151,6 @@ class InfoController
         } else {
             return false;
         }
-    }
-
-    private function getRollbarItems()
-    {
-        $url = 'https://api.rollbar.com/api/1/items/';
-
-        $config = [
-            'connect_timeout' => 5,
-            'timeout' => 35,
-            'query' => [
-                'access_token' => $this->container['settings']['rollbar']['access_token'],
-                'status' => 'active',
-            ],
-        ];
-        $guzzle = new GuzzleClient($config);
-        $response = $guzzle->request('GET', $url);
-        
-        return json_decode((string) $response->getBody());
     }
 
     private function countUsers()

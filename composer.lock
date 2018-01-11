@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fe84dc0e440f16ab444d393d9be8ca00",
-    "content-hash": "7b91d8c6773afeffa8f95389662eefb8",
+    "hash": "4b504e205621f3de6f60e5238d207835",
+    "content-hash": "22224345bb6b7e1fce7fac9672762694",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -1148,65 +1148,6 @@
                 "psr-3"
             ],
             "time": "2016-10-10 12:19:37"
-        },
-        {
-            "name": "rollbar/rollbar",
-            "version": "v1.3.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rollbar/rollbar-php.git",
-                "reference": "a8a977976d62325453ac3366de6f91ae7b6fffcb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rollbar/rollbar-php/zipball/a8a977976d62325453ac3366de6f91ae7b6fffcb",
-                "reference": "a8a977976d62325453ac3366de6f91ae7b6fffcb",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "psr/log": "^1.0.1"
-            },
-            "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "mockery/mockery": "0.9.*",
-                "monolog/monolog": "^1.12.0",
-                "packfire/php5.3-compat": "*",
-                "phpmd/phpmd": "@stable",
-                "phpunit/phpunit": "4.8.*",
-                "squizlabs/php_codesniffer": "2.*"
-            },
-            "suggest": {
-                "fluent/logger": "Needed to use the 'fluent' handler for fluentd support",
-                "packfire/php5.3-compat": "for backward compatibility with PHP 5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Rollbar\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Rollbar, Inc.",
-                    "email": "support@rollbar.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Monitors errors and exceptions and reports them to Rollbar",
-            "homepage": "http://github.com/rollbar/rollbar-php",
-            "keywords": [
-                "debugging",
-                "errors",
-                "exceptions",
-                "logging",
-                "monitoring"
-            ],
-            "time": "2017-12-02 10:43:04"
         },
         {
             "name": "slim/php-view",
