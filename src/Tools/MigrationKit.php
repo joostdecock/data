@@ -1,7 +1,8 @@
 <?php
-/** App\Tools\MigrationKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\MigrationKit class */
+namespace Freesewing\Data\Tools;
 
+use Freesewing\Data\Objects\User;
 /**
  * The MigrationKit class.
  *
@@ -26,7 +27,7 @@ class MigrationKit
      *
      * @return FIXME
      */
-    public function migrate(\App\Data\User $user) 
+    public function migrate(User $user) 
     {
         // Get a logger instance from the container
         $logger = $this->container->get('logger');

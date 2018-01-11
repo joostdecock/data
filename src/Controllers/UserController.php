@@ -1,8 +1,8 @@
 <?php
-/** App\Controllers\UserController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\UserController class */
+namespace Freesewing\Data\Controllers;
 
-use \App\Data\User as User;
+use \Freesewing\Data\Data\User as User;
 
 /**
  * Holds data for a user.

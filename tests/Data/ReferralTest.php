@@ -3,6 +3,9 @@
 namespace Freesewing\Data\Tests\Data;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\User;
+use Freesewing\Data\Objects\Model;
+use Freesewing\Data\Objects\Referral;
 
 class ReferralTest extends \PHPUnit\Framework\TestCase
 {
@@ -12,7 +15,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $obj = new \App\Data\Referral($this->app->getContainer());
+        $obj = new Referral($this->app->getContainer());
 
         $host = 'test.freesewing.org';
         $path = '/foo/bar';
@@ -27,10 +30,10 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
     
     public function estLoadFromId()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromId@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -38,7 +41,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $id = $obj->getId();
         unset($obj);
 
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         $obj->loadFromId($id);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -50,10 +53,10 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
     
     public function estLoadFromHandle()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromHandle@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -61,7 +64,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $handle = $obj->getHandle();
         unset($obj);
 
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         $obj->loadFromHandle($handle);
         $this->assertEquals($obj->getHandle(), $handle);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -73,10 +76,10 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
     
     public function estRemove()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to remove a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testRemoveModel@freesewing.org';
         $user->create($email, 'boobies');
 

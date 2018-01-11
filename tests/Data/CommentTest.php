@@ -3,6 +3,8 @@
 namespace Freesewing\Data\Tests\Data;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\Comment;
+use Freesewing\Data\Objects\User;
 
 class CommentTest extends \PHPUnit\Framework\TestCase
 {
@@ -17,7 +19,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
      */
     public function testAttributeExists($attribute)
     {
-        $this->assertClassHasAttribute($attribute, '\App\Data\Comment');
+        $this->assertClassHasAttribute($attribute, '\Freesewing\Data\Objects\Comment');
     }
 
     public function providerTestAttributeExists()
@@ -41,7 +43,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         $setMethod = 'set'.$methodSuffix;
         $getMethod = 'get'.$methodSuffix;
         $obj->{$setMethod}($expectedResult);
@@ -60,7 +62,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
     
     public function testCommentProperties()
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         $obj->setComment("This is a **test** comment");
         $obj->setPage('/unit/test');
         $obj->setParent(2);
@@ -78,14 +80,14 @@ class CommentTest extends \PHPUnit\Framework\TestCase
 
     public function testSaveComment()
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         $obj->setComment("This is a **test** comment");
         $obj->setPage('/unit/test');
         $obj->setParent(2);
         $obj->setStatusActive();
 
         // We need a user object to save a comment
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testSaveComment@freesewing.org';
         $user->create($email, 'boobies');
         $id = $user->getId();
@@ -100,7 +102,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
 
     public function testSetStatus()
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         $obj->setStatusActive();
         $this->assertEquals($obj->getStatus(),'active');
         $obj->setStatusRemoved();
@@ -113,10 +115,10 @@ class CommentTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         
         // We need a user object to create a comment
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testCreateComment@freesewing.org';
         $user->create($email, 'boobies');
 
@@ -134,10 +136,10 @@ class CommentTest extends \PHPUnit\Framework\TestCase
     
     public function testLoad()
     {
-        $obj1 = new \App\Data\Comment($this->app->getContainer());
+        $obj1 = new Comment($this->app->getContainer());
         
         // We need a user object to create a comment
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testLoadComment@freesewing.org';
         $user->create($email, 'boobies');
 
@@ -149,7 +151,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
 
         unset($obj1);
         
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         $obj->load($id);
 
         $this->assertEquals($obj->getUser(),$user->getId());
@@ -161,10 +163,10 @@ class CommentTest extends \PHPUnit\Framework\TestCase
     
     public function testRemove()
     {
-        $obj = new \App\Data\Comment($this->app->getContainer());
+        $obj = new Comment($this->app->getContainer());
         
         // We need a user object to remove a comment
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testRemoveComment@freesewing.org';
         $user->create($email, 'boobies');
 
@@ -176,12 +178,12 @@ class CommentTest extends \PHPUnit\Framework\TestCase
 
     public function testHasChildren()
     {
-        $obj1 = new \App\Data\Comment($this->app->getContainer());
-        $obj2 = new \App\Data\Comment($this->app->getContainer());
-        $obj3 = new \App\Data\Comment($this->app->getContainer());
+        $obj1 = new Comment($this->app->getContainer());
+        $obj2 = new Comment($this->app->getContainer());
+        $obj3 = new Comment($this->app->getContainer());
         
         // We need a user object to create a comment
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testCommentHasChildren@freesewing.org';
         $user->create($email, 'boobies');
 

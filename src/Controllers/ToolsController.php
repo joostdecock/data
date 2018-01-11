@@ -1,6 +1,6 @@
 <?php
-/** App\Controllers\ToolsController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\ToolsController class */
+namespace Freesewing\Data\Controllers;
 
 use Symfony\Component\Yaml\Yaml;
 

@@ -1,6 +1,6 @@
 <?php
-/** App\Data\Draft class */
-namespace App\Data;
+/** Freesewing\Data\Objects\Draft class */
+namespace Freesewing\Data\Objects;
 
 use GuzzleHttp\Client as GuzzleClient;
 
@@ -57,7 +57,7 @@ class Draft
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new \App\Data\JsonStore();
+        $this->data = new JsonStore();
     }
 
     public function getId() 

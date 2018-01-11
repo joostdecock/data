@@ -1,6 +1,6 @@
 <?php
-/** App\Data\JsonStore class */
-namespace App\Data;
+/** Freesewing\Data\Objects\JsonStore class */
+namespace Freesewing\Data\Objects;
 
 /**
  * The JsonStore class.

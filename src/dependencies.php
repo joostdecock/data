@@ -1,5 +1,5 @@
 <?php
-if(is_a($app, '\Freesewing\Data\Tests\TestApp')) if(!defined('IS_TEST')) define('IS_TEST', true);
+if(is_a($app, '\Freesewing\Data\Tests\TestFreesewing\Data')) if(!defined('IS_TEST')) define('IS_TEST', true);
 
 // DIC configuration
 
@@ -51,73 +51,73 @@ $container['SwiftMailer'] = function ($c) {
 };
 
 $container['InfoController'] = function ($container) {
-    return new \App\Controllers\InfoController($container);
+    return new \Freesewing\Data\Controllers\InfoController($container);
 };
 
 $container['UserController'] = function ($container) {
-    return new \App\Controllers\UserController($container);
+    return new \Freesewing\Data\Controllers\UserController($container);
 };
 
 $container['ModelController'] = function ($container) {
-    return new \App\Controllers\ModelController($container);
+    return new \Freesewing\Data\Controllers\ModelController($container);
 };
 
 $container['DraftController'] = function ($container) {
-    return new \App\Controllers\DraftController($container);
+    return new \Freesewing\Data\Controllers\DraftController($container);
 };
 
 $container['ReferralController'] = function ($container) {
-    return new \App\Controllers\ReferralController($container);
+    return new \Freesewing\Data\Controllers\ReferralController($container);
 };
 
 $container['CommentController'] = function ($container) {
-    return new \App\Controllers\CommentController($container);
+    return new \Freesewing\Data\Controllers\CommentController($container);
 };
 
 $container['ToolsController'] = function ($container) {
-    return new \App\Controllers\ToolsController($container);
+    return new \Freesewing\Data\Controllers\ToolsController($container);
 };
 
 $container['HandleKit'] = function ($container) {
-    return new \App\Tools\HandleKit($container);
+    return new \Freesewing\Data\Tools\HandleKit($container);
 };
 
 $container['AvatarKit'] = function ($container) {
-    return new \App\Tools\AvatarKit($container);
+    return new \Freesewing\Data\Tools\AvatarKit($container);
 };
 
 $container['MigrationKit'] = function ($container) {
-    return new \App\Tools\MigrationKit($container);
+    return new \Freesewing\Data\Tools\MigrationKit($container);
 };
 
 $container['MailKit'] = function ($container) {
-    return new \App\Tools\MailKit($container);
+    return new \Freesewing\Data\Tools\MailKit($container);
 };
 
 $container['TokenKit'] = function ($container) {
-    return new \App\Tools\TokenKit($container);
+    return new \Freesewing\Data\Tools\TokenKit($container);
 };
 
 $container['UnitsKit'] = function ($container) {
-    return new \App\Tools\UnitsKit($container);
+    return new \Freesewing\Data\Tools\UnitsKit($container);
 };
 
 $container['User'] = function ($container) {
-    return new \App\Data\User($container);
+    return new \Freesewing\Data\Objects\User($container);
 };
 
 $container['Model'] = function ($container) {
-    return new \App\Data\Model($container);
+    return new \Freesewing\Data\Objects\Model($container);
 };
 
 $container['Draft'] = function ($container) {
-    return new \App\Data\Draft($container);
+    return new \Freesewing\Data\Objects\Draft($container);
 };
 
 $container['Referral'] = function ($container) {
-    return new \App\Data\Referral($container);
+    return new \Freesewing\Data\Objects\Referral($container);
 };
 
 $container['Comment'] = function ($container) {
-    return new \App\Data\Comment($container);
+    return new \Freesewing\Data\Objects\Comment($container);
 };

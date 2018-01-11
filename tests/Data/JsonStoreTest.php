@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Tests\Data;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\JsonStore;
 
 class JsonStoreTest extends \PHPUnit\Framework\TestCase
 {
@@ -15,7 +16,7 @@ class JsonStoreTest extends \PHPUnit\Framework\TestCase
      */
     public function testSetAndGetAndUnsetJsonData()
     {
-        $obj = new \App\Data\JsonStore();
+        $obj = new JsonStore();
         $obj->setNode('top', 'level');
         $this->assertEquals($obj->getNode('top'),'level');
         

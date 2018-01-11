@@ -1,6 +1,6 @@
 <?php
-/** App\Tools\UnitsKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\UnitsKit class */
+namespace Freesewing\Data\Tools;
 
 /**
  * The UnitsKit class.

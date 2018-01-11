@@ -1,8 +1,9 @@
 <?php
-/** App\Tools\MailKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\MailKit class */
+namespace Freesewing\Data\Tools;
 
 use Mailgun\Mailgun;
+use SwiftMessage;
 
 /**
  * The MailKit class.
@@ -57,7 +58,7 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Confirm your freesewing account'))
+            $message = (new Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("signup.$template.txt", $user))
@@ -100,7 +101,7 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Thank you for your support'))
+            $message = (new Swift_Message('Thank you for your support'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("$template.txt", $user))
@@ -132,7 +133,7 @@ class MailKit
         if($this->isSep($user->getEmail()) || $this->isSep($newEmailAddress)) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Confirm your freesewing account'))
+            $message = (new Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($newEmailAddress)
                   ->setCc($user->getEmail())
@@ -164,7 +165,7 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Regain access to your acount'))
+            $message = (new Swift_Message('Regain access to your acount'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("recover.txt", $user))

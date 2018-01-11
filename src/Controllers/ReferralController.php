@@ -1,6 +1,6 @@
 <?php
-/** App\Controllers\ReferralController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\ReferralController class */
+namespace Freesewing\Data\Controllers;
 
 /**
  * Logs referrals

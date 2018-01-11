@@ -1,6 +1,6 @@
 <?php
-/** App\Controllers\CoreController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\CoreController class */
+namespace Freesewing\Data\Controllers;
 
 use Symfony\Component\Yaml\Yaml;
 use GuzzleHttp\Client as GuzzleClient;

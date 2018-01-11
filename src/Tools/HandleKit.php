@@ -1,6 +1,6 @@
 <?php
-/** App\Tools\HandleKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\HandleKit class */
+namespace Freesewing\Data\Tools;
 
 /**
  * The HandleKit class.

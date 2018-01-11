@@ -1,6 +1,6 @@
 <?php
-/** App\Data\User class */
-namespace App\Data;
+/** Freesewing\Data\Objects\User class */
+namespace Freesewing\Data\Objects;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -60,7 +60,7 @@ class User
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new \App\Data\JsonStore();
+        $this->data = new JsonStore();
     }
 
     // Getters
@@ -375,7 +375,7 @@ class User
             foreach($result as $key => $val) {
                 if($key == 'data') {
                     if($val != '') $this->data->import($val);
-                    else $this->data = new \App\Data\JsonStore();
+                    else $this->data = new \Freesewing\Data\Data\JsonStore();
                 } else $this->$key = $val;
             }
         }

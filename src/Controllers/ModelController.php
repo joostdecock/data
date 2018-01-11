@@ -1,8 +1,8 @@
 <?php
-/** App\Controllers\ModelController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\ModelController class */
+namespace Freesewing\Data\Controllers;
 
-use \App\Data\Model as Model;
+use \Freesewing\Data\Data\Model as Model;
 
 /**
  * Holds data for a model.

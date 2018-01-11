@@ -1,6 +1,6 @@
 <?php
-/** App\Tools\TokenKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\TokenKit class */
+namespace Freesewing\Data\Tools;
 
 use \Firebase\JWT\JWT;
 use \Tuupola\Base62;

@@ -3,6 +3,9 @@
 namespace Freesewing\Data\Tests\Data;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\JsonStore;
+use Freesewing\Data\Objects\Model;
+use Freesewing\Data\Objects\User;
 
 class ModelTest extends \PHPUnit\Framework\TestCase
 {
@@ -15,8 +18,8 @@ class ModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testConstructor()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
-        $json = new \App\Data\JsonStore();
+        $obj = new Model($this->app->getContainer());
+        $json = new JsonStore();
 
         $this->assertEquals($obj->getData(),$json);
     }
@@ -29,7 +32,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         $setMethod = 'set'.$methodSuffix;
         $getMethod = 'get'.$methodSuffix;
         $obj->{$setMethod}($expectedResult);
@@ -51,7 +54,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
 
     public function testSetMeasurement()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         $obj->setMeasurement('chestCircumference', '111');
         $this->assertEquals($obj->getMeasurement('chestCircumference'),111);
@@ -63,10 +66,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
 
     public function testCreate()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testCreateModel@freesewing.org';
         $user->create($email, 'boobies');
 
@@ -81,10 +84,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromId()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromId@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -92,7 +95,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $id = $obj->getId();
         unset($obj);
 
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         $obj->loadFromId($id);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -104,10 +107,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromHandle()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromHandle@freesewing.org';
         $user->create($email, 'boobies');
         
@@ -115,7 +118,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $handle = $obj->getHandle();
         unset($obj);
 
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         $obj->loadFromHandle($handle);
         $this->assertEquals($obj->getHandle(), $handle);
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
@@ -127,10 +130,10 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testRemove()
     {
-        $obj = new \App\Data\Model($this->app->getContainer());
+        $obj = new Model($this->app->getContainer());
         
         // We need a user object to remove a model
-        $user = new \App\Data\User($this->app->getContainer());
+        $user = new User($this->app->getContainer());
         $email = time().'.testRemoveModel@freesewing.org';
         $user->create($email, 'boobies');
 

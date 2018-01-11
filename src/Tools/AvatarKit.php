@@ -1,6 +1,8 @@
 <?php
-/** App\Tools\AvatarKit class */
-namespace App\Tools;
+/** Freesewing\Data\Tools\AvatarKit class */
+namespace Freesewing\Data\Tools;
+
+use Imagick;
 
 /**
  * The AvatarKit class.
@@ -102,7 +104,7 @@ class AvatarKit
         if(strpos($headers[0],'200')===false) return false;
 
         // Imagick instance with the user's picture
-        $imagick = new \Imagick($uri);
+        $imagick = new Imagick($uri);
 
         $imagick = $this->thumbnail($imagick);
         
@@ -145,7 +147,7 @@ class AvatarKit
         }
         
         // Imagick instance with the user's picture
-        $imagick = new \Imagick();
+        $imagick = new Imagick();
         $handle = fopen($filepath, 'r');
         $imagick->readImageFile($handle);
         fclose($handle);

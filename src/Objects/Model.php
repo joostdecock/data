@@ -1,8 +1,9 @@
 <?php
-/** App\Data\Model class */
-namespace App\Data;
+/** Freesewing\Data\Objects\Model class */
+namespace Freesewing\Data\Objects;
 
 use Symfony\Component\Yaml\Yaml;
+use Freesewing\Data\Objects\JsonStore;
 
 /**
  * The model class.
@@ -56,7 +57,7 @@ class Model
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new \App\Data\JsonStore();
+        $this->data = new JsonStore();
     }
 
     // Getters
@@ -218,7 +219,7 @@ class Model
         else foreach($result as $key => $val) {
             if($key == 'data') {
                 if($val != '') $this->data->import($val);
-                else $this->data = new \App\Data\JsonStore();
+                else $this->data = new JsonStore();
             }
             else $this->$key = $val;
             }

@@ -1,6 +1,6 @@
 <?php
-/** App\Data\Comment class */
-namespace App\Data;
+/** Freesewing\Data\Objects\Comment class */
+namespace Freesewing\Data\Objects;
 
 /**
  * The comment class.

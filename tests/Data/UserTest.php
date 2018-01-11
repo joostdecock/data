@@ -3,6 +3,8 @@
 namespace Freesewing\Data\Tests\Data;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\User;
+use Freesewing\Data\Objects\JsonStore;
 
 class UserTest extends \PHPUnit\Framework\TestCase
 {
@@ -16,8 +18,8 @@ class UserTest extends \PHPUnit\Framework\TestCase
     public function testConstructor()
     {
         //$app = new TestApp();
-        $obj = new \App\Data\User($this->app->getContainer());
-        $json = new \App\Data\JsonStore();
+        $obj = new User($this->app->getContainer());
+        $json = new JsonStore();
 
         $this->assertEquals($obj->getData(),$json);
     }
@@ -30,7 +32,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         $setMethod = 'set'.$methodSuffix;
         $getMethod = 'get'.$methodSuffix;
         $obj->{$setMethod}($expectedResult);
@@ -60,7 +62,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testSetPatron()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $obj->setPatron(8, '1515406642');
         $this->assertEquals($obj->getPatronTier(),8);
@@ -75,7 +77,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testUnsetPendingEmail()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $obj->setPendingEmail('test@freesewing.org');
         $this->assertEquals($obj->getPendingEmail(),'test@freesewing.org');
@@ -86,7 +88,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testIsPatron()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $obj->setPatronTier(8);
         $this->assertTrue($obj->isPatron());
@@ -97,7 +99,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testCreate()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testCreate@freesewing.org';
         $obj->create($email, 'boobies');
@@ -111,14 +113,14 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromId()
     {
-        $obj1 = new \App\Data\User($this->app->getContainer());
+        $obj1 = new User($this->app->getContainer());
         
         $email = time().'.testLoadFromId@freesewing.org';
         $obj1->create($email, 'boobies');
         $id = $obj1->getId();
         unset($obj1);
 
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         $obj->loadFromId($id);
         $this->assertEquals($obj->getStatus(), 'inactive');
         $this->assertEquals($obj->getRole(), 'user');
@@ -129,14 +131,14 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testLoadFromHandle()
     {
-        $obj1 = new \App\Data\User($this->app->getContainer());
+        $obj1 = new User($this->app->getContainer());
         
         $email = time().'.testLoadFromHandle@freesewing.org';
         $obj1->create($email, 'boobies');
         $handle = $obj1->getHandle();
         unset($obj1);
 
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         $obj->loadFromHandle($handle);
         $this->assertEquals($obj->getStatus(), 'inactive');
         $this->assertEquals($obj->getRole(), 'user');
@@ -147,7 +149,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testEmailTaken()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testEmailTaken@freesewing.org';
         $obj->create($email, 'boobies');
@@ -157,7 +159,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testUsernameTaken()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testUsernameTaken@freesewing.org';
         $obj->create($email, 'boobies');
@@ -171,7 +173,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testGetActivationToken()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testGetActivationToken@freesewing.org';
         $obj->create($email, 'boobies');
@@ -186,7 +188,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testGetResetToken()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testGetResetToken@freesewing.org';
         $obj->create($email, 'boobies');
@@ -201,7 +203,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
     
     public function testCheckPassword()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testCheckPassword@freesewing.org';
         $obj->create($email, 'boobies');
@@ -212,7 +214,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testRemove()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testRemove@freesewing.org';
         $obj->create($email, 'boobies');
@@ -225,7 +227,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testAddRemoveBadge()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testAddRemoveBadge@freesewing.org';
         $obj->create($email, 'boobies');
@@ -242,7 +244,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
     public function testMakePatron()
     {
-        $obj = new \App\Data\User($this->app->getContainer());
+        $obj = new User($this->app->getContainer());
         
         $email = time().'.testMakePatron@freesewing.org';
         $obj->create($email, 'boobies');

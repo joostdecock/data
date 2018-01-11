@@ -2,18 +2,20 @@
 
 namespace Freesewing\Data\Tests;
 
+use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Environment;
 use Freesewing\Data\Tests\Stubs\Mailgun;
 use Freesewing\Data\Tests\Stubs\SwiftMailer;
 
-class TestApp extends \Slim\App 
+class TestApp extends App 
 {
     public function __construct()
     {
         // Overwrite settings for testing
         $settings = require __DIR__ . '/../src/settings.php';
+        $settings['settings']['db'] = $settings['settings']['testdb'];
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
         $settings['settings']['displayErrorDetails'] = true;

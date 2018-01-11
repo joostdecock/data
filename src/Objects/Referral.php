@@ -1,6 +1,6 @@
 <?php
-/** App\Data\Referral class */
-namespace App\Data;
+/** Freesewing\Data\Objects\Referral class */
+namespace Freesewing\Data\Objects;
 
 /**
  * The regerral class.

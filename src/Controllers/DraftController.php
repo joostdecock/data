@@ -1,8 +1,8 @@
 <?php
-/** App\Controllers\DraftController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\DraftController class */
+namespace Freesewing\Data\Controllers;
 
-use \App\Data\Model as Model;
+use \Freesewing\Data\Data\Model as Model;
 
 /**
  * Drafts controller

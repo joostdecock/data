@@ -1,8 +1,8 @@
 <?php
-/** App\Controllers\CommentController class */
-namespace App\Controllers;
+/** Freesewing\Data\Controllers\CommentController class */
+namespace Freesewing\Data\Controllers;
 
-use \App\Data\Comment as Comment;
+use \Freesewing\Data\Data\Comment as Comment;
 
 /**
  * Holds data for a comment.
