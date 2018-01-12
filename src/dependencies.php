@@ -50,6 +50,15 @@ $container['SwiftMailer'] = function ($c) {
     return new \Swift_Mailer($transport);
 };
 
+// Guzzle
+$container['GuzzleClient'] = function () { 
+    return new \GuzzleHttp\Client(); 
+};
+
+// Imagick
+$container['Imagick'] = function () { return new \Imagick(); };
+
+// Own classes
 $container['InfoController'] = function ($container) {
     return new \Freesewing\Data\Controllers\InfoController($container);
 };
@@ -120,4 +129,8 @@ $container['Referral'] = function ($container) {
 
 $container['Comment'] = function ($container) {
     return new \Freesewing\Data\Objects\Comment($container);
+};
+
+$container['JsonStore'] = function ($container) {
+    return new \Freesewing\Data\Objects\JsonStore($container);
 };

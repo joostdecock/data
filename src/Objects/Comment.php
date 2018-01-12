@@ -46,19 +46,14 @@ class Comment
     }
 
     // Getters
-    public function getId() 
-    {
-        return $this->id;
-    } 
-
-    public function getUser() 
-    {
-        return $this->user;
-    } 
-
     public function getComment() 
     {
         return $this->comment;
+    } 
+
+    public function getId() 
+    {
+        return $this->id;
     } 
 
     public function getPage() 
@@ -66,22 +61,23 @@ class Comment
         return $this->page;
     } 
 
+    public function getParent() 
+    {
+        return $this->parent;
+    } 
+    
     public function getStatus() 
     {
         return $this->status;
     } 
 
-    public function getParent() 
+    public function getUser() 
     {
-        return $this->parent;
+        return $this->user;
     } 
+
 
     // Setters
-    public function setUser($user) 
-    {
-        $this->user = $user;
-    } 
-
     public function setComment($comment) 
     {
         $this->comment = $comment;
@@ -112,36 +108,22 @@ class Comment
         $this->status = 'restricted';
     } 
 
-    /**
-     * Loads a comment based on the id
-     *
-     * @param string $id   The comment id
-     *
-     * @return object|false A comment object or false if the comment does not exist
-     */
-    public function load($id) 
+    public function setUser($user) 
+    {
+        $this->user = $user;
+    } 
+
+    private function hasChildren()
     {
         $db = $this->container->get('db');
-        $sql = "SELECT 
-            `comments`.`id`,
-            `comments`.`user`,
-            `comments`.`comment`,
-            `comments`.`page`,
-            `comments`.`time`,
-            `comments`.`status`,
-            `comments`.`parent`,
-            `users`.`username`,
-            `users`.`handle` as userhandle
-            from `comments`,`users` 
-            WHERE `comments`.`user` = `users`.`id` AND
-            `comments`.`id` =".$db->quote($id);
-        
+        $sql = "SELECT `comments`.`id` FROM `comments` WHERE `parent` =  ".$db->quote($this->getId())." LIMIT 1;";
+       
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
 
         if(!$result) return false;
-        else foreach($result as $key => $val)  $this->$key = $val;
+        else return true;
     }
-   
+
     /**
      * Creates a new comment and stores it in database
      *
@@ -180,6 +162,36 @@ class Comment
         $this->load($id);
     }
 
+    /**
+     * Loads a comment based on the id
+     *
+     * @param string $id   The comment id
+     *
+     * @return object|false A comment object or false if the comment does not exist
+     */
+    public function load($id) 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT 
+            `comments`.`id`,
+            `comments`.`user`,
+            `comments`.`comment`,
+            `comments`.`page`,
+            `comments`.`time`,
+            `comments`.`status`,
+            `comments`.`parent`,
+            `users`.`username`,
+            `users`.`handle` as userhandle
+            from `comments`,`users` 
+            WHERE `comments`.`user` = `users`.`id` AND
+            `comments`.`id` =".$db->quote($id);
+        
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+
+        if(!$result) return false;
+        else foreach($result as $key => $val)  $this->$key = $val;
+    }
+   
     /** Saves the comment to the database */
     public function save() 
     {
@@ -207,16 +219,5 @@ class Comment
             $sql = "DELETE from `comments` WHERE `id` = ".$db->quote($this->getId()).";";
             return $db->exec($sql);
         }
-    }
-
-    private function hasChildren()
-    {
-        $db = $this->container->get('db');
-        $sql = "SELECT `comments`.`id` FROM `comments` WHERE `parent` =  ".$db->quote($this->getId())." LIMIT 1;";
-        
-        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
-
-        if(!$result) return false;
-        else return true;
     }
 }

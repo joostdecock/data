@@ -694,7 +694,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'no_such_account', 
                 'message' => 'resend/no-such-account',
-            ]);
+            ], 404);
         } 
         
         if($user->getStatus() === 'blocked') {
@@ -704,7 +704,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
                 'message' => 'resend/account-blocked',
-            ]);
+            ], 400);
         }
 
         if($user->getStatus() === 'active') {
@@ -714,7 +714,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_active', 
                 'message' => 'resend/account-active',
-            ]);
+            ], 400);
         }
         // Send email 
         $mailKit = $this->container->get('MailKit');
@@ -840,7 +840,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'no_such_account', 
                 'message' => 'activation/no-such-account'
-            ]);
+            ], 404);
         }
 
         // Is the user blocked? 
@@ -851,7 +851,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
                 'message' => 'account/blocked'
-            ]);
+            ], 400);
         }
 
         // Is there a token mismatch? 
@@ -862,7 +862,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'token_mismatch', 
                 'message' => 'activation/token-mismatch'
-            ]);
+            ], 400);
         }
 
         // Get the token kit from the container

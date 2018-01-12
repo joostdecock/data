@@ -60,7 +60,7 @@ class User
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new JsonStore();
+        $this->data = $this->container->get('JsonStore');
     }
 
     // Getters
@@ -270,11 +270,6 @@ class User
         return true;
     } 
 
-    public function setData($data) 
-    {
-        $this->data = $data;
-    } 
-
     public function setPassword($password) 
     {
         $this->password = password_hash($password, PASSWORD_DEFAULT);
@@ -375,7 +370,7 @@ class User
             foreach($result as $key => $val) {
                 if($key == 'data') {
                     if($val != '') $this->data->import($val);
-                    else $this->data = new \Freesewing\Data\Data\JsonStore();
+                    else $this->data = $this->container->get('JsonStore');
                 } else $this->$key = $val;
             }
         }
@@ -476,8 +471,7 @@ class User
             ".$db->quote($this->getEmail()).",
             ".$db->quote(hash('sha256', random_bytes(256)))."
             );";
-        if($db->exec($sql)) $logger->info("User ".$this->getHandle()." created in database.");
-        else $logger->info("Could not create user ".$this->getHandle()." in database. Query that failed was: $sql");
+        $db->exec($sql);
 
         // Retrieve user ID
         $id = $db->lastInsertId();

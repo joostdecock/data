@@ -12,6 +12,19 @@ class JsonStoreTest extends \PHPUnit\Framework\TestCase
     }
 
     /** 
+     * Tests import of JSON data
+     */
+    public function testImport()
+    {
+        $data = '{ "account": { "units": "metric", "theme": "classic" }}';
+
+        $obj = new JsonStore();
+        $obj->import($data);
+
+        $this->assertEquals($obj->getNode('account'),json_decode($data)->account);
+    }
+
+    /** 
      * Tests setting and retrieving of JSON data
      */
     public function testSetAndGetAndUnsetJsonData()
@@ -44,6 +57,9 @@ class JsonStoreTest extends \PHPUnit\Framework\TestCase
         
         $obj->unsetNode('top');
         $this->assertFalse($obj->getNode('top'));
+        
+        $obj->unsetNode('this.is.a.test');
+        $this->assertFalse($obj->getNode('this.is.a.test'));
         
         $this->saveFixture('json4',(string)$obj);
         $this->assertEquals((string)$obj,$this->loadFixture('json4'));

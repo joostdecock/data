@@ -57,7 +57,7 @@ class Model
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new JsonStore();
+        $this->data = $this->container->get('JsonStore');
     }
 
     // Getters
@@ -193,6 +193,11 @@ class Model
         return true;
     } 
 
+    public function setData($data) 
+    {
+        $this->data->import($data);
+    }
+
     public function setMeasurement($key, $val)
     {
         $this->data->setNode("measurements.$key", $val);
@@ -219,7 +224,7 @@ class Model
         else foreach($result as $key => $val) {
             if($key == 'data') {
                 if($val != '') $this->data->import($val);
-                else $this->data = new JsonStore();
+                else $this->data = $this->container->get('JsonStore');
             }
             else $this->$key = $val;
             }

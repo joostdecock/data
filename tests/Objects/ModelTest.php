@@ -47,9 +47,26 @@ class ModelTest extends \PHPUnit\Framework\TestCase
             ['Body', 'female'],
             ['Migrated', '1'],
             ['Shared', '0'],
+            ['Units', 'imperial'],
             ['Picture', 'avatar.jpg'],
             ['Units', 'imperial'],
         ];
+    }
+
+    public function testSetUnitsIncorrectly()
+    {
+        $obj = new Model($this->app->getContainer());
+        
+        // We need a user object to create a model
+        $user = new User($this->app->getContainer());
+        $email = time().'.testSetUnitsIncorrectly@freesewing.org';
+        $user->create($email, 'bananas');
+
+        $obj->create($user);
+        $obj->setUnits('kiwis');
+        $obj->save();
+
+        $this->assertEquals($obj->getUnits(), 'metric');
     }
 
     public function testSetMeasurement()
@@ -71,7 +88,8 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a model
         $user = new User($this->app->getContainer());
         $email = time().'.testCreateModel@freesewing.org';
-        $user->create($email, 'boobies');
+        $now = date('Y-m-d H:i');
+        $user->create($email, 'bananas');
 
         $obj->create($user);
         
@@ -80,6 +98,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getUnits(), $user->getAccountUnits());
         $this->assertEquals($obj->getMigrated(), 0);
         $this->assertEquals($obj->getShared(), 0);
+        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
     }
     
     public function testLoadFromId()
@@ -89,7 +108,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a model
         $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromId@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
         
         $obj->create($user);
         $id = $obj->getId();
@@ -105,14 +124,79 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getShared(), 0);
     }
     
-    public function testLoadFromHandle()
+    public function testGetMeasurements()
+    {
+        $obj = new Model($this->app->getContainer());
+        
+        // We need a user object to create a model
+        $user = new User($this->app->getContainer());
+        $email = time().'.testModelGetMeasurements@freesewing.org';
+        $user->create($email, 'bananas');
+
+        $obj->setMeasurement('chestCircumference', 100);
+        $obj->setMeasurement('neckCircumference', 42);
+
+        $obj->create($user);
+
+        $check = new \stdClass();
+        $check->chestCircumference = 100;
+        $check->neckCircumference = 42;
+
+        $this->assertEquals($obj->getMeasurements(), $check);
+    }
+    
+    public function testGetDataAsJson()
     {
         $obj = new Model($this->app->getContainer());
         
         // We need a user object to create a model
         $user = new User($this->app->getContainer());
         $email = time().'.testLoadModelFromHandle@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
+        
+        $obj->create($user);
+        $handle = $obj->getHandle();
+        unset($obj);
+
+        $obj = new Model($this->app->getContainer());
+        $obj->loadFromHandle($handle);
+
+        $json = $obj->getDataAsJson();
+        $this->assertTrue(is_string($json));
+        $this->assertTrue(is_object(json_decode($json)));
+    }
+    
+    public function testSetData()
+    {
+        $obj = new Model($this->app->getContainer());
+        
+        // We need a user object to create a model
+        $user = new User($this->app->getContainer());
+        $email = time().'.testModelSetData@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        $obj->create($user);
+
+        $check = [
+            'twitter' => 'freesewing_org',
+            'instagram' => 'joostdecock',
+            'github' => 'freesewing'
+        ];
+        
+        $obj = new Model($this->app->getContainer());
+        $obj->setData(json_encode($check));
+
+        $this->assertEquals(json_decode(json_encode($obj->getData())), json_decode($obj->getDataAsJson()));
+    }
+    
+    public function testLoadFromHandle()
+    {
+        $obj = new Model($this->app->getContainer());
+        
+        // We need a user object to create a model
+        $user = new User($this->app->getContainer());
+        $email = time().'.testModelDataAsJson@freesewing.org';
+        $user->create($email, 'bananas');
         
         $obj->create($user);
         $handle = $obj->getHandle();
@@ -135,7 +219,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         // We need a user object to remove a model
         $user = new User($this->app->getContainer());
         $email = time().'.testRemoveModel@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
 
         $id = $obj->getId();
         $obj->remove($user);

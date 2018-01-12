@@ -57,7 +57,7 @@ class Draft
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = new JsonStore();
+        $this->data = $this->container->get('JsonStore');
     }
 
     public function getId() 
@@ -463,15 +463,8 @@ class Draft
     private function getDraft($args)
     {
         $url = $this->container['settings']['app']['core_api']."/index.php";
-        
-        $config = [
-            'connect_timeout' => 5,
-            'timeout' => 35,
-            'query' => $args,
-        ];
-
-        $guzzle = new GuzzleClient($config);
-        $response = $guzzle->request('GET', $url);
+        $guzzle = $this->container->get('GuzzleClient');
+        $response = $guzzle->request('GET', $url, $args);
         
         return $response->getBody();
     }

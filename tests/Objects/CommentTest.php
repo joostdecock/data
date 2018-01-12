@@ -89,7 +89,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         // We need a user object to save a comment
         $user = new User($this->app->getContainer());
         $email = time().'.testSaveComment@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
         $id = $user->getId();
         $obj->create($user);
 
@@ -120,7 +120,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a comment
         $user = new User($this->app->getContainer());
         $email = time().'.testCreateComment@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
 
         $obj->setComment("This is a **test** comment");
         $obj->setPage('/unit/test');
@@ -141,7 +141,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a comment
         $user = new User($this->app->getContainer());
         $email = time().'.testLoadComment@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
 
         $obj1->setComment("This is a **test** comment");
         $obj1->setPage('/unit/test');
@@ -164,11 +164,16 @@ class CommentTest extends \PHPUnit\Framework\TestCase
     public function testRemove()
     {
         $obj = new Comment($this->app->getContainer());
-        
+        $obj->setComment("This is a **test** comment");
+        $obj->setPage('/unit/test');
+        $obj->setStatusActive();
+
         // We need a user object to remove a comment
         $user = new User($this->app->getContainer());
         $email = time().'.testRemoveComment@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
+        $obj->create($user);
+        
 
         $id = $obj->getId();
         $obj->remove();
@@ -185,7 +190,7 @@ class CommentTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a comment
         $user = new User($this->app->getContainer());
         $email = time().'.testCommentHasChildren@freesewing.org';
-        $user->create($email, 'boobies');
+        $user->create($email, 'bananas');
 
         $obj1->setComment("This is a **test** comment");
         $obj1->setPage('/unit/test');
