@@ -11,6 +11,8 @@ use Freesewing\Data\Tests\Stubs\SwiftMailer;
 
 class TestApp extends App 
 {
+    const CORE_API = 'https://core.freesewing.org';
+
     public function __construct()
     {
         // Overwrite settings for testing
@@ -20,6 +22,7 @@ class TestApp extends App
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
         $settings['settings']['displayErrorDetails'] = true;
         $settings['settings']['forceEncryption'] = false;
+        $settings['settings']['app']['core_api'] = self::CORE_API;
 
         // Run the Slim\App contructor
         parent::__construct($settings);

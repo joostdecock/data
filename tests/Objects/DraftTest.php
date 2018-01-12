@@ -3,10 +3,12 @@
 namespace Freesewing\Data\Tests\Objects;
 
 use Freesewing\Data\Tests\TestApp;
+use Freesewing\Data\Objects\Draft;
 use Freesewing\Data\Objects\User;
+use Freesewing\Data\Objects\Model;
 use Freesewing\Data\Objects\JsonStore;
 
-class UserTest extends \PHPUnit\Framework\TestCase
+class DraftTest extends \PHPUnit\Framework\TestCase
 {
     protected function setup() {
         if(!isset($this->app)) $this->app = new TestApp();
@@ -17,8 +19,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
      */
     public function testConstructor()
     {
-        //$app = new TestApp();
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
         $json = new JsonStore();
 
         $this->assertEquals($obj->getData(),$json);
@@ -32,7 +33,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
      */
     public function testGettersReturnWhatSettersSet($methodSuffix, $expectedResult)
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
         $setMethod = 'set'.$methodSuffix;
         $getMethod = 'get'.$methodSuffix;
         $obj->{$setMethod}($expectedResult);
@@ -42,25 +43,124 @@ class UserTest extends \PHPUnit\Framework\TestCase
     public function providerGettersReturnWhatSettersSet()
     {
         return [
-            ['Login', '2018-01-08 11:15:30'],
-            ['Email', 'test@freesewing.org'],
-            ['Status', 'active'],
-            ['Migrated', '2018-01-07 10:30:15'],
-            ['Role', 'user'],
-            ['Picture', 'avatar.jpg'],
-            ['PendingEmail', 'newaddress@freesewing.org'],
-            ['AccountUnits', 'metric'],
-            ['AccountTheme', 'classic'],
-            ['TwitterHandle', 'freesewing_org'],
-            ['InstagramHandle', 'same_here'],
-            ['GithubHandle', 'joostdecock'],
-            ['PatronTier', 8],
-            ['PatronSince', '1515406642'],
-            ['PatronAddress', "Mr. Harry Potter\nThe cupboard under the stairs\n4 Privet Drive\nLittle Whinging\nSurrey"],
+            ['User', 2],
+            ['Model', 3],
+            ['Pattern', 'TrayvonTie'],
+            ['Handle', 'testy'],
+            ['Name', 'Test draft'],
+            ['Svg', '<svg></svg>'],
+            ['Compared', '<svg class="compare"></svg>'],
+            ['Notes', 'These are my notes'],
+            ['Shared', 1],
+            ['CoreUrl', 'some long url here'],
+            ['Units', 'imperial'],
+            ['Version', 'test1.0'],
         ];
     }
 
-    public function testSetInvalidStatusOrRole()
+    public function testCreate()
+    {
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
+        
+        // We need a User object
+        $email = time().'.testCreateDraft@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+
+        $obj->create($data, $user,$model);
+
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
+    }
+
+    public function testCreateMixedUnitsImperial()
+    {
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
+        
+        // We need a User object
+        $email = time().'.testCreateDraftMixedUnitsImperial@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 20);
+        $model->setMeasurement('neckCircumference', 16);
+        $model->setUnits('imperial');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+
+        $obj->create($data, $user,$model);
+
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 40);
+    }
+    
+    public function testCreateMixedUnitsMetric()
+    {
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
+        
+        // We need a User object
+        $email = time().'.testCreateDraftMixedUnitsMetric@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'imperial',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+
+        $obj->create($data, $user,$model);
+
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 16);
+    }
+
+    public function estSetInvalidStatusOrRole()
     {
         $obj = new User($this->app->getContainer());
         
@@ -68,7 +168,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->setRole('demi-god'));
     }
 
-    public function testGetSocial()
+    public function estGetSocial()
     {
         $obj = new User($this->app->getContainer());
         
@@ -85,7 +185,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getSocial(), (object)$check);
     }
 
-    public function testSetInvalidSocialHandle()
+    public function estSetInvalidSocialHandle()
     {
         $obj = new User($this->app->getContainer());
         
@@ -96,7 +196,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->getSocial());
     }
 
-    public function testSetPatron()
+    public function estSetPatron()
     {
         $obj = new User($this->app->getContainer());
         
@@ -119,7 +219,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getPatron(), (object)$check);
     }
 
-    public function testUnsetPendingEmail()
+    public function estUnsetPendingEmail()
     {
         $obj = new User($this->app->getContainer());
         
@@ -130,7 +230,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->getPendingEmail());
     }
     
-    public function testIsPatron()
+    public function estIsPatron()
     {
         $obj = new User($this->app->getContainer());
         
@@ -141,21 +241,8 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->isPatron());
     }
     
-    public function testCreate()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testCreate@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $this->assertEquals($obj->getStatus(), 'inactive');
-        $this->assertEquals($obj->getRole(), 'user');
-        $this->saveFixture('user.json.create',$obj->getDataAsJson());
-        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.create'));
-        $this->assertEquals($obj->getEmail(), $email);
-    }
     
-    public function testLoadFromId()
+    public function estLoadFromId()
     {
         $obj1 = new User($this->app->getContainer());
         
@@ -173,7 +260,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getEmail(), $email);
     }
     
-    public function testLoadFromHandle()
+    public function estLoadFromHandle()
     {
         $obj1 = new User($this->app->getContainer());
         
@@ -191,7 +278,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getEmail(), $email);
     }
     
-    public function testEmailTaken()
+    public function estEmailTaken()
     {
         $obj = new User($this->app->getContainer());
         
@@ -202,7 +289,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->emailTaken(time().$email));
     }
     
-    public function testUsernameTaken()
+    public function estUsernameTaken()
     {
         $obj = new User($this->app->getContainer());
         
@@ -217,7 +304,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->usernameTaken(substr(time().$email,0,32)));
     }
     
-    public function testGetInitial()
+    public function estGetInitial()
     {
         $obj = new User($this->app->getContainer());
         
@@ -227,7 +314,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getInitial(), $email);
     }
     
-    public function testGetPictureUrl()
+    public function estGetPictureUrl()
     {
         $obj = new User($this->app->getContainer());
         
@@ -239,7 +326,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(file_exists($path));
     }
     
-    public function testGetActivationToken()
+    public function estGetActivationToken()
     {
         $obj = new User($this->app->getContainer());
         
@@ -254,7 +341,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(strtolower($token1), $token2);
     }
     
-    public function testGetResetToken()
+    public function estGetResetToken()
     {
         $obj = new User($this->app->getContainer());
         
@@ -269,7 +356,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(strtolower($token1), $token2);
     }
     
-    public function testCheckPassword()
+    public function estCheckPassword()
     {
         $obj = new User($this->app->getContainer());
         
@@ -280,7 +367,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->checkPassword('bewbies'));
     }
 
-    public function testRemove()
+    public function estRemove()
     {
         $obj = new User($this->app->getContainer());
         
@@ -291,7 +378,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->loadFromEmail($email));
     }
 
-    public function testAddRemoveBadge()
+    public function estAddRemoveBadge()
     {
         $obj = new User($this->app->getContainer());
         
@@ -308,7 +395,7 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getBadges(), new \stdClass());
     }
 
-    public function testMakePatron()
+    public function estMakePatron()
     {
         $obj = new User($this->app->getContainer());
         

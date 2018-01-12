@@ -40,9 +40,6 @@ class Draft
     /** @var string $compared The compared SVG */
     private $compared;
 
-    /** @var string $data Other app data stored as JSON */
-    private $data;
-
     /** @var string $created The time the draft was created */
     private $created;
 
@@ -52,6 +49,8 @@ class Draft
     /** @var string $notes the draft notes */
     private $notes;
 
+    /** @var JsonStore $data Other app data stored as JSON */
+    public $data;
 
     // constructor receives container instance
     public function __construct(\Slim\Container $container) 
@@ -60,109 +59,16 @@ class Draft
         $this->data = $this->container->get('JsonStore');
     }
 
-    public function getId() 
-    {
-        return $this->id;
-    } 
-
-    public function getUser() 
-    {
-        return $this->user;
-    } 
-
-    private function setUser($user) 
-    {
-        $this->user = $user;
-        return true;
-    } 
-
-    public function getModel() 
-    {
-        return $this->model;
-    } 
-
-    private function setModel($model) 
-    {
-        $this->model = $model;
-        return true;
-    } 
-
-    public function getPattern() 
-    {
-        return $this->pattern;
-    } 
-
-    private function setPattern($pattern) 
-    {
-        $this->pattern = $pattern;
-        return true;
-    } 
-
-    private function setHandle($handle) 
-    {
-        $this->handle = $handle;
-        return true;
-    } 
-
-    public function getHandle() 
-    {
-        return $this->handle;
-    } 
-
-    public function setName($name) 
-    {
-        $this->name = $name;
-        return true;
-    } 
-
-    public function getName() 
-    {
-        return $this->name;
-    } 
-
-    public function setSvg($svg) 
-    {
-        $this->svg = $svg;
-        return true;
-    } 
-
-    public function getSvg() 
-    {
-        return $this->svg;
-    } 
-
-    public function setCompared($compared) 
-    {
-        $this->compared = $compared;
-        return true;
-    } 
-
+    // Getters
     public function getCompared() 
     {
         return $this->compared;
     } 
 
-    public function setNotes($notes) 
+    public function getCoreUrl()
     {
-        $this->notes = $notes;
-        return true;
-    } 
-
-    public function getNotes() 
-    {
-        return $this->notes;
-    } 
-
-    public function setShared($shared) 
-    {
-        $this->shared = $shared;
-        return true;
-    } 
-
-    public function getShared() 
-    {
-        return $this->shared;
-    } 
+        return $this->data->getNode('coreUrl');
+    }
 
     public function getCreated() 
     {
@@ -171,12 +77,142 @@ class Draft
 
     public function getData() 
     {
-        return $this->data->export();
+        return $this->data;
     } 
 
     public function getDataAsJson() 
     {
         return (string) $this->data;
+    } 
+
+    public function getHandle() 
+    {
+        return $this->handle;
+    } 
+
+    public function getId() 
+    {
+        return $this->id;
+    } 
+
+    public function getMeasurement($key)
+    {
+        return $this->data->getNode("measurements.$key");
+    }
+
+    public function getMeasurements()
+    {
+        return $this->data->getNode('measurements');
+    }
+
+    public function getModel() 
+    {
+        return $this->model;
+    } 
+
+    public function getName() 
+    {
+        return $this->name;
+    } 
+
+    public function getNotes() 
+    {
+        return $this->notes;
+    } 
+
+    public function getOption($option)
+    {
+        return $this->data->getNode("options.$option");
+    }
+
+    public function getOptions()
+    {
+        return $this->data->getNode('options');
+    }
+
+    public function getPattern() 
+    {
+        return $this->pattern;
+    } 
+
+    public function getShared() 
+    {
+        return $this->shared;
+    } 
+
+    public function getSvg() 
+    {
+        return $this->svg;
+    } 
+
+    public function getUnits()
+    {
+        return $this->data->getNode('units');
+    }
+
+    public function getUser() 
+    {
+        return $this->user;
+    } 
+
+    public function getVersion()
+    {
+        return $this->data->getNode('version');
+    }
+
+    // Setters
+    public function setUser($user) 
+    {
+        $this->user = $user;
+        return true;
+    } 
+
+    public function setModel($model) 
+    {
+        $this->model = $model;
+        return true;
+    } 
+
+    public function setPattern($pattern) 
+    {
+        $this->pattern = $pattern;
+        return true;
+    } 
+
+    public function setHandle($handle) 
+    {
+        $this->handle = $handle;
+        return true;
+    } 
+
+    public function setName($name) 
+    {
+        $this->name = $name;
+        return true;
+    } 
+
+    public function setSvg($svg) 
+    {
+        $this->svg = $svg;
+        return true;
+    } 
+
+    public function setCompared($compared) 
+    {
+        $this->compared = $compared;
+        return true;
+    } 
+
+    public function setNotes($notes) 
+    {
+        $this->notes = $notes;
+        return true;
+    } 
+
+    public function setShared($shared) 
+    {
+        $this->shared = $shared;
+        return true;
     } 
 
     public function setData($data) 
@@ -189,24 +225,9 @@ class Draft
         $this->data->setNode("measurements.$key", $val);
     }
 
-    public function getMeasurement($key)
-    {
-        return $this->data->getNode("measurements.$key");
-    }
-
-    public function getMeasurements()
-    {
-        return $this->data->getNode('measurements');
-    }
-
     public function setCoreUrl($url)
     {
         $this->data->setNode('coreUrl', $url);
-    }
-
-    public function getCoreUrl()
-    {
-        return $this->data->getNode('coreUrl');
     }
 
     public function setUnits($units)
@@ -214,19 +235,9 @@ class Draft
         $this->data->setNode('units', strtolower($units));
     }
 
-    public function getUnits()
-    {
-        return $this->data->getNode('units');
-    }
-
     public function setVersion($version)
     {
         $this->data->setNode('version', $version);
-    }
-
-    public function getVersion($version)
-    {
-        return $this->data->getNode('version');
     }
 
     public function setOption($key, $val)
@@ -236,16 +247,6 @@ class Draft
     public function setOptions($options)
     {
         $this->data->setNode('options', $options);
-    }
-
-    public function getOption($option)
-    {
-        return $this->data->getNode("options.$option");
-    }
-
-    public function getOptions()
-    {
-        return $this->data->getNode('options');
     }
 
     /**
@@ -327,6 +328,7 @@ class Draft
 
         // Getting draft from core
         $in['service'] = 'draft';
+
         $json = json_decode($this->getDraft($in));
         $this->setSvg($json->svg);
         
@@ -462,10 +464,10 @@ class Draft
 
     private function getDraft($args)
     {
-        $url = $this->container['settings']['app']['core_api']."/index.php";
+        $url = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($args);
         $guzzle = $this->container->get('GuzzleClient');
-        $response = $guzzle->request('GET', $url, $args);
-        
+        $response = $guzzle->request('GET', $url);
+
         return $response->getBody();
     }
 

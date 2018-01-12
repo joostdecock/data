@@ -1,6 +1,6 @@
 <?php
 
-namespace Freesewing\Data\Tests\Data;
+namespace Freesewing\Data\Tests\Objects;
 
 use Freesewing\Data\Tests\TestApp;
 use Freesewing\Data\Objects\JsonStore;
