@@ -81,7 +81,9 @@ class DraftTest extends \PHPUnit\Framework\TestCase
             'pattern' => 'TrayvonTie',
         ];
 
-        $obj->create($data, $user,$model);
+        $now = date('Y-m-d H:i');
+        $id = $obj->create($data, $user,$model);
+        $obj->setOption('fries', 'loads');
 
         $this->assertEquals($obj->getUser(), $user->getId());
         $this->assertEquals($obj->getPattern(), 'TrayvonTie');
@@ -90,6 +92,10 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
         $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
+        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
+        $this->assertEquals($obj->getId(), $id);
+        $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
+        $this->assertEquals($obj->getOption('fries'), 'loads');
     }
 
     public function testCreateMixedUnitsImperial()
@@ -160,254 +166,204 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 16);
     }
 
-    public function estSetInvalidStatusOrRole()
+    public function testGetOptions()
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
         
-        $this->assertFalse($obj->setStatus('demi-god'));
-        $this->assertFalse($obj->setRole('demi-god'));
+        $obj->data->setNode('options.test1','value1');
+        $obj->data->setNode('options.test2','value2');
+        
+        $this->assertEquals($obj->getOption('test1'), 'value1');
+        $this->assertEquals($obj->getOption('test2'), 'value2');
+        $this->assertEquals($obj->getOptions(), (object)['test1' => 'value1', 'test2' => 'value2']);
     }
-
-    public function estGetSocial()
+    
+    public function testGetMeasurements()
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
         
-        $obj->setTwitterHandle('freesewing_org');
-        $obj->setInstagramHandle('joostdecock');
-        $obj->setGithubHandle('freesewing');
+        $obj->data->setNode('measurements.test1','value1');
+        $obj->data->setNode('measurements.test2','value2');
+        
+        $this->assertEquals($obj->getMeasurement('test1'), 'value1');
+        $this->assertEquals($obj->getMeasurement('test2'), 'value2');
+        $this->assertEquals($obj->getMeasurements(), (object)['test1' => 'value1', 'test2' => 'value2']);
+    }
+    
+    public function testSetData()
+    {
+        $data = new JsonStore($this->app->GetContainer()); 
+        $data->setNode('measurements.test1','value1');
+        $data->setNode('measurements.test2','value2');
+        $data->setNode('options.test1','value1');
+        $data->setNode('options.test2','value2');
+        
+        $obj = new Draft($this->app->getContainer());
+        $obj->setData($data);
 
-        $check = [
-            'twitter' => 'freesewing_org',
-            'instagram' => 'joostdecock',
-            'github' => 'freesewing'
+        $this->assertEquals($obj->getData(), $data);
+    }
+    
+    public function testLoadFromHandle()
+    {
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
+        
+        // We need a User object
+        $email = time().'.testLoadDraftFromHandle@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
         ];
 
-        $this->assertEquals($obj->getSocial(), (object)$check);
-    }
-
-    public function estSetInvalidSocialHandle()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $obj->setTwitterHandle('@fs');
-        $obj->setInstagramHandle('jd');
-        $obj->setGithubHandle('fs');
-
-        $this->assertFalse($obj->getSocial());
-    }
-
-    public function estSetPatron()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $obj->setPatron(8, '1515406642');
-        $this->assertEquals($obj->getPatronTier(),8);
-        $this->assertEquals($obj->getPatronSince(),'1515406642');
-        $address = "Mr. Harry Potter\nThe cupboard under the stairs\n4 Privet Drive\nLittle Whinging\nSurrey";
-        $obj->setPatron(4, '1515406641',$address, 10, 12);
-        $this->assertEquals($obj->getPatronTier(),4);
-        $this->assertEquals($obj->getPatronSince(),'1515406641');
-        $this->assertEquals($obj->getPatronAddress(),$address);
-        $this->assertEquals($obj->getPatronBirthday(),'10/12');
-
-        $check = [
-            'tier' => 4,
-            'since' => '1515406641',
-            'address' => $address,
-            'birthday' => (object)['day' => 10, 'month' => 12]
-        ];
-        $this->assertEquals($obj->getPatron(), (object)$check);
-    }
-
-    public function estUnsetPendingEmail()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $obj->setPendingEmail('test@freesewing.org');
-        $this->assertEquals($obj->getPendingEmail(),'test@freesewing.org');
-
-        $obj->unsetPendingEmail();
-        $this->assertFalse($obj->getPendingEmail());
-    }
-    
-    public function estIsPatron()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $obj->setPatronTier(8);
-        $this->assertTrue($obj->isPatron());
-
-        $obj->setPatronTier(1);
-        $this->assertFalse($obj->isPatron());
-    }
-    
-    
-    public function estLoadFromId()
-    {
-        $obj1 = new User($this->app->getContainer());
-        
-        $email = time().'.testLoadFromId@freesewing.org';
-        $obj1->create($email, 'bananas');
-        $id = $obj1->getId();
-        unset($obj1);
-
-        $obj = new User($this->app->getContainer());
-        $obj->loadFromId($id);
-        $this->assertEquals($obj->getStatus(), 'inactive');
-        $this->assertEquals($obj->getRole(), 'user');
-        $this->saveFixture('user.json.load.from.id',$obj->getDataAsJson());
-        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.load.from.id'));
-        $this->assertEquals($obj->getEmail(), $email);
-    }
-    
-    public function estLoadFromHandle()
-    {
-        $obj1 = new User($this->app->getContainer());
-        
-        $email = time().'.testLoadFromHandle@freesewing.org';
-        $obj1->create($email, 'bananas');
-        $handle = $obj1->getHandle();
-        unset($obj1);
-
-        $obj = new User($this->app->getContainer());
-        $obj->loadFromHandle($handle);
-        $this->assertEquals($obj->getStatus(), 'inactive');
-        $this->assertEquals($obj->getRole(), 'user');
-        $this->saveFixture('user.json.load.from.handle',$obj->getDataAsJson());
-        $this->assertEquals($obj->getDataAsJson(), $this->loadFixture('user.json.load.from.handle'));
-        $this->assertEquals($obj->getEmail(), $email);
-    }
-    
-    public function estEmailTaken()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testEmailTaken@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $this->assertTrue($obj->emailTaken($email));
-        $this->assertFalse($obj->emailTaken(time().$email));
-    }
-    
-    public function estUsernameTaken()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testUsernameTaken@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $obj->setUsername($email);
-        $obj->save();
-
-        // Username field is limimted to 32 chars 
-        $this->assertTrue($obj->usernameTaken(substr($email,0,32)));
-        $this->assertFalse($obj->usernameTaken(substr(time().$email,0,32)));
-    }
-    
-    public function estGetInitial()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testGetInitial@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $this->assertEquals($obj->getInitial(), $email);
-    }
-    
-    public function estGetPictureUrl()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testGetPictureUrl@freesewing.org';
-        $obj->create($email, 'bananas');
+        $now = date('Y-m-d H:i');
+        $id = $obj->create($data, $user,$model);
         $handle = $obj->getHandle();
 
-        $path = $this->app->getContainer()['settings']['storage']['static_path'].str_replace('/static','',$obj->getPictureUrl());
-        $this->assertTrue(file_exists($path));
+        unset($obj);
+        $obj = new Draft($this->app->getContainer());
+        $obj->loadFromHandle($handle);
+
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
+        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
+        $this->assertEquals($obj->getId(), $id);
+        $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
     }
     
-    public function estGetActivationToken()
+    public function testRecreate()
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
         
-        $email = time().'.testGetActivationToken@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $token1 = $obj->getActivationToken();
-        $token2 = $obj->getActivationToken();
-
-        $this->assertEquals($token1, $token2);
-        $this->assertEquals(strlen($token1), 64);
-        $this->assertEquals(strtolower($token1), $token2);
-    }
-    
-    public function estGetResetToken()
-    {
-        $obj = new User($this->app->getContainer());
+        // We need a User object
+        $email = time().'.testRecreateDraft@freesewing.org';
+        $user->create($email, 'bananas');
         
-        $email = time().'.testGetResetToken@freesewing.org';
-        $obj->create($email, 'bananas');
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
 
-        $token1 = $obj->getResetToken();
-        $token2 = $obj->getResetToken();
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
 
-        $this->assertEquals($token1, $token2);
-        $this->assertEquals(strlen($token1), 64);
-        $this->assertEquals(strtolower($token1), $token2);
-    }
-    
-    public function estCheckPassword()
-    {
-        $obj = new User($this->app->getContainer());
+        $obj->create($data, $user,$model);
+
+        $now = date('Y-m-d H:i');
+        $id = $obj->recreate($data, $user,$model);
         
-        $email = time().'.testCheckPassword@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $this->assertTrue($obj->checkPassword('bananas'));
-        $this->assertFalse($obj->checkPassword('bewbies'));
-    }
-
-    public function estRemove()
-    {
-        $obj = new User($this->app->getContainer());
-        
-        $email = time().'.testRemove@freesewing.org';
-        $obj->create($email, 'bananas');
-        $obj->remove();
-
-        $this->assertFalse($obj->loadFromEmail($email));
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
+        $this->assertEquals($obj->getId(), $id);
+        $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
     }
 
-    public function estAddRemoveBadge()
+    public function testRecreateMixedUnits()
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
         
-        $email = time().'.testAddRemoveBadge@freesewing.org';
-        $obj->create($email, 'bananas');
-
-        $obj->addBadge('test');
-
-        $badges = new \stdClass();
-        $badges->test = true;
-        $this->assertEquals($obj->getBadges(), $badges);
+        // We need a User object
+        $email = time().'.testRecreateDraftMixedUnits@freesewing.org';
+        $user->create($email, 'bananas');
         
-        $obj->removeBadge('test');
-        $this->assertEquals($obj->getBadges(), new \stdClass());
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'imperial',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+
+        $obj->create($data, $user,$model);
+
+        $now = date('Y-m-d H:i');
+        $id = $obj->recreate($data, $user,$model);
+        
+        $this->assertEquals($obj->getUser(), $user->getId());
+        $this->assertEquals($obj->getPattern(), 'TrayvonTie');
+        $this->assertEquals($obj->getModel(), $model->getId());
+        $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
+        $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
+        $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 6);
+        $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
+        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
+        $this->assertEquals($obj->getId(), $id);
+        $this->assertEquals(floor($obj->getMeasurement('centerbackneckToWaist')), 8);
     }
 
-    public function estMakePatron()
+    public function testRemove()
     {
-        $obj = new User($this->app->getContainer());
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
         
-        $email = time().'.testMakePatron@freesewing.org';
-        $obj->create($email, 'bananas');
+        // We need a User object
+        $email = time().'.testRemoveDraft@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
 
-        $obj->makePatron(8);
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
 
-        $this->assertEquals($obj->getPatronTier(), 8);
-        $this->assertTrue(is_int($obj->getPatronSince()));
+        $id = $obj->create($data, $user,$model);
+        $handle = $obj->getHandle();
+        $dir = $this->app->getContainer()['settings']['storage']['static_path'];
+        $dir .= '/users/'.substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$handle.'/';
+        
+        $this->assertTrue(is_dir($dir));
+        $this->assertTrue(is_file("$dir/$handle.svg"));
+        $this->assertTrue(is_file("$dir/$handle.compared.svg"));
+        $obj->remove($user);
+        $this->assertFalse(is_dir($dir));
+        $this->assertFalse($obj->loadFromId($id));
+        $this->assertFalse($obj->loadFromHandle($handle));
     }
-    
+
     private function loadFixture($fixture)
     {
         $dir = __DIR__.'/../fixtures';

@@ -37,8 +37,8 @@ class Model
     /** @var string $picture File name of the user's avatar */
     private $picture;
 
-    /** @var string $data Other app data stored as JSON */
-    private $data;
+    /** @var JsonStore $data Other app data stored as JSON */
+    public $data;
 
     /** @var string $created The time the model was created */
     private $created;
@@ -193,9 +193,9 @@ class Model
         return true;
     } 
 
-    public function setData($data) 
+    public function setData(\Freesewing\Data\Objects\JsonStore $data) 
     {
-        $this->data->import($data);
+        $this->data = ($data);
     }
 
     public function setMeasurement($key, $val)

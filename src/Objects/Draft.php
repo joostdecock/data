@@ -215,9 +215,9 @@ class Draft
         return true;
     } 
 
-    public function setData($data) 
+    public function setData(\Freesewing\Data\Objects\JsonStore $data) 
     {
-        $this->data->import($data);
+        $this->data = ($data);
     } 
 
     public function setMeasurement($key, $val)
@@ -395,6 +395,8 @@ class Draft
         $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
         fwrite($handle, $this->getCompared());
         fclose($handle);
+
+        return $id;
     }
 
     /**
@@ -440,7 +442,7 @@ class Draft
         
         // Storing data
         $this->setVersion($json->version);
-        $this->setOptions($in);
+        $this->setOptions((object)$in);
         $this->setUnits($model->getUnits());
         $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
         
@@ -460,6 +462,8 @@ class Draft
         $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
         fwrite($handle, $this->getCompared());
         fclose($handle);
+
+        return $this->getId();
     }
 
     private function getDraft($args)

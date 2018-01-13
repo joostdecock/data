@@ -184,7 +184,7 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         ];
         
         $obj = new Model($this->app->getContainer());
-        $obj->setData(json_encode($check));
+        $obj->data->import(json_encode($check));
 
         $this->assertEquals(json_decode(json_encode($obj->getData())), json_decode($obj->getDataAsJson()));
     }

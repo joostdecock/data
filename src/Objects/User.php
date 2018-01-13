@@ -46,8 +46,8 @@ class User
     /** @var string $picture File name of the user's avatar */
     private $picture;
 
-    /** @var string $data Other app data stored as JSON */
-    private $data;
+    /** @var JsonStore $data Other app data stored as JSON */
+    public $data;
 
     /** @var string $password Password hash/salt/algo combo */
     private $password;
@@ -224,6 +224,11 @@ class User
         $this->login = $time;
         return true;
     } 
+
+    public function setData(\Freesewing\Data\Objects\JsonStore $data) 
+    {
+        $this->data = ($data);
+    }
 
     public function setEmail($email) 
     {
