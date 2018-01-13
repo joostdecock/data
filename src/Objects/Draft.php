@@ -492,28 +492,6 @@ class Draft
         return $db->exec($sql);
     }
     
-    /**
-     * Loads all drafts for a model
-     *
-     * @param int $id
-     *
-     * @return array|false An array of drafts or false
-     */
-    public function getDrafts() 
-    {
-        $db = $this->container->get('db');
-        $sql = "SELECT * from `drafts` WHERE `model` =".$db->quote($this->getId());
-        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
-        
-        if(!$result) return false;
-        else {
-            foreach($result as $key => $val) {
-                $drafts[$val->id] = $val;
-            }
-        } 
-        return $drafts;
-    }
-
     /** Remove a draft */
     public function remove($user) 
     {
@@ -549,8 +527,12 @@ class Draft
             // Other formats require more work
             if($format == 'letter.pdf') $pf = 'Let';
             elseif($format == 'tabloid.pdf') $pf = 'Tab';
-            else $pf = ucfirst(array_shift(explode('.',$format))); // Turn a4.pdf into A4
-
+            else {
+                // Turn a4.pdf into A4
+                $array = explode('.',$format);
+                $first = array_shift($array);
+                $pf = ucfirst($first);
+            }
             // Get Postscript file
             $ps = $this->getExportPath($user, 'ps'); // Postscript file
             $this->svgToPs($user); 

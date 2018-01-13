@@ -6,6 +6,7 @@ use Freesewing\Data\Tests\TestApp;
 use Freesewing\Data\Objects\JsonStore;
 use Freesewing\Data\Objects\Model;
 use Freesewing\Data\Objects\User;
+use Freesewing\Data\Objects\Draft;
 
 class ModelTest extends \PHPUnit\Framework\TestCase
 {
@@ -168,25 +169,16 @@ class ModelTest extends \PHPUnit\Framework\TestCase
     
     public function testSetData()
     {
-        $obj = new Model($this->app->getContainer());
-        
-        // We need a user object to create a model
-        $user = new User($this->app->getContainer());
-        $email = time().'.testModelSetData@freesewing.org';
-        $user->create($email, 'bananas');
-        
-        $obj->create($user);
-
-        $check = [
-            'twitter' => 'freesewing_org',
-            'instagram' => 'joostdecock',
-            'github' => 'freesewing'
-        ];
+        $data = new JsonStore($this->app->GetContainer()); 
+        $data->setNode('measurements.test1','value1');
+        $data->setNode('measurements.test2','value2');
+        $data->setNode('options.test1','value1');
+        $data->setNode('options.test2','value2');
         
         $obj = new Model($this->app->getContainer());
-        $obj->data->import(json_encode($check));
+        $obj->setData($data);
 
-        $this->assertEquals(json_decode(json_encode($obj->getData())), json_decode($obj->getDataAsJson()));
+        $this->assertEquals($obj->getData(), $data);
     }
     
     public function testLoadFromHandle()
@@ -226,4 +218,68 @@ class ModelTest extends \PHPUnit\Framework\TestCase
 
         $this->assertFalse($obj->loadFromId($id));
     }
+    
+    public function testGetDrafts()
+    {
+        // We need a User object
+        $user = new User($this->app->getContainer());
+        $email = time().'.testGetDraftsForModel@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        $obj = new Model($this->app->getContainer());
+        $obj->create($user);
+        $obj->setMeasurement('centerbackneckToWaist', 52);
+        $obj->setMeasurement('neckCircumference', 42);
+        $obj->setUnits('metric');
+
+        // Draft 1
+        $draft1 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft1->create($data, $user, $obj);
+        
+        // Draft 2
+        $draft2 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Paperless',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft2->create($data, $user, $obj);
+        
+        $drafts = $obj->getDrafts();
+        
+        $d1 = $drafts[$draft1->getId()];
+        $d2 = $drafts[$draft2->getId()];
+
+        $this->assertTrue(is_object($d1));
+        $this->assertTrue(is_object($d2));
+        $this->assertEquals($d1->pattern, 'TrayvonTie');
+        $this->assertEquals($d2->id, $draft2->getId());
+    }
+    
+    public function testExport()
+    {
+        // We need a User object
+        $user = new User($this->app->getContainer());
+        $email = time().'.testExportModel@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        $obj = new Model($this->app->getContainer());
+        $obj->create($user);
+        $obj->setMeasurement('centerbackneckToWaist', 52);
+        $obj->setMeasurement('neckCircumference', 42);
+        $obj->setUnits('metric');
+
+        $path = $obj->export();
+        $path = $this->app->getContainer()['settings']['storage']['static_path'].str_replace('/static','', $path);
+        
+        $this->assertTrue(is_file($path.'/'.$obj->getHandle().'.csv'));
+        $this->assertTrue(is_file($path.'/'.$obj->getHandle().'.json'));
+        $this->assertTrue(is_file($path.'/'.$obj->getHandle().'.yaml'));
+    }
+    
 }

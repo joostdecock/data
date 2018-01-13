@@ -4,6 +4,9 @@ namespace Freesewing\Data\Tests\Objects;
 
 use Freesewing\Data\Tests\TestApp;
 use Freesewing\Data\Objects\User;
+use Freesewing\Data\Objects\Draft;
+use Freesewing\Data\Objects\Model;
+use Freesewing\Data\Objects\Comment;
 use Freesewing\Data\Objects\JsonStore;
 
 class UserTest extends \PHPUnit\Framework\TestCase
@@ -319,6 +322,183 @@ class UserTest extends \PHPUnit\Framework\TestCase
 
         $this->assertEquals($obj->getPatronTier(), 8);
         $this->assertTrue(is_int($obj->getPatronSince()));
+    }
+    
+    public function testSetData()
+    {
+        $data = new JsonStore($this->app->GetContainer()); 
+        $data->setNode('measurements.test1','value1');
+        $data->setNode('measurements.test2','value2');
+        $data->setNode('options.test1','value1');
+        $data->setNode('options.test2','value2');
+        
+        $obj = new User($this->app->getContainer());
+        $obj->setData($data);
+
+        $this->assertEquals($obj->getData(), $data);
+    }
+    
+    public function testGetModels()
+    {
+        $obj = new User($this->app->getContainer());
+        $email = time().'.testGetModels@freesewing.org';
+        $obj->create($email, 'bananas');
+
+        $model1 = new Model($this->app->getContainer());
+        $model2 = new Model($this->app->getContainer());
+        
+        $model1->create($obj);
+        $model2->create($obj);
+        $model1->setUnits('imperial');
+        $model2->setMeasurement('headCircumference', 50);
+        $model1->save();
+        $model2->save();
+
+        $models = $obj->getModels();
+        $m1 = $models[$model1->getHandle()];
+        $m2 = $models[$model2->getHandle()];
+        $this->assertTrue(is_object($m1));
+        $this->assertTrue(is_object($m2));
+        $this->assertEquals($m1->units, 'imperial');
+        $this->assertEquals($m2->data->measurements->headCircumference, 50);
+    }
+    
+    public function testGetComments()
+    {
+        $obj = new User($this->app->getContainer());
+        $email = time().'.testGetComments@freesewing.org';
+        $obj->create($email, 'bananas');
+
+        $comment1 = new Comment($this->app->getContainer());
+        $comment1->setComment("This is a test comment");
+        $comment1->setPage('/unit/test');
+        $comment1->create($obj);
+
+        $comment2 = new Comment($this->app->getContainer());
+        $comment2->setComment("This is a reply comment");
+        $comment2->setPage('/unit/test');
+        $comment2->setParent($comment1->getId());
+        $comment2->create($obj);
+
+        $comment3 = new Comment($this->app->getContainer());
+        $comment3->setComment("This is a reply comment to a reply comment");
+        $comment3->setPage('/unit/test');
+        $comment3->setParent($comment1->getId());
+        $comment3->create($obj);
+
+        $comments = $obj->getComments();
+        
+        $c1 = $comments[$comment1->getId()];
+        $c2 = $comments[$comment2->getId()];
+        $c3 = $comments[$comment3->getId()];
+        $this->assertTrue(is_object($c1));
+        $this->assertTrue(is_object($c2));
+        $this->assertTrue(is_object($c3));
+        $this->assertEquals($c1->page, '/unit/test');
+        $this->assertEquals($c2->parent, $comment1->getId());
+        $this->assertEquals($c3->comment, "This is a reply comment to a reply comment");
+    }
+    
+    public function testGetDrafts()
+    {
+        $obj = new User($this->app->getContainer());
+        $email = time().'.testGetDrafts@freesewing.org';
+        $obj->create($email, 'bananas');
+        
+        // We need a Model object
+        $model = new Model($this->app->getContainer());
+        $model->create($obj);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft 1
+        $draft1 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft1->create($data, $obj,$model);
+        
+        // Draft 2
+        $draft2 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Paperless',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft2->create($data, $obj,$model);
+        
+        $drafts = $obj->getDrafts();
+        $d1 = $drafts[$draft1->getId()];
+        $d2 = $drafts[$draft2->getId()];
+
+        $this->assertTrue(is_object($d1));
+        $this->assertTrue(is_object($d2));
+        $this->assertEquals($d1->pattern, 'TrayvonTie');
+        $this->assertEquals($d2->id, $draft2->getId());
+    }
+    
+    public function testExport()
+    {
+        $obj = new User($this->app->getContainer());
+        $email = time().'.testExport@freesewing.org';
+        $obj->create($email, 'bananas');
+
+        $model1 = new Model($this->app->getContainer());
+        $model2 = new Model($this->app->getContainer());
+        
+        $model1->create($obj);
+        $model1->setMeasurement('centerbackneckToWaist', 52);
+        $model1->setMeasurement('neckCircumference', 42);
+        $model1->setUnits('metric');
+        $model1->save();
+        
+        $model2->create($obj);
+        $model2->setMeasurement('centerbackneckToWaist', 52);
+        $model2->setMeasurement('neckCircumference', 42);
+        $model2->setUnits('metric');
+        $model2->save();
+        
+        $comment1 = new Comment($this->app->getContainer());
+        $comment1->setComment("This is a test comment");
+        $comment1->setPage('/unit/test');
+        $comment1->create($obj);
+
+        $comment2 = new Comment($this->app->getContainer());
+        $comment2->setComment("This is a reply comment");
+        $comment2->setPage('/unit/test');
+        $comment2->setParent($comment1->getId());
+        $comment2->create($obj);
+
+        $comment3 = new Comment($this->app->getContainer());
+        $comment3->setComment("This is a reply comment to a reply comment");
+        $comment3->setPage('/unit/test');
+        $comment3->setParent($comment1->getId());
+        $comment3->create($obj);
+
+        // Draft 1
+        $draft1 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft1->create($data, $obj,$model1);
+        
+        // Draft 2
+        $draft2 = new Draft($this->app->getContainer());
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Paperless',
+            'pattern' => 'TrayvonTie',
+        ];
+        $draft2->create($data, $obj,$model2);
+
+        $zip = $obj->export();
+        $path = $this->app->getContainer()['settings']['storage']['static_path'].str_replace('/static','',$zip);
+        $this->assertTrue(file_exists($path));
     }
     
     private function loadFixture($fixture)

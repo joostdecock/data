@@ -364,6 +364,37 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($obj->loadFromHandle($handle));
     }
 
+    public function testExport()
+    {
+        $obj = new Draft($this->app->getContainer());
+        $user = new User($this->app->getContainer());
+        $model = new Model($this->app->getContainer());
+        
+        // We need a User object
+        $email = time().'.testExportDraft@freesewing.org';
+        $user->create($email, 'bananas');
+        
+        // We need a Model object
+        $model->create($user);
+        $model->setMeasurement('centerbackneckToWaist', 52);
+        $model->setMeasurement('neckCircumference', 42);
+        $model->setUnits('metric');
+
+        // Draft data
+        $data = [
+            'userUnits' => 'metric',
+            'theme' => 'Basic',
+            'pattern' => 'TrayvonTie',
+        ];
+
+        $obj->create($data, $user,$model);
+        
+        $this->assertTrue(file_exists($obj->export($user, 'pdf', 'Trayvon', $obj->getHandle())));
+        $this->assertTrue(file_exists($obj->export($user, 'letter.pdf', 'Trayvon', $obj->getHandle())));
+        $this->assertTrue(file_exists($obj->export($user, 'tabloid.pdf', 'Trayvon', $obj->getHandle())));
+        $this->assertTrue(file_exists($obj->export($user, 'a4.pdf', 'Trayvon', $obj->getHandle())));
+    }
+
     private function loadFixture($fixture)
     {
         $dir = __DIR__.'/../fixtures';
