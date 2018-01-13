@@ -140,49 +140,41 @@ class Model
     private function setUser($user) 
     {
         $this->user = $user;
-        return true;
     } 
 
     private function setHandle($handle) 
     {
         $this->handle = $handle;
-        return true;
     } 
 
     public function setName($name) 
     {
         $this->name = $name;
-        return true;
     } 
 
     public function setNotes($notes) 
     {
         $this->notes = $notes;
-        return true;
     } 
 
     public function setBody($body) 
     {
         $this->body = $body;
-        return true;
     } 
 
     public function setMigrated($migrated) 
     {
         $this->migrated = $migrated;
-        return true;
     } 
 
     public function setShared($shared) 
     {
         $this->shared = $shared;
-        return true;
     } 
 
     public function setPicture($picture) 
     {
         $this->picture = $picture;
-        return true;
     } 
 
     public function setUnits($units) 

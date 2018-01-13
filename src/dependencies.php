@@ -95,10 +95,6 @@ $container['AvatarKit'] = function ($container) {
     return new \Freesewing\Data\Tools\AvatarKit($container);
 };
 
-$container['MigrationKit'] = function ($container) {
-    return new \Freesewing\Data\Tools\MigrationKit($container);
-};
-
 $container['MailKit'] = function ($container) {
     return new \Freesewing\Data\Tools\MailKit($container);
 };

@@ -68,22 +68,6 @@ class AvatarKit
     }
 
     /**
-     * Loads an avatar from an MMP uri
-     *
-     * These uris look like: public://path/to/file.jpg
-     *
-     * @param string $img a Drupal public uri from MMP
-     * @param string $handle The user handle
-     * @param string $type One of user/model/draft
-     *
-     * @return string The avatar filename
-     */
-    public function createFromMmp($img,$userHandle,$type='user', $typeHandle=null) 
-    {
-        return $this->createFromUri($this->container['settings']['mmp']['public_path'].substr($img->uri,8), $userHandle, $type, $typeHandle);
-    }
-
-    /**
      * Loads an avater from a uri
      *
      * @param string $url Either a web url or local file path
@@ -99,10 +83,6 @@ class AvatarKit
         // If it's one of our auto-generated SVGs, simply copy
         if(substr($uri,-4) == '.svg') return $this->saveAvatar($handle.'.svg', file_get_contents($uri), $userHandle, $type, $typeHandle);
 
-        // Does the uri load?
-        $headers = @get_headers($uri);
-        if(strpos($headers[0],'200')===false) return false;
-
         // Imagick instance with the user's picture
         $imagick = new Imagick($uri);
 
@@ -114,9 +94,6 @@ class AvatarKit
             break;
             case 'image/gif':
                 $ext = '.gif';
-            break;
-            case 'image/bmp':
-                $ext = '.bmp';
             break;
             default:
                 $ext = '.jpg';
@@ -141,11 +118,8 @@ class AvatarKit
         if ($handle = fopen($filepath, 'w')) {
             fwrite($handle, base64_decode($base64data));
             fclose($handle);
-        } else {
-            echo "could not write to file";
-            return false;
         }
-        
+
         // Imagick instance with the user's picture
         $imagick = new Imagick();
         $handle = fopen($filepath, 'r');
@@ -160,9 +134,6 @@ class AvatarKit
             break;
             case 'image/gif':
                 $ext = '.gif';
-            break;
-            case 'image/bmp':
-                $ext = '.bmp';
             break;
             default:
                 $ext = '.jpg';
@@ -192,6 +163,7 @@ class AvatarKit
 
     private function saveAvatar($filename, $data, $userHandle, $type='user', $typeHandle=null) 
     {
+        $return = false;
         // Create directory. If handle is joost, directory is static/users/j/joost
         $dir = $this->getDiskDir( $userHandle, $type, $typeHandle);
         if(!is_dir($dir)) mkdir($dir, 0755, true);
@@ -200,12 +172,11 @@ class AvatarKit
         if ($handle = fopen($filepath, 'w')) {
             if (fwrite($handle, $data)) {
                 fclose($handle);
-                return $filename;
+                $return = $filename;
             }
-            fclose($handle);
         }
 
-        return false;
+        return $return;
     }
 
 }

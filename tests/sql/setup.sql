@@ -26,24 +26,6 @@ CREATE TABLE `drafts` (
   `notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `mmpmodels` (
-  `modelid` int(5) NOT NULL,
-  `uid` int(5) NOT NULL COMMENT 'The MMP user id',
-  `title` tinytext NOT NULL,
-  `sex` tinyint(1) NOT NULL COMMENT 'false is male, true is female',
-  `picture` text NOT NULL,
-  `data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `mmpusers` (
-  `uid` int(5) NOT NULL,
-  `email` varchar(192) NOT NULL,
-  `username` varchar(60) NOT NULL,
-  `picture` text NOT NULL,
-  `initial` varchar(254) NOT NULL,
-  `created` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `models` (
   `id` int(5) NOT NULL,
   `user` int(5) NOT NULL,
@@ -92,12 +74,6 @@ ALTER TABLE `drafts`
   ADD KEY `user` (`user`),
   ADD KEY `model` (`model`),
   ADD KEY `handle` (`handle`);
-
-ALTER TABLE `mmpmodels` ADD PRIMARY KEY (`modelid`);
-
-ALTER TABLE `mmpusers`
-  ADD PRIMARY KEY (`uid`),
-  ADD KEY `mail` (`email`);
 
 ALTER TABLE `models`
   ADD PRIMARY KEY (`id`),

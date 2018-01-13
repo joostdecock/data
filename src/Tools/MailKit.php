@@ -3,7 +3,6 @@
 namespace Freesewing\Data\Tools;
 
 use Mailgun\Mailgun;
-use SwiftMessage;
 
 /**
  * The MailKit class.
@@ -40,8 +39,7 @@ class MailKit
         else $template = 'default';
 
         // Send through mailgun
-        try {
-            $mg->messages()->send('mg.freesewing.org', [
+        $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Confirm your freesewing account', 
@@ -49,16 +47,13 @@ class MailKit
           'text'    => $this->loadTemplate("signup.$template.txt", $user),
           'html'    => $this->loadTemplate("signup.$template.html", $user),
         ]);
-        } catch (Exception $e) {
-            die( 'Caught exception: '.  $e->getMessage(). "\n");
-        }
 
         // Also send through Gmail if it's a SEP domain
         // SEP: Shitty email provider
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new Swift_Message('Confirm your freesewing account'))
+            $message = (new \Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("signup.$template.txt", $user))
@@ -72,21 +67,14 @@ class MailKit
 
     public function patron($user) 
     {
-        // FIXME: Handle timeout of the mailgun API gracefully
-        // Mailgun API instance
-        $mg = $this->container->get('Mailgun');
-
-        $data = $user->getData();
-        $tier =  $data->patron->tier;
-
-        if($tier == 2) $template= "patron.welcome.2";
+        if($user->getPatronTier() == 2) $template= "patron.welcome.2";
         else {
-            $address = $data->patron->address;
-            if(strlen($address)>10) $template= "patron.welcome.confirm-address.$tier";
-            else $template= "patron.welcome.provide-address.$tier";
+            if(strlen($user->getPatronAddress())>10) $template= 'patron.welcome.confirm-address.'.$user->getPatronTier();
+            else $template= 'patron.welcome.provide-address.'.$user->getPatronTier();
         }
 
         // Send through mailgun
+        $mg = $this->container->get('Mailgun');
         $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
@@ -101,7 +89,7 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new Swift_Message('Thank you for your support'))
+            $message = (new \Swift_Message('Thank you for your support'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("$template.txt", $user))
@@ -133,7 +121,7 @@ class MailKit
         if($this->isSep($user->getEmail()) || $this->isSep($newEmailAddress)) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new Swift_Message('Confirm your freesewing account'))
+            $message = (new \Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($newEmailAddress)
                   ->setCc($user->getEmail())
@@ -165,7 +153,7 @@ class MailKit
         if($this->isSep($user->getEmail())) {
             // Send email via swiftmailer 
             $mailer = $this->container->get('SwiftMailer');
-            $message = (new Swift_Message('Regain access to your acount'))
+            $message = (new \Swift_Message('Regain access to your acount'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
                   ->setBody($this->loadTemplate("recover.txt", $user))

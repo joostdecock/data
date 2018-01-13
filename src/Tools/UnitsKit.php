@@ -47,17 +47,13 @@ class UnitsKit
 
     private function asScrubbedArray($data, $separator = ' ')
     {
+        $return = false;
         $array = explode($separator, $data);
         foreach ($array as $value) {
-            if (rtrim($value) != '') {
-                $return[] = rtrim($value);
-            }
+            if (rtrim($value) != '') $return[] = rtrim($value);
         }
-        if (isset($return)) {
-            return $return;
-        } else {
-            return false;
-        }
+
+        return $return;
     }
 
 }

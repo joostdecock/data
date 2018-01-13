@@ -215,14 +215,12 @@ class User
     private function setHandle($handle) 
     {
         $this->handle = $handle;
-        return true;
     } 
 
     public function setLogin($time=false) 
     {
         if($time === false) $time = date('Y-m-d H:i:s');
         $this->login = $time;
-        return true;
     } 
 
     public function setData(\Freesewing\Data\Objects\JsonStore $data) 
@@ -233,20 +231,17 @@ class User
     public function setEmail($email) 
     {
         $this->email = $email;
-        return true;
     } 
 
     public function setUsername($username) 
     {
         $this->username = $username;
-        return true;
     } 
 
     public function setStatus($status) 
     {
         if(in_array($status, $this->container['settings']['app']['user_status'])) {
             $this->status = $status;
-
             return true;
         } 
     
@@ -256,7 +251,6 @@ class User
     public function setMigrated($migrated) 
     {
         $this->migrated = $migrated;
-        return true;
     } 
 
     public function setRole($role) 
@@ -272,7 +266,6 @@ class User
     public function setPicture($picture) 
     {
         $this->picture = $picture;
-        return true;
     } 
 
     public function setPassword($password) 
@@ -420,8 +413,6 @@ class User
     /**
      * Creates a new user and stores it in database
      *
-     * Also auto-magically handles migration from MMP if needed
-     *
      * @param string $email The email of the new user
      * @param string $password The password of the new user
      *
@@ -487,10 +478,6 @@ class User
 
         // Update instance from database
         $this->loadFromId($id);
-
-        // Migrate user data from MMP
-        $migrationKit = $this->container->get('MigrationKit');
-        $migrationKit->migrate($this);
     }
 
     /** 
