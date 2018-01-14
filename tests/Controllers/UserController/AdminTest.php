@@ -225,4 +225,126 @@ class AdminTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($json->reason, 'access_denied');
     }
     
+    public function testMakePatron()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+
+        $tier = 8;
+        $data = [
+            'user' => $session1->user->getHandle(),
+            'patron' => $tier,
+        ];
+
+        $response = $this->app->call('POST','/admin/patron', $data, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->patron->tier, $tier);
+        $session1->user->loadFromId($session1->user->getId());
+        $this->assertEquals($session1->user->getPatronTier(), $tier);
+    }
+    
+    public function testMakePatronNonAdmin()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+        $session2->user->setRole('user');
+        $session2->user->save();
+
+        $tier = 8;
+        $data = [
+            'user' => $session1->user->getHandle(),
+            'patron' => $tier,
+        ];
+
+        $response = $this->app->call('POST','/admin/patron', $data, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'access_denied');
+    }
+    
+    public function testSendPatronEmail()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+        $session1->user->setPatronTier(8);
+        $session1->user->save();
+
+        $data = [ 'user' => $session1->user->getHandle() ];
+
+        $response = $this->app->call('POST','/admin/patron/email', $data, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertEquals($json->result, 'ok');
+    }
+    
+    public function testSendPatronEmailNoPatron()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+
+        $data = [ 'user' => $session1->user->getHandle() ];
+
+        $response = $this->app->call('POST','/admin/patron/email', $data, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'not-a-patron');
+    }
+    
+    public function testSendPatronEmailNonAdmin()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+        $session2->user->setRole('user');
+        $session2->user->save();
+
+        $data = [ 'user' => $session1->user->getHandle() ];
+
+        $response = $this->app->call('POST','/admin/patron/email', $data, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'access_denied');
+    }
+    
+    public function testAdminLoad()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+
+        $data = [ 'user' => $session1->user->getHandle() ];
+
+        $response = $this->app->call('GET','/admin/user/'.$session1->user->getHandle(), null, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertEquals($json->account->id, $session1->user->getId());
+        $this->assertEquals($json->account->handle, $session1->user->getHandle());
+    }
+    
+    public function testAdminLoadNonAdmin()
+    {
+        $session1 = $this->getSession(1);
+        $session2 = $this->getSession(2);
+        $session2->user->setRole('user');
+        $session2->user->save();
+
+        $data = [ 'user' => $session1->user->getHandle() ];
+
+        $response = $this->app->call('GET','/admin/user/'.$session1->user->getHandle(), null, $session2->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'access_denied');
+    }
+    
 }

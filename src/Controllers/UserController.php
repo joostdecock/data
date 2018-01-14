@@ -79,7 +79,7 @@ class UserController
         }
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromEmail($in->email);
 
         // Don't continue if this user already exists
@@ -121,7 +121,7 @@ class UserController
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromHandle($activation_data['handle']);
 
         // Does the user exist?
@@ -189,16 +189,13 @@ class UserController
      */
     public function resend($request, $response, $args) {
         // Handle request data 
-        $data = $request->getParsedBody();
-        $resend_data = [
-            'email' => filter_var($data['resend-email'], FILTER_SANITIZE_EMAIL),
-        ];
+        $resend_data = ['email' => $this->scrub($request,'resend-email')];
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromEmail($resend_data['email']);
 
         // Does this user already exist?
@@ -255,7 +252,7 @@ class UserController
         $logger = $this->container->get('logger');
 
         // Load user
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromHandle($in->handle);
 
         // Does the user exist?
@@ -311,16 +308,16 @@ class UserController
     public function login($request, $response, $args) {
         // Handle request data 
         $data = $request->getParsedBody();
-        $login_data = [
-            'email' => filter_var($data['login-email'], FILTER_SANITIZE_EMAIL),
-            'password' => filter_var($data['login-password'], FILTER_SANITIZE_STRING),
+        $login_data = [ 
+            'email' => $this->scrub($request, 'login-email'), 
+            'password' => $this->scrub($request, 'login-password'), 
         ];
-        
+
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromEmail($login_data['email']);
 
         if($user->getId() == '') {
@@ -389,17 +386,17 @@ class UserController
     public function reset($request, $response, $args) {
         // Handle request data 
         $data = $request->getParsedBody();
-        $reset_data = [
-            'password' => filter_var($data['reset-password'], FILTER_SANITIZE_STRING),
-            'handle' => filter_var($data['reset-handle'], FILTER_SANITIZE_STRING),
-            'token' => filter_var($data['reset-token'], FILTER_SANITIZE_STRING),
+        $reset_data = [ 
+            'password' => $this->scrub($request, 'reset-password'), 
+            'handle' => $this->scrub($request, 'reset-handle'), 
+            'token' => $this->scrub($request, 'reset-token'), 
         ];
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromHandle($reset_data['handle']);
         if($user->getId() === null) {
             $logger->info("Reset blocked: No user with handle ".$reset_data['token']);
@@ -453,7 +450,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromEmail($recover_data['email']);
 
         if($user->getId() == '') {
@@ -509,7 +506,7 @@ class UserController
         $in = new \stdClass();
         $in->id = $request->getAttribute("jwt")->user;
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
         if($user->isPatron()) $patron = $user->getPatronTier();
         else $patron = 0;
@@ -543,7 +540,7 @@ class UserController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Get the AvatarKit to create the avatar
@@ -591,7 +588,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
 
         // Handle picture
@@ -676,7 +673,7 @@ class UserController
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromHandle($in->handle);
 
         // Get the AvatarKit to create the avatar
@@ -707,7 +704,7 @@ class UserController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Send email 
@@ -734,7 +731,7 @@ class UserController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Get a logger instance from the container
@@ -755,7 +752,7 @@ class UserController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         return $this->prepResponse($response, ['role' => $user->getRole()]);
@@ -778,7 +775,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($in->id);
 
         // Is user an admin?
@@ -820,7 +817,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($in->id);
 
         // Is user an admin?
@@ -863,7 +860,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($in->id);
 
         // Is user an admin?
@@ -914,7 +911,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($in->id);
 
         // Is user an admin?
@@ -958,7 +955,7 @@ class UserController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($in->id);
 
         // Is user an admin?
@@ -968,7 +965,7 @@ class UserController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'access_denied', 
-                ]);
+                ], 400);
         }
 
         // Load account
@@ -992,15 +989,32 @@ class UserController
         // Handle request data 
         $handle = $this->scrub($request,'user');
         
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = clone $this->container->get('User');
+        $admin->loadFromId($id);
 
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed set Patron status: User $id is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400);
+        }
+        
         // Load user
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromHandle($handle);
 
         // Is this a patron?
-        if($user->getPatronTier() < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron']);
+        if($user->getPatronTier() < 2) return $this->prepResponse($response, ['result' => 'error', 'reason' => 'not-a-patron'], 400);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
@@ -1014,13 +1028,19 @@ class UserController
     /** Load user account */
     public function adminLoad($request, $response, $args) 
     {
+        // Handle request data 
+        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
-        
         // Get a user instance from the container and load user data
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($id);
 
+        // Get a user instance from the container and load user data
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($handle);
+        
         // Is user an admin?
         if($admin->getRole() != 'admin') {
             // Get a logger instance from the container
@@ -1030,15 +1050,8 @@ class UserController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'access_denied', 
-                ]);
+                ], 400);
         }
-        
-        // Handle request data 
-        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromHandle($handle);
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
@@ -1061,7 +1074,10 @@ class UserController
         ]);
     } 
 
+    // FIXME: I think this can be removed? Route is commented out
+    // 
     /** List user accounts */
+    /*
     public function userlist($request, $response, $args) 
     {
         $db = $this->container->get('db');
@@ -1092,6 +1108,7 @@ class UserController
 
         return $this->prepResponse($response, [ 'users' => $users ]);
     }
+    */
 
     /** Find user accounts */
     public function find($request, $response, $args) 
@@ -1103,7 +1120,7 @@ class UserController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load user data
-        $admin = $this->container->get('User');
+        $admin = clone $this->container->get('User');
         $admin->loadFromId($id);
 
         // Is user an admin?

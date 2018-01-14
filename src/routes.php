@@ -102,7 +102,8 @@ $app->get('/profile/{handle}', 'UserController:profile');
 $app->get('/role', 'UserController:role');
 
 // Load user list
-$app->get('/users', 'UserController:userlist');
+// FIXME: I don't think this is uses
+//$app->get('/users', 'UserController:userlist');
 
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');
