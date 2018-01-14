@@ -553,13 +553,12 @@ class User
             `migrated` = ".$db->quote($this->getMigrated()).",
             `role`     = ".$db->quote($this->getRole()).",
             `login`    = ".$db->quote($this->getLogin()).",
-            `email`     = ".$db->quote($this->getEmail()).",
             `picture`  = ".$db->quote($this->getPicture()).",
             `data`     = ".$db->quote(json_encode($this->getData())).",
             `password` = ".$db->quote($this->getPassword())."
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
-
+        
         return $db->exec($sql);
     }
     

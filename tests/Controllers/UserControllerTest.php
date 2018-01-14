@@ -233,6 +233,211 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($response->getStatusCode(), 400);
     }
 
+    public function testConfirm()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testConfirm@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setPendingEmail(time().'.testConfirmPending@freesewing.org');
+        $obj->setStatus('active');
+        $obj->save();
+        $response = $this->app->call('GET','/confirm/'.$obj->getHandle().'/'.$obj->getActivationToken());
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->reason, 'confirm_complete');
+        $this->assertEquals($response->getStatusCode(), 200);
+    }
+
+    public function testConfirmInvalidUser()
+    {
+        $response = $this->app->call('GET','/confirm/inval/id');
+        
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'no_such_account');
+        $this->assertEquals($json->message, 'activation/no-such-account');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testConfirmBlockedUser()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testConfirmBlocked@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setPendingEmail(time().'.testConfirmPending@freesewing.org');
+        $obj->setStatus('blocked');
+        $obj->save();
+        $response = $this->app->call('GET','/confirm/'.$obj->getHandle().'/'.$obj->getActivationToken());
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_blocked');
+        $this->assertEquals($json->message, 'account/blocked');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testConfirmTokenMismatch()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testConfirmTokenMismatch@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setPendingEmail(time().'.testConfirmPending@freesewing.org');
+        $obj->setStatus('active');
+        $obj->save();
+        $response = $this->app->call('GET','/confirm/'.$obj->getHandle().'/incorrect');
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'token_mismatch');
+        $this->assertEquals($json->message, 'activation/token-mismatch');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testLogin()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testLogin@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('active');
+        $obj->save();
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'bananas',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->reason, 'password_correct');
+        $this->assertEquals($json->message, 'login/success');
+        $this->assertTrue(isset($json->token));
+        $this->assertEquals($json->userid, $obj->getId());
+        $this->assertEquals($json->email, $email);
+        $this->assertEquals($response->getStatusCode(), 200);
+    }
+
+    public function testLoginBlockedUser()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testLoginBlockedUser@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('blocked');
+        $obj->save();
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'bananas',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_blocked');
+        $this->assertEquals($json->message, 'login/account-blocked');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testLoginInactiveUser()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testLoginInactiveUser@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('inactive');
+        $obj->save();
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'bananas',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_inactive');
+        $this->assertEquals($json->message, 'login/account-inactive');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testLoginWrongPassword()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testLoginWrongPassword@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('active');
+        $obj->save();
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'peaches',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'login_failed');
+        $this->assertEquals($json->message, 'login/failed');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testLoginUnknownUser()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testLoginUnknownUser@freesewing.org';
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'bananas',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'login_failed');
+        $this->assertEquals($json->message, 'login/failed');
+        $this->assertEquals($response->getStatusCode(), 400);
+    }
+
+    public function testAuth()
+    {
+        $token = $this->getJwt();
+
+        $response = $this->app->call('GET','/auth', null, $token);
+
+        $json = json_decode((string)$response->getBody());
+
+        $this->assertEquals($json->result, 'ok');
+    }
+
+    /** Helper to store and authenticated session in the auth property */
+    private function getJwt()
+    {
+        $auth = $this->signup();
+        return $auth->token;
+    }
+
+    /** Helper to store and authenticated session in the auth property */
+    private function signup()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.UserController@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('active');
+        $obj->save();
+        $data = [
+            'login-email' => $email,
+            'login-password' => 'bananas',
+        ];
+        $response = $this->app->call('POST','/login', $data);
+
+        return json_decode((string)$response->getBody());
+    }
+
     private function loadFixture($fixture)
     {
         $dir = __DIR__.'/../fixtures';
@@ -242,7 +447,7 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
     private function saveFixture($fixture, $data)
     {
-//        return true;
+        return true;
         $dir = __DIR__.'/../fixtures';
         $file = "$dir/UserController.$fixture.data";
         $f = fopen($file,'w');

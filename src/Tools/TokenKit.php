@@ -33,11 +33,11 @@ class TokenKit
     public function create($userId) 
     {
         $now = new \DateTime();
-        $exp = new \DateTime("now +".$this->container['settings']['app']['jwt_lifetime']);
+        $exp = new \DateTime("now +".$this->container['settings']['jwt']['lifetime']);
         
         $base62 = new Base62();
 
-        $secret = $this->container['settings']['app']['jwt_secret'];
+        $secret = $this->container['settings']['jwt']['secret'];
 
         $payload = [
             'user' => $userId,

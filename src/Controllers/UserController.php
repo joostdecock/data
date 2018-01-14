@@ -38,7 +38,6 @@ class UserController
     public function auth($request, $response, $args)
     {
         $return = false;
-        
         // Get ID from authentication middleware
         $in = new \stdClass();
         $in->id = $request->getAttribute("jwt")->user;
@@ -247,7 +246,7 @@ class UserController
         if($user->getUsername() != $in->username) {
             if($user->usernameTaken($in->username)) {
                 $logger->info("Failed to update profile for user ".$user->getId().": Username ".$in->username." is taken");
-
+                
                 return $this->prepResponse($response, [
                     'result' => 'error', 
                     'reason' => 'username_taken', 
@@ -554,9 +553,9 @@ class UserController
 
             return $this->prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'login_failed_FIXME_AddedToKnowDifferenceBetweenWrongPasswordWhileDeveloping', 
+                'reason' => 'login_failed', 
                 'message' => 'login/failed',
-            ]);
+            ], 400);
         }
 
         if($user->getStatus() === 'blocked') {
@@ -566,7 +565,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
                 'message' => 'login/account-blocked',
-            ]);
+            ], 400);
         }
 
         if($user->getStatus() === 'inactive') {
@@ -576,7 +575,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_inactive', 
                 'message' => 'login/account-inactive',
-            ]);
+            ], 400);
         }
 
         if(!$user->checkPassword($login_data['password'])) {
@@ -586,7 +585,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'login_failed', 
                 'message' => 'login/failed',
-            ]);
+            ], 400);
         }
 
         // Log login
@@ -751,7 +750,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'no_such_account', 
                 'message' => 'activation/no-such-account'
-            ]);
+            ], 400);
         }
 
         // Is the user blocked? 
@@ -762,7 +761,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
                 'message' => 'account/blocked'
-            ]);
+            ], 400);
         }
 
         // Is there a token mismatch? 
@@ -773,7 +772,7 @@ class UserController
                 'result' => 'error', 
                 'reason' => 'token_mismatch', 
                 'message' => 'activation/token-mismatch'
-            ]);
+            ], 400);
         }
 
         // Get the token kit from the container

@@ -4,8 +4,38 @@ return [
     'settings' => [
         'displayErrorDetails' => false, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
-        'forceEncryption' => true, // Don't allow to access this over an unencrypted connection
 
+        // Middleware settings
+        'jwt' => [
+            "secure" => true, // Don't allow access over an unencrypted connection
+            'path' => '/',
+            'passthrough' => [
+                '/signup', 
+                '/login', 
+                '/recover', 
+                '/reset', 
+                '/activate', 
+                '/resend',
+                '/confirm',
+                '/info/',
+                '/shared/',
+                '/download/',
+                '/referral',
+                '/comments/',
+                '/status', 
+                '/email/', 
+                '/referrals/group', 
+                '/debug', 
+                '/patrons/list',
+            ],
+            'attribute' => 'jwt',
+            'secret' => getenv("JWT_SECRET"),
+            'lifetime' => "1 month",
+            "error" => function ($request, $response, $arguments) {
+                echo file_get_contents(dirname(__DIR__).'/templates/index.html');
+            }
+        ],
+        
         // Renderer settings
         'renderer' => [
             'template_path' => dirname(__DIR__) . '/templates/',
@@ -92,8 +122,6 @@ return [
             'data_api' => getenv('DATA_API'),
             'core_api' => getenv('CORE_API'),
             'site' => getenv('SITE'),
-            'jwt_secret' => getenv('JWT_SECRET'),
-            'jwt_lifetime' => "1 month",
             'origin' => getenv('ORIGIN'),
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],
