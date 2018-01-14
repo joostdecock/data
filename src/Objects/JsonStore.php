@@ -13,7 +13,7 @@ class JsonStore
 {
     public function __toString()
     {
-        return json_encode($this, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        return json_encode($this, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
     }
 
     public function setNode($location, $value) 

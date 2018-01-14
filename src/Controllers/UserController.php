@@ -34,166 +34,9 @@ class UserController
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 
-    /** Minimal auth check */
-    public function auth($request, $response, $args)
-    {
-        $return = false;
-        // Get ID from authentication middleware
-        $in = new \stdClass();
-        $in->id = $request->getAttribute("jwt")->user;
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromId($in->id);
-        if($user->isPatron()) $patron = $user->getPatronTier();
-        else $patron = 0;
-        
-        // Add badge if needed
-        if(isset($this->container['settings']['badges']['login'])) {
-            if($user->addBadge($this->container['settings']['badges']['login'])) {
-                $user->save();
-                $return = [
-                    'result' => 'ok', 
-                    'id' => $user->getId(), 
-                    'email' => $user->getEmail(), 
-                    'user' => $user->getUsername(), 
-                    'patron' => $patron, 
-                    'new_badge' => $this->container['settings']['badges']['login'],
-                ];
-            }
-        }
-    
-        if(!$return) { 
-            $return = [
-                'result' => 'ok', 
-                'id' => $user->getId(), 
-                'email' => $user->getEmail(), 
-                'user' => $user->getUsername(), 
-                'patron' => $patron, 
-            ];
-        }
-        $response->getBody()->write(json_encode($return));
-
-        return $response
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin']);
-    }
-
-    /** User password reset */
-    public function reset($request, $response, $args) {
-        // Handle request data 
-        $data = $request->getParsedBody();
-        $reset_data = [
-            'password' => filter_var($data['reset-password'], FILTER_SANITIZE_STRING),
-            'handle' => filter_var($data['reset-handle'], FILTER_SANITIZE_STRING),
-            'token' => filter_var($data['reset-token'], FILTER_SANITIZE_STRING),
-        ];
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromHandle($reset_data['handle']);
-
-        if($user->getId() == '') {
-            $logger->info("Reset blocked: No user with address ".$reset_data['email']);
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'reset_failed_FIXME_AddedToKnowDifferenceBetweenWrongPasswordWhileDeveloping', 
-                'message' => 'reset/failed',
-            ]);
-        }
-
-        if($user->getStatus() === 'blocked') {
-            $logger->info("Reset blocked: User ".$user->getId()." is blocked");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_blocked', 
-                'message' => 'reset/blocked',
-            ]);
-        }
-
-        if($user->getStatus() === 'inactive') {
-            $logger->info("Reset blocked: User ".$user->getId()." is inactive");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_inactive', 
-                'message' => 'reset/inactive',
-            ]);
-        }
-
-        $user->setPassword($reset_data['password']);
-        $user->save();
-
-        $logger->info("Reset: Password reset for user ".$user->getId());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'reason' => 'password_reset', 
-            'message' => 'reset/success',
-        ]);
-    }
-
-    /** User password recovery */
-    public function recover($request, $response, $args) {
-        // Handle request data 
-        $data = $request->getParsedBody();
-        $recover_data = [
-            'email' => filter_var($data['recover-email'], FILTER_SANITIZE_EMAIL),
-        ];
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromEmail($recover_data['email']);
-
-        if($user->getId() == '') {
-            $logger->info("Recover blocked: No user with address ".$recover_data['email']);
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'recover_failed_FIXME_AddedToKnowDifferenceBetweenWrongPasswordWhileDeveloping', 
-                'message' => 'recover/failed',
-            ]);
-        }
-
-        if($user->getStatus() === 'blocked') {
-            $logger->info("Recover blocked: User ".$user->getId()." is blocked");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_blocked', 
-                'message' => 'recover/blocked',
-            ]);
-        }
-
-        if($user->getStatus() === 'inactive') {
-            $logger->info("Recover blocked: User ".$user->getId()." is inactive");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_inactive', 
-                'message' => 'recover/inactive',
-            ]);
-        }
-
-        $logger->info("Recover: User ".$user->getId());
-
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->recover($user);
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'reason' => 'recover_initiated', 
-            'message' => 'recover/sent',
-        ]);
-    }
-
+    /**
+     * Helper function to scrub input clean
+     */
     private function scrub($request, $key, $type='string')
     {
         switch($type) {
@@ -208,407 +51,7 @@ class UserController
         else return false;
     }
 
-    /** Update account */
-    public function update($request, $response, $args) 
-    {
-        // Handle request
-        $in = new \stdClass();
-        $in->email = $this->scrub($request,'email','email');
-        $in->username = $this->scrub($request,'username');
-        $in->address = $this->scrub($request,'address');
-        $in->birthmonth = $this->scrub($request,'birthday-month');
-        $in->birthday = $this->scrub($request,'birthday-day');
-        $in->twitter = $this->scrub($request,'twitter');
-        $in->instagram = $this->scrub($request,'instagram');
-        $in->github = $this->scrub($request,'github');
-        $in->picture = $this->scrub($request,'picture');
-        ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
-        ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromId($in->id);
-
-        // Handle picture
-        if($in->picture != '') {
-            // Get the AvatarKit to create the avatar
-            $avatarKit = $this->container->get('AvatarKit');
-            $user->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle()));
-        }
-
-        // Handle username change
-        if($user->getUsername() != $in->username) {
-            if($user->usernameTaken($in->username)) {
-                $logger->info("Failed to update profile for user ".$user->getId().": Username ".$in->username." is taken");
-                
-                return $this->prepResponse($response, [
-                    'result' => 'error', 
-                    'reason' => 'username_taken', 
-                    'message' => 'account/username-taken',
-                ]);
-            }
-            $user->setUsername($in->username);
-        }
-
-        // Handle toggles
-        if($user->getAccountUnits() != $in->units) $user->setAccountUnits($in->units);
-        if($user->getAccountTheme() != $in->theme) $user->setAccountTheme($in->theme);
-        
-        // Handle 3rd party accounts
-        $user->setTwitterHandle($in->twitter);
-        $user->setInstagramHandle($in->instagram);
-        $user->setGithubHandle($in->github);
-
-        // Patron info 
-        if($in->address !== false) $user->setPatronAddress($in->address);
-        if($in->birthday !== false) $user->setPatronBirthday($in->birthday, $in->birthmonth);
-
-        // Handle email change
-        $pendingEmail = false;
-        if($user->getEmail() != $in->email) {
-            if($user->emailTaken($in->email)) {
-                $logger->info("Failed to update profile for user ".$user->getId().": Email ".$in->email." is taken");
-
-                return $this->prepResponse($response, [
-                    'result' => 'error', 
-                    'reason' => 'email_taken', 
-                    'message' => 'account/email-taken',
-                ]);
-            }
-            // Send email 
-            $mailKit = $this->container->get('MailKit');
-            $mailKit->emailChange($user, $in->email);
-            $logger->info("Email change requested for user ".$user->getId().": From ".$user->getEmail()." to ".$in->email);
-            // Store future email address pending confirmation
-            $user->setPendingEmail($in->email);
-            
-            // Save changes 
-            $user->save();
-
-            return $this->prepResponse($response, [
-                'result' => 'ok', 
-                'message' => 'account/updated',
-                'pendingEmail' => $user->getPendingEmail(),
-                'data' => $user->getDataAsJson(),
-            ]);
-        } else {
-            // Save changes 
-            $user->save();
-
-            return $this->prepResponse($response, [
-                'result' => 'ok', 
-                'message' => 'account/updated',
-                'data' => $user->getDataAsJson(),
-            ]);
-        }
-    }
-    
-    /** Set password (by admin) */
-    public function setPassword($request, $response, $args) 
-    {
-        // Handle request
-        $in = new \stdClass();
-        $in->password = filter_var($request->getParsedBody()['password'], FILTER_SANITIZE_STRING);
-        $in->userHandle = $this->scrub($request,'user');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $admin = $this->container->get('User');
-        $admin->loadFromId($in->id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger->info("Failed to set password: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                ]);
-        }
-
-        // Load account
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-        
-        $user->setPassword($in->password);
-        $user->save();
-        $logger->info("Password for user ".$in->userHandle." changed by admin ".$admin->getHandle());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-        ]);
-
-    }
-
-    /** Set address (by admin) */
-    public function setAddress($request, $response, $args) 
-    {
-        // Handle request
-        $in = new \stdClass();
-        $in->address = filter_var($request->getParsedBody()['address'], FILTER_SANITIZE_STRING);
-        $in->userHandle = $this->scrub($request,'user');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $admin = $this->container->get('User');
-        $admin->loadFromId($in->id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger->info("Failed to set address: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                ]);
-        }
-
-        // Load account
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-        
-        $user->setPatronAddress($in->address);
-        $user->save();
-        $logger->info("Address for user ".$in->userHandle." changed by admin ".$admin->getHandle());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-        ]);
-
-    }
-
-    /** Set birthday (by admin) */
-    public function setBirthday($request, $response, $args) 
-    {
-        // Handle request
-        $in = new \stdClass();
-        $in->month = filter_var($request->getParsedBody()['month'], FILTER_SANITIZE_NUMBER_INT);
-        $in->day = filter_var($request->getParsedBody()['day'], FILTER_SANITIZE_NUMBER_INT);
-        $in->userHandle = $this->scrub($request,'user');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $admin = $this->container->get('User');
-        $admin->loadFromId($in->id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger->info("Failed to set birthday: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                ]);
-        }
-
-        // Load account
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-        
-        $user->setPatronBirthday($in->day, $in->month);
-        $user->save();
-        $logger->info("Birthday for user ".$in->userHandle." changed by admin ".$admin->getHandle());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-        ]);
-
-    }
-
-    /** Removes badge from user profile */
-    public function removeBadge($request, $response, $args) 
-    {
-        return $this->addBadge($request, $response, $args, true);
-    }
-
-    /** Add badge to user profile */
-    public function addBadge($request, $response, $args, $remove=false) 
-    {
-        if($remove) $verb = 'remove';
-        else $verb = 'add';
-
-        // Handle request
-        $in = new \stdClass();
-        $in->userHandle = $this->scrub($request,'user');
-        $in->badge = $this->scrub($request,'badge');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $admin = $this->container->get('User');
-        $admin->loadFromId($in->id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger->info("Failed to $verb badge: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                ]);
-        }
-
-        // Load account
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-
-        // Add badge and save
-        if($remove) $user->removeBadge($in->badge);
-        else $user->addBadge($in->badge);
-        $user->save();
-        $logger->info("Badge ".$in->badge." $verb"."ed to user ".$user->getId());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'badges' => $user->getBadges(),
-        ]);
-    }
-
-    /** Make a user a Patron */
-    public function makePatron($request, $response, $args) 
-    {
-        // Handle request
-        $in = new \stdClass();
-        $in->userHandle = $this->scrub($request,'user');
-        $in->patron = $this->scrub($request,'patron');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $admin = $this->container->get('User');
-        $admin->loadFromId($in->id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger->info("Failed set Patron status: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                ]);
-        }
-
-        // Load account
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-
-        // Set patron status and save
-        $user->makePatron($in->patron);
-        $user->save();
-        $logger->info("Patron status set to ".$in->patron." for user ".$user->getId());
-
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'patron' => $user->getPatron(),
-        ]);
-    }
-
-    /** User login */
-    public function login($request, $response, $args) {
-        // Handle request data 
-        $data = $request->getParsedBody();
-        $login_data = [
-            'email' => filter_var($data['login-email'], FILTER_SANITIZE_EMAIL),
-            'password' => filter_var($data['login-password'], FILTER_SANITIZE_STRING),
-        ];
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromEmail($login_data['email']);
-
-        if($user->getId() == '') {
-            $logger->info("Login blocked: No user with address ".$login_data['email']);
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'login_failed', 
-                'message' => 'login/failed',
-            ], 400);
-        }
-
-        if($user->getStatus() === 'blocked') {
-            $logger->info("Login blocked: User ".$user->getId()." is blocked");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_blocked', 
-                'message' => 'login/account-blocked',
-            ], 400);
-        }
-
-        if($user->getStatus() === 'inactive') {
-            $logger->info("Login blocked: User ".$user->getId()." is inactive");
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_inactive', 
-                'message' => 'login/account-inactive',
-            ], 400);
-        }
-
-        if(!$user->checkPassword($login_data['password'])) {
-            $logger->info("Login failed: Incorrect password for user ".$user->getId());
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'login_failed', 
-                'message' => 'login/failed',
-            ], 400);
-        }
-
-        // Log login
-        $user->setLogin();
-        $user->save();
-        $logger->info("Login: User ".$user->getId());
-        
-        // Get the token kit from the container
-        $TokenKit = $this->container->get('TokenKit');
-        if($user->isPatron()) $tier = $user->getPatronTier();
-        else $tier = 0;
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'reason' => 'password_correct', 
-            'message' => 'login/success',
-            'token' => $TokenKit->create($user->getId()),
-            'userid' => $user->getId(),
-            'email' => $user->getEmail(),
-            'username' => $user->getUsername(),
-            'patron' => $tier,
-        ]);
-    }
+    // Anonymous calls
 
     /** User signup
      *
@@ -663,6 +106,79 @@ class UserController
             'result' => 'ok', 
             'reason' => 'signup_complete', 
             'message' => 'signup/success',
+        ]);
+    }
+    
+    /** User activation */
+    public function activate($request, $response, $args) {
+
+        // Handle request data 
+        $activation_data = [
+            'handle' => filter_var($args['handle'], FILTER_SANITIZE_STRING),
+            'token' => filter_var($args['token'], FILTER_SANITIZE_STRING),
+        ];
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        $user = $this->container->get('User');
+        $user->loadFromHandle($activation_data['handle']);
+
+        // Does the user exist?
+        if ($user->getId() == '') { 
+            $logger->info("Activation rejected: User handle ".$activation_data['handle']." does not exist");
+        
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_account', 
+                'message' => 'activation/no-such-account'
+            ], 404);
+        }
+
+        // Is the user blocked? 
+        if($user->getStatus() === 'blocked') {
+            $logger->info('Activation rejected: User '.$user->getId().' is blocked');
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'account/blocked'
+            ], 400);
+        }
+
+        // Is there a token mismatch? 
+        if($activation_data['token'] != $user->getActivationToken()) {
+            $logger->info("Activation rejected: Token mismatch for user ".$user->getId());
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'token_mismatch', 
+                'message' => 'activation/token-mismatch'
+            ], 400);
+        }
+
+        // Get the token kit from the container
+        $TokenKit = $this->container->get('TokenKit');
+        
+        // Activate user
+        $user->setStatus('active');
+
+        // Login user
+        $user->setLogin();
+        $user->save();
+        
+        // Log
+        $logger->info("Activation: User ".$user->getId()." is now active");
+        $logger->info("Login: User ".$user->getId())." auto-login upon activation";
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok',
+            'reason' => 'signup_complete', 
+            'message' => 'login/success',
+            'token' => $TokenKit->create($user->getId()),
+            'userid' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
         ]);
     }
     
@@ -791,6 +307,685 @@ class UserController
         ]);
     }
 
+    /** User login */
+    public function login($request, $response, $args) {
+        // Handle request data 
+        $data = $request->getParsedBody();
+        $login_data = [
+            'email' => filter_var($data['login-email'], FILTER_SANITIZE_EMAIL),
+            'password' => filter_var($data['login-password'], FILTER_SANITIZE_STRING),
+        ];
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromEmail($login_data['email']);
+
+        if($user->getId() == '') {
+            $logger->info("Login blocked: No user with address ".$login_data['email']);
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'login_failed', 
+                'message' => 'login/failed',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'blocked') {
+            $logger->info("Login blocked: User ".$user->getId()." is blocked");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'login/account-blocked',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'inactive') {
+            $logger->info("Login blocked: User ".$user->getId()." is inactive");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_inactive', 
+                'message' => 'login/account-inactive',
+            ], 400);
+        }
+
+        if(!$user->checkPassword($login_data['password'])) {
+            $logger->info("Login failed: Incorrect password for user ".$user->getId());
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'login_failed', 
+                'message' => 'login/failed',
+            ], 400);
+        }
+
+        // Log login
+        $user->setLogin();
+        $user->save();
+        $logger->info("Login: User ".$user->getId());
+        
+        // Get the token kit from the container
+        $TokenKit = $this->container->get('TokenKit');
+        if($user->isPatron()) $tier = $user->getPatronTier();
+        else $tier = 0;
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'password_correct', 
+            'message' => 'login/success',
+            'token' => $TokenKit->create($user->getId()),
+            'userid' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername(),
+            'patron' => $tier,
+        ]);
+    }
+
+    /** User password reset */
+    public function reset($request, $response, $args) {
+        // Handle request data 
+        $data = $request->getParsedBody();
+        $reset_data = [
+            'password' => filter_var($data['reset-password'], FILTER_SANITIZE_STRING),
+            'handle' => filter_var($data['reset-handle'], FILTER_SANITIZE_STRING),
+            'token' => filter_var($data['reset-token'], FILTER_SANITIZE_STRING),
+        ];
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromHandle($reset_data['handle']);
+        if($user->getId() === null) {
+            $logger->info("Reset blocked: No user with handle ".$reset_data['token']);
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'reset_failed', 
+                'message' => 'reset/failed',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'blocked') {
+            $logger->info("Reset blocked: User ".$user->getId()." is blocked");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'reset/blocked',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'inactive') {
+            $logger->info("Reset blocked: User ".$user->getId()." is inactive");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_inactive', 
+                'message' => 'reset/inactive',
+            ], 400);
+        }
+
+        $user->setPassword($reset_data['password']);
+        $user->save();
+
+        $logger->info("Reset: Password reset for user ".$user->getId());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'password_reset', 
+            'message' => 'reset/success',
+        ]);
+    }
+
+    /** User password recovery */
+    public function recover($request, $response, $args) {
+        // Handle request data 
+        $data = $request->getParsedBody();
+        $recover_data = [ 'email' => $this->scrub($request, 'recover-email', 'email') ];
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromEmail($recover_data['email']);
+
+        if($user->getId() == '') {
+            $logger->info("Recover blocked: No user with address ".$recover_data['email']);
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'recover_failed', 
+                'message' => 'recover/failed',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'blocked') {
+            $logger->info("Recover blocked: User ".$user->getId()." is blocked");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_blocked', 
+                'message' => 'recover/blocked',
+            ], 400);
+        }
+
+        if($user->getStatus() === 'inactive') {
+            $logger->info("Recover blocked: User ".$user->getId()." is inactive");
+            
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_inactive', 
+                'message' => 'recover/inactive',
+            ], 400);
+        }
+
+        $logger->info("Recover: User ".$user->getId());
+
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->recover($user);
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'recover_initiated', 
+            'message' => 'recover/sent',
+        ]);
+    }
+
+    // Authenticated calls
+   
+    /** Minimal auth check */
+    public function auth($request, $response, $args)
+    {
+        $return = false;
+        // Get ID from authentication middleware
+        $in = new \stdClass();
+        $in->id = $request->getAttribute("jwt")->user;
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+        if($user->isPatron()) $patron = $user->getPatronTier();
+        else $patron = 0;
+        
+        // Prepare return JSON
+        $return = [
+            'result' => 'ok', 
+            'id' => $user->getId(), 
+            'email' => $user->getEmail(), 
+            'user' => $user->getUsername(), 
+            'patron' => $patron, 
+        ];
+
+        // Add badge if needed
+        $badge = $this->container['settings']['badges']['login'];
+        if($user->addBadge($badge)) {
+            $user->save();
+            $return['new_badge'] = $badge;
+        }
+    
+        $response->getBody()->write(json_encode($return));
+
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin']);
+    }
+
+    /** Load user account */
+    public function load($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        return $this->prepResponse($response, [
+            'account' => [
+                'id' => $user->getId(), 
+                'email' => $user->getEmail(), 
+                'username' => $user->getUsername(), 
+                'handle' => $user->getHandle(), 
+                'status' => $user->getStatus(), 
+                'created' => $user->getCreated(), 
+                'login' => $user->getLogin(), 
+                'picture' => $user->getPicture(), 
+                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
+                'data' => $user->getData(), 
+            ],
+            'models' => $user->getModels(),
+            'drafts' => $user->getDrafts(),
+        ]);
+    } 
+
+    /** Update account */
+    public function update($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->email = $this->scrub($request,'email','email');
+        $in->username = $this->scrub($request,'username');
+        $in->address = $this->scrub($request,'address');
+        $in->birthmonth = $this->scrub($request,'birthday-month');
+        $in->birthday = $this->scrub($request,'birthday-day');
+        $in->twitter = $this->scrub($request,'twitter');
+        $in->instagram = $this->scrub($request,'instagram');
+        $in->github = $this->scrub($request,'github');
+        $in->picture = $this->scrub($request,'picture');
+        ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
+        ($this->scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($in->id);
+
+        // Handle picture
+        if($in->picture != '') {
+            // Get the AvatarKit to create the avatar
+            $avatarKit = $this->container->get('AvatarKit');
+            $user->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle()));
+        }
+
+        // Handle username change
+        if($user->getUsername() != $in->username) {
+            if($user->usernameTaken($in->username)) {
+                $logger->info("Failed to update profile for user ".$user->getId().": Username ".$in->username." is taken");
+                
+                return $this->prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'username_taken', 
+                    'message' => 'account/username-taken',
+                ], 400);
+            }
+            $user->setUsername($in->username);
+        }
+
+        // Handle toggles
+        if($user->getAccountUnits() != $in->units) $user->setAccountUnits($in->units);
+        if($user->getAccountTheme() != $in->theme) $user->setAccountTheme($in->theme);
+        
+        // Handle 3rd party accounts
+        $user->setTwitterHandle($in->twitter);
+        $user->setInstagramHandle($in->instagram);
+        $user->setGithubHandle($in->github);
+
+        // Patron info 
+        if($in->address !== false) $user->setPatronAddress($in->address);
+        if($in->birthday !== false) $user->setPatronBirthday($in->birthday, $in->birthmonth);
+
+        // Handle email change
+        $pendingEmail = false;
+        if($in->email !== false && $user->getEmail() != $in->email) {
+            if($user->emailTaken($in->email)) {
+                $logger->info("Failed to update profile for user ".$user->getId().": Email ".$in->email." is taken");
+
+                return $this->prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'email_taken', 
+                    'message' => 'account/email-taken',
+                ], 400);
+            }
+            // Send email 
+            $mailKit = $this->container->get('MailKit');
+            $mailKit->emailChange($user, $in->email);
+            $logger->info("Email change requested for user ".$user->getId().": From ".$user->getEmail()." to ".$in->email);
+            // Store future email address pending confirmation
+            $user->setPendingEmail($in->email);
+            
+            // Save changes 
+            $user->save();
+
+            return $this->prepResponse($response, [
+                'result' => 'ok', 
+                'message' => 'account/updated',
+                'pendingEmail' => $user->getPendingEmail(),
+                'data' => $user->getDataAsJson(),
+            ]);
+        } else {
+            // Save changes 
+            $user->save();
+            
+            return $this->prepResponse($response, [
+                'result' => 'ok', 
+                'message' => 'account/updated',
+                'data' => $user->getDataAsJson(),
+            ]);
+        }
+    }
+    
+    /** Load user profile */
+    public function profile($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromHandle($in->handle);
+
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+
+        $return = [
+            'profile' => [
+                'username' => $user->getUsername(), 
+                'handle' => $user->getHandle(), 
+                'status' => $user->getStatus(), 
+                'created' => $user->getCreated(), 
+                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
+            ],
+            'drafts' => $user->getDrafts(),
+        ];
+        $data = $user->getData();
+        if(isset($data->badges)) $return['badges'] = $data->badges;
+        if(isset($data->social)) $return['social'] = $data->social;
+        if(isset($data->patron)) $return['patron'] = $data->patron;
+
+        return $this->prepResponse($response, $return);
+    } 
+
+    /** Remove account */
+    public function remove($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Send email 
+        $mailKit = $this->container->get('MailKit');
+        $mailKit->goodbye($user);
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        $logger->info("User removed: ".$user->getId()." (".$user->getEmail().")is no more");
+        
+        $user->remove();
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'reason' => 'user_removed', 
+        ]);
+    } 
+
+    /** Export user data */
+    public function export($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        $logger->info("Exporting user data for: ".$user->getId()." (".$user->getEmail().")");
+        
+        $zip = $user->export();
+        
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'archive' => $zip, 
+        ]);
+    } 
+    
+    public function role($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        return $this->prepResponse($response, ['role' => $user->getRole()]);
+    } 
+
+    // Admin routes
+
+    /** Set password (by admin) */
+    public function setPassword($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->password = $this->scrub($request,'password');
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set password: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setPassword($in->password);
+        $user->save();
+        $logger->info("Password for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
+    /** Set address (by admin) */
+    public function setAddress($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->address = $this->scrub($request,'address');
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set address: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setPatronAddress($in->address);
+        $user->save();
+        $logger->info("Address for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
+    /** Set birthday (by admin) */
+    public function setBirthday($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->day = $this->scrub($request,'day');
+        $in->month = $this->scrub($request,'month');
+        $in->userHandle = $this->scrub($request,'user');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to set birthday: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+        
+        $user->setPatronBirthday($in->day, $in->month);
+        $user->save();
+        $logger->info("Birthday for user ".$in->userHandle." changed by admin ".$admin->getHandle());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+        ]);
+
+    }
+
+    /** Removes badge from user profile */
+    public function removeBadge($request, $response, $args) 
+    {
+        return $this->addBadge($request, $response, $args, true);
+    }
+
+    /** Add badge to user profile */
+    public function addBadge($request, $response, $args, $remove=false) 
+    {
+        if($remove) $verb = 'remove';
+        else $verb = 'add';
+
+        // Handle request
+        $in = new \stdClass();
+        $in->userHandle = $this->scrub($request,'user');
+        $in->badge = $this->scrub($request,'badge');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed to $verb badge: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+
+        // Add badge and save
+        if($remove) $user->removeBadge($in->badge);
+        else $user->addBadge($in->badge);
+        $user->save();
+        $logger->info("Badge ".$in->badge." $verb"."ed to user ".$user->getId());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'badges' => $user->getBadges(),
+        ]);
+    }
+
+    /** Make a user a Patron */
+    public function makePatron($request, $response, $args) 
+    {
+        // Handle request
+        $in = new \stdClass();
+        $in->userHandle = $this->scrub($request,'user');
+        $in->patron = $this->scrub($request,'patron');
+        
+        // Get ID from authentication middleware
+        $in->id = $request->getAttribute("jwt")->user;
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a user instance from the container
+        $admin = $this->container->get('User');
+        $admin->loadFromId($in->id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            $logger->info("Failed set Patron status: User ".$admin->getId()." is not an admin");
+
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ]);
+        }
+
+        // Load account
+        $user = clone $this->container->get('User');
+        $user->loadFromHandle($in->userHandle);
+
+        // Set patron status and save
+        $user->makePatron($in->patron);
+        $user->save();
+        $logger->info("Patron status set to ".$in->patron." for user ".$user->getId());
+
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'patron' => $user->getPatron(),
+        ]);
+    }
+
     /** Send patron email */
     public function sendPatronEmail($request, $response, $args)
     {
@@ -815,111 +1010,6 @@ class UserController
 
         return $this->prepResponse($response, ['result' => 'ok']);
     }
-
-    /** User activation */
-    public function activate($request, $response, $args) {
-
-        // Handle request data 
-        $activation_data = [
-            'handle' => filter_var($args['handle'], FILTER_SANITIZE_STRING),
-            'token' => filter_var($args['token'], FILTER_SANITIZE_STRING),
-        ];
-
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        $user = $this->container->get('User');
-        $user->loadFromHandle($activation_data['handle']);
-
-        // Does the user exist?
-        if ($user->getId() == '') { 
-            $logger->info("Activation rejected: User handle ".$activation_data['handle']." does not exist");
-        
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'no_such_account', 
-                'message' => 'activation/no-such-account'
-            ], 404);
-        }
-
-        // Is the user blocked? 
-        if($user->getStatus() === 'blocked') {
-            $logger->info('Activation rejected: User '.$user->getId().' is blocked');
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_blocked', 
-                'message' => 'account/blocked'
-            ], 400);
-        }
-
-        // Is there a token mismatch? 
-        if($activation_data['token'] != $user->getActivationToken()) {
-            $logger->info("Activation rejected: Token mismatch for user ".$user->getId());
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'token_mismatch', 
-                'message' => 'activation/token-mismatch'
-            ], 400);
-        }
-
-        // Get the token kit from the container
-        $TokenKit = $this->container->get('TokenKit');
-        
-        // Activate user
-        $user->setStatus('active');
-
-        // Login user
-        $user->setLogin();
-        $user->save();
-        
-        // Log
-        $logger->info("Activation: User ".$user->getId()." is now active");
-        $logger->info("Login: User ".$user->getId())." auto-login upon activation";
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok',
-            'reason' => 'signup_complete', 
-            'message' => 'login/success',
-            'token' => $TokenKit->create($user->getId()),
-            'userid' => $user->getId(),
-            'email' => $user->getEmail(),
-            'username' => $user->getUsername(),
-        ]);
-    }
-    
-    /** Load user account */
-    public function load($request, $response, $args) 
-    {
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
-
-        // Get the AvatarKit to create the avatar
-        $avatarKit = $this->container->get('AvatarKit');
-
-        return $this->prepResponse($response, [
-            'account' => [
-                'id' => $user->getId(), 
-                'email' => $user->getEmail(), 
-                'username' => $user->getUsername(), 
-                'handle' => $user->getHandle(), 
-                'status' => $user->getStatus(), 
-                'created' => $user->getCreated(), 
-                'migrated' => $user->getMigrated(), 
-                'login' => $user->getLogin(), 
-                'picture' => $user->getPicture(), 
-                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
-                'data' => $user->getData(), 
-            ],
-            'models' => $user->getModels(),
-            'drafts' => $user->getDrafts(),
-        ]);
-    } 
 
     /** Load user account */
     public function adminLoad($request, $response, $args) 
@@ -961,7 +1051,6 @@ class UserController
                 'handle' => $user->getHandle(), 
                 'status' => $user->getStatus(), 
                 'created' => $user->getCreated(), 
-                'migrated' => $user->getMigrated(), 
                 'login' => $user->getLogin(), 
                 'picture' => $user->getPicture(), 
                 'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
@@ -1064,99 +1153,6 @@ class UserController
     }
 
 
-    /** Load user profile */
-    public function profile($request, $response, $args) 
-    {
-        // Request data
-        $in = new \stdClass();
-        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromHandle($in->handle);
-
-        // Get the AvatarKit to create the avatar
-        $avatarKit = $this->container->get('AvatarKit');
-
-        $return = [
-            'profile' => [
-                'username' => $user->getUsername(), 
-                'handle' => $user->getHandle(), 
-                'status' => $user->getStatus(), 
-                'created' => $user->getCreated(), 
-                'migrated' => $user->getMigrated(), 
-                'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
-            ],
-            'drafts' => $user->getDrafts(),
-        ];
-        $data = $user->getData();
-        if(isset($data->badges)) $return['badges'] = $data->badges;
-        if(isset($data->social)) $return['social'] = $data->social;
-        if(isset($data->patron)) $return['patron'] = $data->patron;
-
-        return $this->prepResponse($response, $return);
-    } 
-
-    public function role($request, $response, $args) 
-    {
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
-
-        return $this->prepResponse($response, ['role' => $user->getRole()]);
-    } 
-
-    /** Remove account */
-    public function remove($request, $response, $args) 
-    {
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
-
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->goodbye($user);
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        $logger->info("User removed: ".$user->getId()." (".$user->getEmail().")is no more");
-        
-        $user->remove();
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'reason' => 'user_removed', 
-        ]);
-    } 
-
-    /** Export user data */
-    public function export($request, $response, $args) 
-    {
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        
-        // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
-
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        $logger->info("Exporting user data for: ".$user->getId()." (".$user->getEmail().")");
-        
-        $zip = $user->export();
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'archive' => $zip, 
-        ]);
-    } 
 
     /** Patron list */
     public function patronList($request, $response, $args) 

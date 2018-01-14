@@ -1,6 +1,6 @@
 <?php
 
-namespace Freesewing\Data\Tests\Controllers;
+namespace Freesewing\Data\Tests\Controllers\UserController;
 
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -10,7 +10,7 @@ use Mailgun\Mailgun;
 use Mailgun\Api\Message;
 use Freesewing\Data\Objects\User;
 
-class UserControllerTest extends \PHPUnit\Framework\TestCase
+class AnonymousTest extends \PHPUnit\Framework\TestCase
 {
     protected function setup() {
         if(!isset($this->app)) $this->app = new TestApp();
@@ -24,12 +24,12 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
         ];
 
         $response = $this->app->call('POST','/signup', $data);
-        
-        $body = (string)$response->getBody();
+        $json = json_decode((string)$response->getBody());
 
         $this->assertEquals($response->getStatusCode(), 200);
-        $this->saveFixture('signup',$body);
-        $this->assertEquals($body,$this->loadFixture('signup'));
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->reason, 'signup_complete');
+        $this->assertEquals($json->message, 'signup/success');
     }
 
     public function testSignupExistingAddress()
@@ -43,11 +43,12 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
         unset($response);
         $response = $this->app->call('POST','/signup', $data);
         
-        $body = (string)$response->getBody();
+        $json = json_decode((string)$response->getBody());
         
         $this->assertEquals($response->getStatusCode(), 400);
-        $this->saveFixture('signup.existing',$body);
-        $this->assertEquals($body,$this->loadFixture('signup.existing'));
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_exists');
+        $this->assertEquals($json->message, 'signup/account-exists');
     }
 
     public function testSignupNoEmail()
@@ -58,11 +59,12 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
         $response = $this->app->call('POST','/signup', $data);
         
-        $body = (string)$response->getBody();
+        $json = json_decode((string)$response->getBody());
         
         $this->assertEquals($response->getStatusCode(), 400);
-        $this->saveFixture('signup.noEmail',$body);
-        $this->assertEquals($body,$this->loadFixture('signup.noEmail'));
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'invalid_input');
+        $this->assertEquals($json->message, 'generic/error');
     }
 
     public function testSignupNoPassword()
@@ -73,11 +75,12 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
         $response = $this->app->call('POST','/signup', $data);
         
-        $body = (string)$response->getBody();
+        $json = json_decode((string)$response->getBody());
         
         $this->assertEquals($response->getStatusCode(), 400);
-        $this->saveFixture('signup.noPassword',$body);
-        $this->assertEquals($body,$this->loadFixture('signup.noPassword'));
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'invalid_input');
+        $this->assertEquals($json->message, 'generic/error');
     }
 
     public function testSignupEmptyPassword()
@@ -88,11 +91,12 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
 
         $response = $this->app->call('POST','/signup', $data);
         
-        $body = (string)$response->getBody();
+        $json = json_decode((string)$response->getBody());
         
         $this->assertEquals($response->getStatusCode(), 400);
-        $this->saveFixture('signup.emptyPassword',$body);
-        $this->assertEquals($body,$this->loadFixture('signup.emptyPassword'));
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'invalid_input');
+        $this->assertEquals($json->message, 'generic/error');
     }
 
     public function testActivate()
@@ -402,56 +406,161 @@ class UserControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($response->getStatusCode(), 400);
     }
 
-    public function testAuth()
-    {
-        $token = $this->getJwt();
-
-        $response = $this->app->call('GET','/auth', null, $token);
-
-        $json = json_decode((string)$response->getBody());
-
-        $this->assertEquals($json->result, 'ok');
-    }
-
-    /** Helper to store and authenticated session in the auth property */
-    private function getJwt()
-    {
-        $auth = $this->signup();
-        return $auth->token;
-    }
-
-    /** Helper to store and authenticated session in the auth property */
-    private function signup()
+    public function testReset()
     {
         $obj = new User($this->app->getContainer());
         
-        $email = time().'.UserController@freesewing.org';
+        $email = time().'.testResetPassword@freesewing.org';
+        $newPassword = 'peaches';
         $obj->create($email, 'bananas');
         $obj->setStatus('active');
         $obj->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'reset-password' => $newPassword,
+            'reset-handle' => $obj->getHandle(),
+            'reset-token' => $obj->getResetToken(),
         ];
-        $response = $this->app->call('POST','/login', $data);
+        $response = $this->app->call('POST','/reset', $data);
 
-        return json_decode((string)$response->getBody());
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->reason, 'password_reset');
+        $this->assertEquals($json->message, 'reset/success');
+        // Load new password from DB
+        $obj->loadFromId($obj->getId());
+        $this->assertTrue($obj->checkPassword($newPassword));
     }
 
-    private function loadFixture($fixture)
+    public function testResetBlockedUser()
     {
-        $dir = __DIR__.'/../fixtures';
-        $file = "$dir/UserController.$fixture.data";
-        return file_get_contents($file);
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testResetPasswordBlockedUser@freesewing.org';
+        $newPassword = 'peaches';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('blocked');
+        $obj->save();
+        $data = [
+            'reset-password' => $newPassword,
+            'reset-handle' => $obj->getHandle(),
+            'reset-token' => $obj->getResetToken(),
+        ];
+        $response = $this->app->call('POST','/reset', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_blocked');
+        $this->assertEquals($json->message, 'reset/blocked');
+        $this->assertFalse($obj->checkPassword($newPassword));
     }
 
-    private function saveFixture($fixture, $data)
+    public function testResetInvalidUser()
     {
-        return true;
-        $dir = __DIR__.'/../fixtures';
-        $file = "$dir/UserController.$fixture.data";
-        $f = fopen($file,'w');
-        fwrite($f,$data);
-        fclose($f);
+        $newPassword = 'peaches';
+        $data = [
+            'reset-password' => $newPassword,
+            'reset-handle' => 'nopes',
+            'reset-token' => 'invalid',
+        ];
+        $response = $this->app->call('POST','/reset', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'reset_failed');
+        $this->assertEquals($json->message, 'reset/failed');
+    }
+
+    public function testResetInactiveUser()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testResetPasswordInactiveUser@freesewing.org';
+        $newPassword = 'peaches';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('inactive');
+        $obj->save();
+        $data = [
+            'reset-password' => $newPassword,
+            'reset-handle' => $obj->getHandle(),
+            'reset-token' => $obj->getResetToken(),
+        ];
+        $response = $this->app->call('POST','/reset', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_inactive');
+        $this->assertEquals($json->message, 'reset/inactive');
+        $this->assertFalse($obj->checkPassword($newPassword));
+    }
+
+    public function testRecover()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testRecoverPassword@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('active');
+        $obj->save();
+        $data = [ 'recover-email' => $email ];
+        $response = $this->app->call('POST','/recover', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertEquals($json->result, 'ok');
+        $this->assertEquals($json->reason, 'recover_initiated');
+        $this->assertEquals($json->message, 'recover/sent');
+    }
+
+    public function testRecoverBlocked()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testRecoverPasswordBlocked@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('blocked');
+        $obj->save();
+        $data = [ 'recover-email' => $email ];
+        $response = $this->app->call('POST','/recover', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_blocked');
+        $this->assertEquals($json->message, 'recover/blocked');
+    }
+
+    public function testRecoverInactive()
+    {
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testRecoverPasswordInactive@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setStatus('inactive');
+        $obj->save();
+        $data = [ 'recover-email' => $email ];
+        $response = $this->app->call('POST','/recover', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'account_inactive');
+        $this->assertEquals($json->message, 'recover/inactive');
+    }
+
+    public function testRecoverInvalid()
+    {
+        $email = time().'.testRecoverPasswordInvalid@freesewing.org';
+        $data = [ 'recover-email' => $email ];
+        $response = $this->app->call('POST','/recover', $data);
+
+        $json = json_decode((string)$response->getBody());
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'recover_failed');
+        $this->assertEquals($json->message, 'recover/failed');
     }
 }

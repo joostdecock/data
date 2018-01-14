@@ -43,9 +43,6 @@ class Model
     /** @var string $created The time the model was created */
     private $created;
 
-    /** @var bool $migrated Whether the model was migrated (from MMP) */
-    private $migrated;
-
     /** @var bool $shared Whether the model is shared */
     private $shared;
 
@@ -94,11 +91,6 @@ class Model
     public function getShared() 
     {
         return $this->shared;
-    } 
-
-    public function getMigrated() 
-    {
-        return $this->migrated;
     } 
 
     public function getCreated() 
@@ -160,11 +152,6 @@ class Model
     public function setBody($body) 
     {
         $this->body = $body;
-    } 
-
-    public function setMigrated($migrated) 
-    {
-        $this->migrated = $migrated;
     } 
 
     public function setShared($shared) 
@@ -303,7 +290,6 @@ class Model
             `picture`  = ".$db->quote($this->getPicture()).",
             `data`     = ".$db->quote($this->getDataAsJson()).",
             `units`     = ".$db->quote($this->units).",
-            `migrated`     = ".$db->quote($this->migrated).",
             `shared`   = ".$db->quote($this->getShared()).",
             `notes`     = ".$db->quote($this->notes)."
             WHERE 

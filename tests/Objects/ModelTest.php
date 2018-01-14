@@ -46,7 +46,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
             ['Name', 'Test Name'],
             ['Notes', "These are the notes, they support **Markdown**\n\nNew paragraph"],
             ['Body', 'female'],
-            ['Migrated', '1'],
             ['Shared', '0'],
             ['Units', 'imperial'],
             ['Picture', 'avatar.jpg'],
@@ -97,7 +96,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
         $this->assertEquals($obj->getUser(), $user->getId());
         $this->assertEquals($obj->getUnits(), $user->getAccountUnits());
-        $this->assertEquals($obj->getMigrated(), 0);
         $this->assertEquals($obj->getShared(), 0);
         $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
     }
@@ -121,7 +119,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
         $this->assertEquals($obj->getUser(), $user->getId());
         $this->assertEquals($obj->getUnits(), $user->getAccountUnits());
-        $this->assertEquals($obj->getMigrated(), 0);
         $this->assertEquals($obj->getShared(), 0);
     }
     
@@ -200,7 +197,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getName(), '#'.$obj->getId());
         $this->assertEquals($obj->getUser(), $user->getId());
         $this->assertEquals($obj->getUnits(), $user->getAccountUnits());
-        $this->assertEquals($obj->getMigrated(), 0);
         $this->assertEquals($obj->getShared(), 0);
     }
     

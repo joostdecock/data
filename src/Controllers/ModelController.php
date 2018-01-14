@@ -236,7 +236,6 @@ class ModelController
                 'data' => $model->getData(), 
                 'units' => $model->getUnits(), 
                 'created' => $model->getCreated(), 
-                'migrated' => $model->getMigrated(), 
                 'shared' => $model->getShared(), 
                 'notes' => $model->getNotes(), 
 

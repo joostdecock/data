@@ -36,7 +36,6 @@ CREATE TABLE `models` (
   `data` text NOT NULL,
   `units` enum('metric','imperial') NOT NULL DEFAULT 'metric',
   `created` datetime NOT NULL,
-  `migrated` tinyint(1) NOT NULL DEFAULT '0',
   `shared` tinyint(1) NOT NULL DEFAULT '0',
   `notes` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -57,7 +56,6 @@ CREATE TABLE `users` (
   `handle` varchar(5) NOT NULL COMMENT 'a random string that uniquely identifies the user. Used in URLs instead of user id to prevent scraping',
   `status` enum('inactive','active','blocked') NOT NULL DEFAULT 'inactive' COMMENT 'user status',
   `created` datetime NOT NULL COMMENT 'user activation date/time',
-  `migrated` datetime DEFAULT NULL,
   `login` datetime DEFAULT NULL COMMENT 'date/time of the user''s last login',
   `role` enum('user','moderator','admin') NOT NULL,
   `picture` varchar(12) NOT NULL,

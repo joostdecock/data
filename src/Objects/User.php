@@ -34,9 +34,6 @@ class User
     /** @var string $created Time when the accout was created */
     private $created;
 
-    /** @var string $migrated Time when the migrated mmp account was created */
-    private $migrated;
-
     /** @var string $login Time of the last login */
     private $login;
 
@@ -52,7 +49,7 @@ class User
     /** @var string $password Password hash/salt/algo combo */
     private $password;
 
-    /** @var string $initial The email address the (migrated) account was created with */
+    /** @var string $initial The email address the account was created with */
     private $initial;
 
 
@@ -112,11 +109,6 @@ class User
     public function getStatus() 
     {
         return $this->status;
-    } 
-
-    public function getMigrated() 
-    {
-        return $this->migrated;
     } 
 
     public function getRole() 
@@ -246,11 +238,6 @@ class User
         } 
     
         return false;
-    } 
-
-    public function setMigrated($migrated) 
-    {
-        $this->migrated = $migrated;
     } 
 
     public function setRole($role) 
@@ -550,7 +537,6 @@ class User
             `email`    = ".$db->quote($this->getEmail()).",
             `username` = ".$db->quote($this->getUsername()).",
             `status`   = ".$db->quote($this->getStatus()).",
-            `migrated` = ".$db->quote($this->getMigrated()).",
             `role`     = ".$db->quote($this->getRole()).",
             `login`    = ".$db->quote($this->getLogin()).",
             `picture`  = ".$db->quote($this->getPicture()).",
@@ -683,7 +669,8 @@ class User
         if(!is_dir($dir)) $cmd = mkdir($dir);
         if(is_dir("$dir/$token")) `rm -rf $dir/$token`;
         if(is_dir("$dir/".$this->getHandle())) shell_exec("rm -rf $dir/".$this->getHandle());
-        shell_exec("cp --recursive ".$this->container['settings']['storage']['static_path']."/users/".substr($this->getHandle(),0,1).'/'.$this->getHandle()." $dir ; mv $dir/".$this->getHandle()." $dir/$token");
+        $cmd = "cp --recursive ".$this->container['settings']['storage']['static_path']."/users/".substr($this->getHandle(),0,1).'/'.$this->getHandle()." $dir ; mv $dir/".$this->getHandle()." $dir/$token";
+        shell_exec($cmd);
 
         // Export user object
         $userData = [
@@ -694,7 +681,6 @@ class User
             'handle' => $this->getHandle(),
             'status' => $this->getStatus(),
             'created' => $this->getCreated(),
-            'migrated' => $this->getMigrated(),
             'login' => $this->getLogin(),
             'role' => $this->getRole(),
             'picture' => $this->getPicture(),
@@ -712,75 +698,83 @@ class User
         fclose($fp);
 
         // Export models
-        foreach($this->getModels() as $model) {
-            $file = "$dir/$token/models/".$model->handle.'/'.$model->handle;
-            $modelData = [
-                'id' => $model->id,
-                'user' => $model->user,
-                'name' => $model->name,
-                'handle' => $model->handle,
-                'body' => $model->body,
-                'picture' => $model->picture,
-                'data' => $model->data,
-                'units' => $model->units,
-                'created' => $model->created,
-                'migrated' => $model->migrated,
-                'shared' => $model->shared,
-                'notes' => $model->notes,
-            ];
-            // Export as JSON
-            $fp = fopen("$file.json", 'w');
-            fwrite($fp, json_encode($modelData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-            fclose($fp);
-            // Export as YAML
-            $fp = fopen("$file.yaml", 'w');
-            fwrite($fp, Yaml::dump(json_decode(json_encode($modelData),1),3));
-            fclose($fp);
+        $models = $this->getModels();
+        if(is_array($models)) {
+            foreach($models as $model) {
+                $file = "$dir/$token/models/".$model->handle.'/'.$model->handle;
+                $modelData = [
+                    'id' => $model->id,
+                    'user' => $model->user,
+                    'name' => $model->name,
+                    'handle' => $model->handle,
+                    'body' => $model->body,
+                    'picture' => $model->picture,
+                    'data' => $model->data,
+                    'units' => $model->units,
+                    'created' => $model->created,
+                    'shared' => $model->shared,
+                    'notes' => $model->notes,
+                ];
+                // Export as JSON
+                $fp = fopen("$file.json", 'w');
+                fwrite($fp, json_encode($modelData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+                fclose($fp);
+                // Export as YAML
+                $fp = fopen("$file.yaml", 'w');
+                fwrite($fp, Yaml::dump(json_decode(json_encode($modelData),1),3));
+                fclose($fp);
+            }
         }
 
         // Export drafts
-        foreach($this->getDrafts(true) as $draft) {
-            $file = "$dir/$token/drafts/".$draft->handle.'/'.$draft->handle;
-            $draftData = [
-                'id' => $draft->id,
-                'user' => $draft->user,
-                'name' => $draft->name,
-                'handle' => $draft->handle,
-                'pattern' => $draft->pattern,
-                'model' => $draft->model,
-                'data' => $draft->data,
-                'created' => $draft->created,
-                'shared' => $draft->shared,
-                'notes' => $draft->notes,
-                'svg' => $draft->svg,
-                'compared' => $draft->compared,
-            ];
-            // Export as JSON
-            $fp = fopen("$file.json", 'w');
-            fwrite($fp, json_encode($draftData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-            fclose($fp);
-            // Export as YAML
-            $fp = fopen("$file.yaml", 'w');
-            fwrite($fp, Yaml::dump(json_decode(json_encode($draftData),1),6));
-            fclose($fp);
+        $drafts = $this->getDrafts(true);
+        if(is_array($drafts)) {
+            foreach($drafts as $draft) {
+                $file = "$dir/$token/drafts/".$draft->handle.'/'.$draft->handle;
+                $draftData = [
+                    'id' => $draft->id,
+                    'user' => $draft->user,
+                    'name' => $draft->name,
+                    'handle' => $draft->handle,
+                    'pattern' => $draft->pattern,
+                    'model' => $draft->model,
+                    'data' => $draft->data,
+                    'created' => $draft->created,
+                    'shared' => $draft->shared,
+                    'notes' => $draft->notes,
+                    'svg' => $draft->svg,
+                    'compared' => $draft->compared,
+                ];
+                // Export as JSON
+                $fp = fopen("$file.json", 'w');
+                fwrite($fp, json_encode($draftData, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+                fclose($fp);
+                // Export as YAML
+                $fp = fopen("$file.yaml", 'w');
+                fwrite($fp, Yaml::dump(json_decode(json_encode($draftData),1),6));
+                fclose($fp);
+            }
         }
 
         // Export comments
-        mkdir("$dir/$token/comments");
-        foreach($this->getComments() as $comment) {
-            $file = "$dir/$token/comments/comment-".$comment->id.'.md';
-            $commentData = "---\n";
-            $commentData .= "id: ".$comment->id."\n";
-            $commentData .= "user: ".$comment->user."\n";
-            $commentData .= "page: ".$comment->page."\n";
-            $commentData .= "status: ".$comment->status."\n";
-            $commentData .= "parent: ".$comment->parent."\n";
-            $commentData .= "time: ".$comment->time."\n";
-            $commentData .= "---\n".$comment->comment;
+        $comments = $this->getComments();
+        if(is_array($comments)) {
+            mkdir("$dir/$token/comments");
+            foreach($comments as $comment) {
+                $file = "$dir/$token/comments/comment-".$comment->id.'.md';
+                $commentData = "---\n";
+                $commentData .= "id: ".$comment->id."\n";
+                $commentData .= "user: ".$comment->user."\n";
+                $commentData .= "page: ".$comment->page."\n";
+                $commentData .= "status: ".$comment->status."\n";
+                $commentData .= "parent: ".$comment->parent."\n";
+                $commentData .= "time: ".$comment->time."\n";
+                $commentData .= "---\n".$comment->comment;
 
-            $fp = fopen($file, 'w');
-            fwrite($fp, $commentData);
-            fclose($fp);
+                $fp = fopen($file, 'w');
+                fwrite($fp, $commentData);
+                fclose($fp);
+            }
         }
 
         // Zip it

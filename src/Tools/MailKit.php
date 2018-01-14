@@ -35,17 +35,14 @@ class MailKit
         // Mailgun API instance
         $mg = $this->container->get('Mailgun');
 
-        if($user->getMigrated() != null) $template= 'migrated';
-        else $template = 'default';
-
         // Send through mailgun
         $mg->messages()->send('mg.freesewing.org', [
           'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
           'to'      => $user->getEmail(), 
           'subject' => 'Confirm your freesewing account', 
           'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
-          'text'    => $this->loadTemplate("signup.$template.txt", $user),
-          'html'    => $this->loadTemplate("signup.$template.html", $user),
+          'text'    => $this->loadTemplate("signup.txt", $user),
+          'html'    => $this->loadTemplate("signup.html", $user),
         ]);
 
         // Also send through Gmail if it's a SEP domain
@@ -56,8 +53,8 @@ class MailKit
             $message = (new \Swift_Message('Confirm your freesewing account'))
                   ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
                   ->setTo($user->getEmail())
-                  ->setBody($this->loadTemplate("signup.$template.txt", $user))
-                  ->addPart($this->loadTemplate("signup.$template.sep.html", $user), 'text/html')
+                  ->setBody($this->loadTemplate("signup.txt", $user))
+                  ->addPart($this->loadTemplate("signup.sep.html", $user), 'text/html')
             ;
             $mailer->send($message);
         }

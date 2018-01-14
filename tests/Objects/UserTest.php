@@ -48,7 +48,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
             ['Login', '2018-01-08 11:15:30'],
             ['Email', 'test@freesewing.org'],
             ['Status', 'active'],
-            ['Migrated', '2018-01-07 10:30:15'],
             ['Role', 'user'],
             ['Picture', 'avatar.jpg'],
             ['PendingEmail', 'newaddress@freesewing.org'],
