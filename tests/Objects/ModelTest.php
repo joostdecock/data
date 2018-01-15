@@ -88,7 +88,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         // We need a user object to create a model
         $user = new User($this->app->getContainer());
         $email = time().'.testCreateModel@freesewing.org';
-        $now = date('Y-m-d H:i');
         $user->create($email, 'bananas');
 
         $obj->create($user);
@@ -97,7 +96,6 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getUser(), $user->getId());
         $this->assertEquals($obj->getUnits(), $user->getAccountUnits());
         $this->assertEquals($obj->getShared(), 0);
-        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
     }
     
     public function testLoadFromId()
@@ -131,10 +129,11 @@ class ModelTest extends \PHPUnit\Framework\TestCase
         $email = time().'.testModelGetMeasurements@freesewing.org';
         $user->create($email, 'bananas');
 
+        $obj->create($user);
         $obj->setMeasurement('chestCircumference', 100);
         $obj->setMeasurement('neckCircumference', 42);
+        $obj->save();
 
-        $obj->create($user);
 
         $check = new \stdClass();
         $check->chestCircumference = 100;

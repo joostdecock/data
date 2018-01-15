@@ -25,24 +25,18 @@ class ModelController
      *
      * @param $data The data to return
      */
-    private function prepResponse($response, $data)
+    private function prepResponse($response, $data, $status=200)
     {
         return $response
+            ->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
    
-    private function scrub($request, $key, $type='string')
+    private function scrub($request, $key)
     {
-        switch($type) {
-            case 'email':
-                $filter = FILTER_SANITIZE_EMAIL;
-            break;
-            default:
-                $filter = FILTER_SANITIZE_STRING;
-        }
-
+        $filter = FILTER_SANITIZE_STRING;
         if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
         else return false;
     }
@@ -62,11 +56,11 @@ class ModelController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
 
         // Get a model instance from the container and create a new model
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->create($user);
 
         // Update model with user input and save
@@ -96,11 +90,12 @@ class ModelController
     {
         // Handle request
         $in = new \stdClass();
+
+        // Measurements are stored in data argument
         if(isset($request->getParsedBody()['data']) && $request->getParsedBody()['data'] != '') {
             $in->data = json_decode($request->getParsedBody()['data']);
             $settingsUpdate = false;
         } else {
-
             $in->data = null;
             $in->name = $this->scrub($request,'name');
             $in->picture = $this->scrub($request,'picture');
@@ -110,9 +105,9 @@ class ModelController
             ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
             $settingsUpdate = true;
         }
+
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
      
-        
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
         
@@ -120,11 +115,11 @@ class ModelController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
 
         // Get a model instance from the container and load its data
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->handle);
         
         // Verify this user owns this model
@@ -134,43 +129,28 @@ class ModelController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ]);
+            ], 400);
         }
         
-        if($settingsUpdate) {
-            // Handle picture
+        if($settingsUpdate) { // Updating settings
+
             if($in->picture && $in->picture != $model->getPicture()) {
-                // Get the AvatarKit to create the avatar
                 $avatarKit = $this->container->get('AvatarKit');
                 $model->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle(), 'model', $model->getHandle()));
             }
-
-            // Handle name change
             if($in->name && $model->getName() != $in->name) $model->setName($in->name);
-
-            // Handle units
             if($model->getUnits() != $in->units) $model->setUnits($in->units);
-
-            // Handle body
             if($model->getBody() != $in->body) $model->setBody($in->body);
-
-            // Handle shared
             if($model->getShared() != $in->shared) $model->setShared($in->shared);
-
-            // Handle notes
             if($in->notes && $model->getNotes() != $in->notes) $model->setNotes($in->notes);
-        } else {
-            // Handle data
-            if($in->data) {
-                if($model->getData() != $in->data) {
-                    if($model->getUnits() == 'imperial') {
-                        // Need to deal with imperial fractions in measurements
-                        $unitsKit = $this->container->get('UnitsKit');
-                        foreach($in->data->measurements as $key => $val) {
-                            $in->data->measurements->$key =  $unitsKit->asFloat($val);
-                        }
-                    }
-                    $model->setData($in->data);
+
+        } else { // Updating measurements
+            
+            if(is_object($in->data) && $model->getData() != $in->data) {
+                $unitsKit = $this->container->get('UnitsKit');
+                foreach($in->data->measurements as $measurement => $value) {
+                    if($model->getUnits() == 'imperial') $value = $unitsKit->asFloat($value); // Handle imperial
+                    $model->setMeasurement($measurement, $value);
                 }
             }
         }
@@ -203,21 +183,22 @@ class ModelController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Get a model instance from the container and load its data
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->handle);
-        
         // Verify this user owns this model
         if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user
+            $logger = $this->container->get('logger');
             $logger->info("Model load blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+            
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ]);
+            ], 400);
         }
 
         // Get the AvatarKit to get the avatar location
@@ -256,21 +237,22 @@ class ModelController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Get a model instance from the container and load its data
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->handle);
         
         // Verify this user owns this model
         if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user
+            $logger = $this->container->get('logger');
             $logger->info("Model clone blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ]);
+            ], 400);
         }
 
         // Get a model instance from the container and create a new model
@@ -327,23 +309,24 @@ class ModelController
         $id = $request->getAttribute("jwt")->user;
         
         // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         $dir = $user->export('test');
 
         // Get a model instance from the container and load its data
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->handle);
         
         // Verify this user owns this model
         if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user
+            $logger = $this->container->get('logger');
             $logger->info("Model export blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ]);
+            ], 400);
         }
 
         // Export model data to disk
@@ -369,23 +352,21 @@ class ModelController
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
         
         // Get a user instance from the container and load user data
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
         // Get a model instance from the container and load model data
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->handle);
-
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
 
         // Does this model belong to the user?
         if($model->getUser() != $id) {
+            $logger = $this->container->get('logger');
             $logger->info("Access blocked: Attempt to remove model ".$model->getId()." by user: ".$user->getId());
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_model', 
-            ]);
+            ], 400);
         }
         
         $model->remove($user);

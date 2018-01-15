@@ -56,7 +56,7 @@ class Draft
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
-        $this->data = $this->container->get('JsonStore');
+        $this->data = clone $this->container->get('JsonStore');
     }
 
     // Getters

@@ -320,11 +320,11 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getModel(), $model->getId());
         $this->assertEquals($obj->getName(), 'Draft '.$obj->getHandle());
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
-        $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 6);
+        $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 16);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
         $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
         $this->assertEquals($obj->getId(), $id);
-        $this->assertEquals(floor($obj->getMeasurement('centerbackneckToWaist')), 8);
+        $this->assertEquals(floor($obj->getMeasurement('centerbackneckToWaist')), 20);
     }
 
     public function testRemove()

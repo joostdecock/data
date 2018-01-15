@@ -22,7 +22,7 @@ class AuthenticatedTest extends \PHPUnit\Framework\TestCase
     {
         $session = new \stdClass();
 
-        $session->user = new User($this->app->getContainer());
+        $session->user = clone $this->app->getContainer()->get('User');
         
         $email = $rand.time().debug_backtrace()[1]['function'].'.UserController@freesewing.org';
         $session->user->create($email, 'bananas');
