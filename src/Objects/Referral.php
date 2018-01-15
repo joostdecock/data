@@ -153,24 +153,37 @@ class Referral
     public function group()
     {
         $groups =  $this->container['settings']['referrals'];
+        $matched = false;
         foreach($groups as $gid => $group) {
             if (isset($group['host'])) {
-                if(stripos($this->getHost(),$group['host']) !== FALSE) $this->setSite($gid); 
+                if(stripos($this->getHost(),$group['host']) !== FALSE) {
+                    $this->setSite($gid); 
+                    $matched = true;
+                }
             } elseif (isset($group['hosts'])) {
                 foreach($group['hosts'] as $host) {
-                    if(stripos($this->getHost(),$host) !== FALSE)  $this->setSite($gid); 
+                    if(stripos($this->getHost(),$host) !== FALSE)  {
+                        $this->setSite($gid); 
+                        $matched = true;
+                    }
                 }
             }
             if (isset($group['url'])) {
-                if(stripos($this->getUrl(),$group['url']) !== FALSE)  $this->setSite($gid); 
+                if(stripos($this->getUrl(),$group['url']) !== FALSE)  {
+                    $this->setSite($gid); 
+                    $matched = true;
+                }
             } elseif (isset($group['urls'])) {
                 foreach($group['urls'] as $url) {
-                    if(stripos($this->getUrl(),$url) !== FALSE) $this->setSite($gid); 
+                    if(stripos($this->getUrl(),$url) !== FALSE) {
+                        $this->setSite($gid); 
+                        $matched = true;
+                    }
                 }
             }
 
         }
         
-        return true; 
+        return $matched; 
     }
 }
