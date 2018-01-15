@@ -67,6 +67,16 @@ class TestApp extends App
         return $this->process($request, new Response());
     }
 
+    public function nukeDb()
+    {
+        $db = $this->getContainer()->get('db');
+        
+        $sql = file_get_contents(__DIR__.'/sql/teardown.sql'); 
+        $db->query($sql);
+        $sql = file_get_contents(__DIR__.'/sql/setup.sql'); 
+        $db->query($sql);
+    }
+
     public function mockMailgun()
     {
         // Create a Mailgun stub

@@ -347,4 +347,36 @@ class AdminTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($json->reason, 'access_denied');
     }
     
+    public function testFind()
+    {
+        $session = $this->getSession();
+
+        $data = [ 'filter' => '@' ];
+
+        $response = $this->app->call('GET','/admin/find/users/@', null, $session->token);
+        $json = json_decode((string)$response->getBody());
+        $user = $json->users->{$session->user->getHandle()};
+        
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertTrue(is_object($json->users));
+        $this->assertEquals($json->filter, '@');
+        $this->assertEquals($user->email, $session->user->getEmail());
+        $this->assertEquals($user->userhandle, $session->user->getHandle());
+    }
+    
+    public function testFindNonAdmin()
+    {
+        $session = $this->getSession();
+        $session->user->setRole('user');
+        $session->user->save();
+
+        $data = [ 'filter' => '@' ];
+
+        $response = $this->app->call('GET','/admin/find/users/@', null, $session->token);
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'access_denied');
+    }
 }

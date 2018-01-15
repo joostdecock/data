@@ -496,6 +496,54 @@ class UserController
         ]);
     }
 
+    /** Patron list */
+    public function patronList($request, $response, $args) 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"tier\":%' LIMIT 100";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $tiers = $this->container['settings']['patrons']['tiers'];
+        if(!$result) {
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_patrons', 
+            ], 400);
+        } else {
+            // Cycle through users
+            foreach($result as $id) {
+                // Load account
+                $user = clone $this->container->get('User');
+                $user->loadFromId($id['id']);
+                if($user->getStatus() === 'active' && in_array($user->getPatronTier(), $tiers)) {
+                    $patron = new \stdClass();
+                    $patron->username = $user->getUsername();
+                    $patron->handle = $user->getHandle();
+                    $patron->tier = $user->getPatronTier();
+                    $patron->picture = $user->getPictureUrl();
+                    $patron->badges = $user->getBadges();
+                    $patron->social = $user->getSocial();
+                    $timestamp = $user->getPatronSince();
+                    if($timestamp === false) $timestamp = time();
+                    $patron->since = $timestamp;
+                    while(isset($patrons[$timestamp])) $timestamp++;
+                    $patrons[$timestamp] = $patron;
+                    $keys[] = $timestamp;
+                } else {
+                    echo "\nUser ".$user->getId()." is not a patron";
+                }
+            }
+        } 
+
+        // Newest patrons at the top
+        rsort($keys);
+        foreach($keys as $t) $sorted[] = $patrons[$t];
+    
+        return $this->prepResponse($response, [
+            'result' => 'ok', 
+            'patrons' => $sorted, 
+        ]);
+    } 
+
     // Authenticated calls
    
     /** Minimal auth check */
@@ -1132,7 +1180,7 @@ class UserController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'access_denied', 
-                ]);
+                ], 400);
         }
 
         $db = $this->container->get('db');
@@ -1168,49 +1216,4 @@ class UserController
 
         return $this->prepResponse($response, [ 'users' => $users, 'filter' => $filter ]);
     }
-
-
-
-    /** Patron list */
-    public function patronList($request, $response, $args) 
-    {
-        $db = $this->container->get('db');
-        $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"patron\":%'";
-        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
-        $tiers = $this->container['settings']['patrons']['tiers'];
-        if(!$result) return false;
-        else {
-            $patrons = array();
-            // Cycle through users
-            foreach($result as $id) {
-                // Load account
-                $user = clone $this->container->get('User');
-                $user->loadFromId($id['id']);
-                if($user->getStatus() === 'active' && in_array($user->getPatronTier(), $tiers)) {
-                    $patron = new \stdClass();
-                    $patron->username = $user->getUsername();
-                    $patron->handle = $user->getHandle();
-                    $patron->tier = $user->getPatronTier();
-                    $patron->picture = $user->getPictureUrl();
-                    $patron->badges = $user->getBadges();
-                    $patron->social = $user->getSocial();
-                    $timestamp = $user->getPatronSince();
-                    $patron->since = $timestamp;
-                    while(isset($patrons[$timestamp])) $timestamp++;
-                    $patrons[$timestamp] = $patron;
-                    $keys[] = $timestamp;
-                }
-            }
-        } 
-
-        // Newest patrons at the top
-        rsort($keys);
-        foreach($keys as $t) $sorted[] = $patrons[$t];
-    
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'patrons' => $sorted, 
-        ]);
-    } 
-
 }

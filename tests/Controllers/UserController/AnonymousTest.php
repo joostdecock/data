@@ -563,4 +563,40 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($json->reason, 'recover_failed');
         $this->assertEquals($json->message, 'recover/failed');
     }
+    
+    public function testPatronList()
+    {
+        // Make sure there's at least 1 patron
+        $obj = new User($this->app->getContainer());
+        
+        $email = time().'.testPatronList@freesewing.org';
+        $obj->create($email, 'bananas');
+        $obj->setPatronTier(8);
+        $obj->setStatus('active');
+        $obj->save();
+        $response = $this->app->call('GET','/patrons/list', null);
+
+        $json = json_decode((string)$response->getBody());
+        $patron = array_pop($json->patrons);
+        $obj->loadFromHandle($patron->handle);
+
+        $this->assertEquals($response->getStatusCode(), 200);
+        $this->assertTrue(is_array($json->patrons));
+        $this->assertEquals($patron->tier, $obj->getPatronTier());
+        $this->assertEquals($patron->username, $obj->getUsername());
+    }
+
+    public function testPatronListNoResults()
+    {
+        // Make sure there's no patrons
+        $this->app->nukeDb();
+        
+        $response = $this->app->call('GET','/patrons/list', null);
+
+        $json = json_decode((string)$response->getBody());
+
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'no_patrons');
+    }
 }
