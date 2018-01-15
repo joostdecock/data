@@ -114,7 +114,11 @@ class InfoController
         $swap = $this->asScrubbedArray(rtrim(shell_exec("free -m | grep Swap")));
         $status['system']['swap']['used'] = $swap[2];
         $status['system']['swap']['free'] = $swap[3];
-        $status['system']['cpu'] = 100 - array_pop(explode('  ',rtrim(shell_exec("mpstat 1 1 | tail -n 2 | head -n 1"))));
+        $stats = rtrim(shell_exec("mpstat 1 1 | tail -n 2 | head -n 1"));
+        $stats = explode('  ',strrev($stats));
+        $idle = strrev(array_shift($stats));
+        $status['system']['cpu'] = 100 - $idle;
+
         $status['system']['uptime'] = rtrim(substr(shell_exec("uptime -p"), 3));
         $status['data']['users'] = $this->countUsers(); 
         $status['data']['drafts'] = $this->countDrafts(); 
@@ -140,17 +144,15 @@ class InfoController
 
     private static function asScrubbedArray($data, $separator = ' ')
     {
+        $return = false;
         $array = explode($separator, $data);
         foreach ($array as $value) {
             if (rtrim($value) != '') {
                 $return[] = rtrim($value);
             }
         }
-        if (isset($return)) {
-            return $return;
-        } else {
-            return false;
-        }
+
+        return $return;
     }
 
     private function countUsers()

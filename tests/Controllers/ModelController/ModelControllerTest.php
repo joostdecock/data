@@ -8,7 +8,6 @@ use Slim\Http\Environment;
 use Freesewing\Data\Tests\TestApp;
 use Freesewing\Data\Objects\Model;
 use Freesewing\Data\Objects\User;
-use Freesewing\Data\Tools\AvatarKit;
 
 class ModelControllerTest extends \PHPUnit\Framework\TestCase
 {
