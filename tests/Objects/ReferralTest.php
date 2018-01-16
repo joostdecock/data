@@ -17,7 +17,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
     {
         $obj = new Referral($this->app->getContainer());
 
-        $host = 'test.freesewing.org';
+        $host = 'yadayada.org';
         $path = '/foo/bar';
         $url = "https://$host/$path";
 
@@ -39,7 +39,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
     {
         $obj = new Referral($this->app->getContainer());
 
-        $host = 'test.freesewing.org';
+        $host = 'freesewing.org';
         $path = '/foo/bar';
         $url = "https://$host/$path";
 

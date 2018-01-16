@@ -7,11 +7,25 @@ use Slim\Http\Response;
 use Slim\Http\Environment;
 use Freesewing\Data\Tests\TestApp;
 use Symfony\Component\Yaml\Yaml;
+use Freesewing\Data\Objects\Referral;
 
 class InfoControllerTest extends \PHPUnit\Framework\TestCase
 {
     protected function setup() {
         if(!isset($this->app)) $this->app = new TestApp();
+
+        // Make sure we have a referral to group, 
+        // or we won't reach some of the code in our test
+        $obj = new Referral($this->app->getContainer());
+
+        $host = 'freesewing.org';
+        $path = '/foo/bar';
+        $url = "https://$host/$path";
+
+        $id = $obj->create($host, $path, $url);
+        $obj->load($id);
+        $obj->group();
+        $obj->save();
     }
 
     public function testAsYaml()

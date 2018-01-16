@@ -25,9 +25,10 @@ class CommentController
      *
      * @param $data The data to return
      */
-    private function prepResponse($response, $data)
+    private function prepResponse($response, $data, $status=200)
     {
         return $response
+            ->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
@@ -102,7 +103,6 @@ class CommentController
             'result' => 'ok', 
             'message' => 'comment/created',
             'id' => $comment->getId(),
-            'handle' => $handle,
         ]);
     }
 
@@ -162,7 +162,7 @@ class CommentController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_comment', 
-            ]);
+            ], 400);
         }
         
         $comment->remove();
@@ -265,11 +265,6 @@ class CommentController
         } 
 
         return $comments;
-    }
-
-    private function loadUserComments($user)
-    {
-        return $this->loadComments('user', $user);
     }
 
     private function loadComments($key, $val)
