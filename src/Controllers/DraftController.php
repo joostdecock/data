@@ -25,9 +25,10 @@ class DraftController
      *
      * @param $data The data to return
      */
-    private function prepResponse($response, $data)
+    private function prepResponse($response, $data, $status=200)
     {
         return $response
+            ->withStatus($status)
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "application/json")
             ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
@@ -35,14 +36,8 @@ class DraftController
    
     private function scrub($request, $key, $type='string')
     {
-        switch($type) {
-            case 'email':
-                $filter = FILTER_SANITIZE_EMAIL;
-            break;
-            default:
-                $filter = FILTER_SANITIZE_STRING;
-        }
-
+        $filter = FILTER_SANITIZE_STRING;
+        
         if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
         else return false;
     }
@@ -63,22 +58,22 @@ class DraftController
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
-        $user = $this->container->get('User');
+        $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
 
         // Get a model instance from the container and load the model
-        $model = $this->container->get('Model');
+        $model = clone $this->container->get('Model');
         $model->loadFromHandle($in->model);
-
-        if($model->getUser() != $user->getId() && !$model->getShared()) {
+        
+        if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user, and not shared either
             $logger->info("Draft blocked: User ".$user->getId()." can not generate a draft for model ".$in->model);
             return $this->prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'model_not_yours_nor_shared', 
-            ]);
+                'reason' => 'model_not_yours', 
+            ], 400);
         }
-
+         
         // Get a draft instance from the container and create the draft
         $draft = $this->container->get('Draft');
         if($recreate) {
@@ -88,8 +83,12 @@ class DraftController
             $draft->create($request->getParsedBody(), $user, $model);
             $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
             // Add badge if needed
-            if($in->fork) if($user->addBadge('fork')) $user->save();
-            else if($user->addBadge('draft')) $user->save();
+            if($in->fork !== false) {
+                if($user->addBadge('fork')) $user->save();
+            } else {
+                if($user->addBadge('draft')) $user->save();
+            
+            }
         }
         
         return $this->prepResponse($response, [
@@ -115,11 +114,11 @@ class DraftController
         if ($draft->getUser() != $in->id) {
             // Get a logger instance from the container
             $logger = $this->container->get('logger');
-            $logger->info("Draft recreation blocked: User ".$user->getId()." does not own draft ".$in->handle);
+            $logger->info("Draft recreation blocked: User ".$in->id." does not own draft ".$in->handle);
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
-            ]);
+            ], 400);
         }
 
         return $this->create($request, $response, $args, true); 
@@ -152,7 +151,7 @@ class DraftController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours_and_not_shared', 
-            ]);
+            ], 400);
         }
         
         // Get a user instance from the container and load its data
@@ -207,65 +206,6 @@ class DraftController
         ]);
     } 
 
-    /** Load a shared draft */
-    public function loadShared($request, $response, $args) 
-    {
-        // Request data
-        $in = new \stdClass();
-        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a draft instance from the container and load its data
-        $draft = $this->container->get('Draft');
-        $draft->loadFromHandle($in->handle);
-        
-        if(!$draft->getShared()) {
-            // Not a shared draft
-            $logger->info("Load blocked: ".$in->handle." is not a shared draft");
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'draft_not_shared', 
-            ]);
-        }
-        
-        // Get a model instance from the container and load its data
-        $model = $this->container->get('Model');
-        $model->loadFromId($draft->getModel());
-        
-        // Get a user instance from the container and load its data
-        $user = $this->container->get('User');
-        $user->loadFromId($draft->getUser());
-        
-        // Add caching token based on draft data
-        $optionData = $draft->getData();
-        $cacheToken = sha1(serialize($optionData));
-        
-        return $this->prepResponse($response, [
-            'draft' => [
-                'id' => $draft->getId(), 
-                'user' => $draft->getUser(), 
-                'userHandle' => $user->getHandle(), 
-                'pattern' => $draft->getPattern(), 
-                'model' => [
-                    'body' => $model->getBody(), 
-                    'units' => $model->getUnits(), 
-                ],
-                'name' => $draft->getName(), 
-                'handle' => $draft->getHandle(), 
-                'svg' => $draft->getSvg(), 
-                'compared' => $draft->getCompared(), 
-                'data' => $optionData,
-                'cache' => $cacheToken, 
-                'created' => $draft->getCreated(), 
-                'shared' => $draft->getShared(), 
-                'notes' => $draft->getNotes(), 
-                'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
-            ]
-        ]);
-    } 
-
     /** Update draft */
     public function update($request, $response, $args) 
     {
@@ -293,7 +233,7 @@ class DraftController
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
-            ]);
+            ], 400);
         }
         
         // Get a user instance from the container
@@ -337,16 +277,14 @@ class DraftController
         $draft = $this->container->get('Draft');
         $draft->loadFromHandle($in->handle);
 
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-
         // Does this draft belong to the user?
         if($draft->getUser() != $id) {
+            $logger = $this->container->get('logger');
             $logger->info("Access blocked: Attempt to remove draft ".$draft->getId()." by user: ".$user->getId());
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_draft', 
-            ]);
+            ], 400);
         }
         
         $draft->remove($user);
