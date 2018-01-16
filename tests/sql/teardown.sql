@@ -3,3 +3,4 @@ DROP TABLE IF EXISTS `drafts` ;
 DROP TABLE IF EXISTS `models`;
 DROP TABLE IF EXISTS `referrals`;
 DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `errors`;

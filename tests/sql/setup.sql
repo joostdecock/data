@@ -65,6 +65,22 @@ CREATE TABLE `users` (
   `pepper` varchar(64) NOT NULL COMMENT 'Random string used for reset tokens and such'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Holds user data';
 
+CREATE TABLE `errors` (
+  `id` int(5) NOT NULL,
+  `type` enum('php-error','php-exception') NOT NULL,
+  `level` int(4) NOT NULL,
+  `message` varchar(510) NOT NULL,
+  `file` varchar(255) NOT NULL,
+  `line` int(4) NOT NULL,
+  `origin` varchar(128) NOT NULL,
+  `user` varchar(5) DEFAULT NULL,
+  `ip` varchar(16) DEFAULT NULL,
+  `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('new','open','muted','closed') NOT NULL DEFAULT 'new',
+  `hash` varchar(40) NOT NULL,
+  `raw` mediumtext
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 ALTER TABLE `comments` ADD PRIMARY KEY (`id`);
 
 ALTER TABLE `drafts`
@@ -89,7 +105,14 @@ ALTER TABLE `users`
 ALTER TABLE `comments`
   MODIFY `id` smallint(6) NOT NULL AUTO_INCREMENT;
 
+ALTER TABLE `errors`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `hash` (`hash`),
+  ADD KEY `status` (`status`),
+  ADD KEY `origin` (`origin`);
+
 ALTER TABLE `drafts` MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `models` MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `referrals` MODIFY `id` int(6) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `users` MODIFY `id` int(5) NOT NULL AUTO_INCREMENT COMMENT 'user id';
+ALTER TABLE `errors` MODIFY `id` int(5) NOT NULL AUTO_INCREMENT;
