@@ -1,5 +1,5 @@
 vendor/
 logs/
-coverage/
+./coverage
 public/static/users
 public/static/export
