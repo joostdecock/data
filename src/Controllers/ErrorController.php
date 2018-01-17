@@ -45,12 +45,19 @@ class ErrorController
     {
         // Handle request
         $in = new \stdClass();
+        $in->type = $this->scrub($request,'type');
         $in->level = $this->scrub($request,'level');
         $in->message = $this->scrub($request,'message');
+        $in->origin = $this->scrub($request,'origin');
+        if($this->hasRequiredInput($in) === false) {
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'missing_input',
+            ], 400);
+        }
+        
         $in->file = $this->scrub($request,'file');
         $in->line = $this->scrub($request,'line');
-        $in->origin = $this->scrub($request,'origin');
-        $in->type = $this->scrub($request,'type');
         $in->user = $this->scrub($request,'user');
         $in->raw = $this->scrub($request,'raw');
 
@@ -80,6 +87,20 @@ class ErrorController
                 'reason' => 'error_is_familiar',
             ]);
 
+        }
+    }
+
+    private function hasRequiredInput($obj)
+    {
+        if(
+            isset($obj->type)    && $obj->type    !== false &&
+            isset($obj->level)   && $obj->level   !== false &&
+            isset($obj->message) && $obj->message !== false &&
+            isset($obj->origin)  && $obj->origin  !== false
+        ) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

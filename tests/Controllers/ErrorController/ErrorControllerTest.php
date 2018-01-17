@@ -31,6 +31,8 @@ class ErrorControllerTest extends \PHPUnit\Framework\TestCase
     {
         $data = $this->errorData;
         $data['message'] = time();
+        // Throw in a different parameter for good measure
+        $data['break'] = "Please don't";
 
         $response = $this->app->call('POST','/error', $data);
         $json = json_decode((string)$response->getBody());
@@ -46,6 +48,16 @@ class ErrorControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($response->getStatusCode(), 200);
         $this->assertEquals($json->result, 'ignored');
         $this->assertEquals($json->reason, 'error_is_familiar');
+    }
+
+    public function testLogIncomplete()
+    {
+        $response = $this->app->call('POST','/error');
+        $json = json_decode((string)$response->getBody());
+        
+        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($json->result, 'error');
+        $this->assertEquals($json->reason, 'missing_input');
     }
 
     private function logError()
