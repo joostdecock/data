@@ -25,8 +25,8 @@ $app->get('/referrals/group', 'ReferralController:group');
 /* Anonymous routes */
 /********************/
 
-// debug route - here for when you need it
-$app->get('/debug', 'UserController:debug');
+// log error
+$app->post('/error', 'ErrorController:log');
 
 // Preflight requests 
 $app->options('/[{path:.*}]', function($request, $response, $path = null) {

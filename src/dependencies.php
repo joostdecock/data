@@ -87,6 +87,10 @@ $container['ToolsController'] = function ($container) {
     return new \Freesewing\Data\Controllers\ToolsController($container);
 };
 
+$container['ErrorController'] = function ($container) {
+    return new \Freesewing\Data\Controllers\ErrorController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \Freesewing\Data\Tools\HandleKit($container);
 };
@@ -129,4 +133,8 @@ $container['Comment'] = function ($container) {
 
 $container['JsonStore'] = function ($container) {
     return new \Freesewing\Data\Objects\JsonStore($container);
+};
+
+$container['Error'] = function ($container) {
+    return new \Freesewing\Data\Objects\Error($container);
 };

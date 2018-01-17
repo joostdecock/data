@@ -107,7 +107,6 @@ class InfoController
     /** Status info */
     public function status($request, $response, $args) 
     {
-
         $memory = $this->asScrubbedArray(rtrim(shell_exec("free -m | grep Mem")));
         $status['system']['memory']['used'] = $memory[2];
         $status['system']['memory']['free'] = $memory[3];

@@ -292,7 +292,6 @@ class Error
         return $db->exec($sql);
     }
     
-
     /** Remove an error */
     public function remove() 
     {
@@ -300,50 +299,4 @@ class Error
         $sql = "DELETE from `errors` WHERE `id` = ".$db->quote($this->getId()).";";
         return $db->exec($sql);
     }
-    
-    /** Log an error */
-    public function log($data) 
-    {
-        if($data['type'] == 'php-error') $this->logPhpError($data);
-        else if($data['type'] == 'php-exception') $this->logPhpException($data);
-        else $this->logUnknownError($data);
-    }
-
-    /** Log a PHP error */
-    private function logPhpError($data)
-    {
-        // Grab error details
-        ob_start();
-        var_dump(error_get_last());
-        $raw = ob_get_clean();
-
-        $this->setLevel($data['level']);
-        $this->setType('php-error');
-        $this->setMessage($data['message']);
-        $this->setFile($data['file']);
-        $this->setLine($data['line']);
-        $this->setOrigin(getenv('SITE'));
-        $this->setRaw($raw);
-        $this->create();
-    }
-
-    /** Log a PHP exception */
-    public function logPhpException($data)
-    {
-
-    }
-
-    /** Log an unknown error */
-    public function logUnknownError($data)
-    {
-
-    }
-
-    public function abort()
-    {
-        http_response_code(500);
-        header('Content-Type: text/html');
-        die(file_get_contents(dirname(__DIR__).'/../templates/error.html'));
-    }
-
 }

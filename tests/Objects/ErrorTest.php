@@ -164,11 +164,4 @@ class ErrorTest extends \PHPUnit\Framework\TestCase
         $obj->remove();
         $this->assertFalse($obj->load($id));
     }
-    
-    public function estLog()
-    {
-        // Not entirely certain how one tests an error handler
-        // without triggering an error
-        freesewingErrorHandler(8, 'test error', 'ErrorTest.php', 172);
-    }
 }
