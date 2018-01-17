@@ -46,30 +46,40 @@ class ErrorController
         // Handle request
         $in = new \stdClass();
         $in->level = $this->scrub($request,'level');
-        $in->type = $this->scrub($request,'type');
         $in->message = $this->scrub($request,'message');
         $in->file = $this->scrub($request,'file');
         $in->line = $this->scrub($request,'line');
         $in->origin = $this->scrub($request,'origin');
+        $in->type = $this->scrub($request,'type');
         $in->user = $this->scrub($request,'user');
         $in->raw = $this->scrub($request,'raw');
 
         // Get an error instance from the container
         $error = $this->container->get('Error');
         $error->setLevel($in->level);
-        $error->setType($in->type);
         $error->setMessage($in->message);
         $error->setFile($in->file);
         $error->setLine($in->line);
         $error->setOrigin($in->origin);
-        $error->setUser($in->user);
-        if(isset($_SERVER['REMOTE_ADDR'])) $error->setIp($_SERVER['REMOTE_ADDR']);
-        $error->setRaw($in->raw);
-        $id = $error->create();
-        return $this->prepResponse($response, [
-            'result' => 'ok', 
-            'id' => $id,
-        ]);
-    }
 
+        // That's all we need for a hash. Is this a familiar error?
+        if($error->isFamiliar() === false) {
+            $error->setUser($in->user);
+            $error->setType($in->type);
+            if(isset($_SERVER['REMOTE_ADDR'])) $error->setIp($_SERVER['REMOTE_ADDR']);
+            $error->setRaw($in->raw);
+            $id = $error->create();
+            
+            return $this->prepResponse($response, [
+                'result' => 'ok', 
+                'id' => $id,
+            ]);
+        } else {
+            return $this->prepResponse($response, [
+                'result' => 'ignored', 
+                'reason' => 'error_is_familiar',
+            ]);
+
+        }
+    }
 }

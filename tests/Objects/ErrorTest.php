@@ -105,6 +105,7 @@ class ErrorTest extends \PHPUnit\Framework\TestCase
 
         $obj->load($id);
 
+        $hash = sha1($this->errorData['level'].$this->errorData['message'].$this->errorData['file'].$this->errorData['line'].$this->errorData['origin']);
         $this->assertEquals($obj->getId(),$id);
         $this->assertEquals($obj->getLevel(),$this->errorData['level']);
         $this->assertEquals($obj->getType(),$this->errorData['type']);
@@ -115,7 +116,7 @@ class ErrorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getUser(),$this->errorData['user']);
         $this->assertEquals($obj->getIp(),$this->errorData['ip']);
         $this->assertEquals($obj->getStatus(),'new');
-        $this->assertEquals($obj->getHash(),sha1($this->errorData['message']));
+        $this->assertEquals($obj->getHash(),$hash);
         $this->assertEquals($obj->getRaw(),$this->errorData['raw']);
         $this->assertTrue(is_string($obj->getTime()));
 
@@ -147,6 +148,7 @@ class ErrorTest extends \PHPUnit\Framework\TestCase
         $obj->setRaw($this->errorData['raw']);
         $obj->save();
 
+        $hash = sha1($this->errorData['level'].$this->errorData['message'].$this->errorData['file'].$this->errorData['line'].$this->errorData['origin']);
         $this->assertEquals($obj->getId(),$id);
         $this->assertEquals($obj->getLevel(),$this->errorData['level']);
         $this->assertEquals($obj->getType(),$this->errorData['type']);
@@ -157,11 +159,51 @@ class ErrorTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getUser(),$this->errorData['user']);
         $this->assertEquals($obj->getIp(),$this->errorData['ip']);
         $this->assertEquals($obj->getStatus(),$this->errorData['status']);
-        $this->assertEquals($obj->getHash(),sha1($this->errorData['message']));
+        $this->assertEquals($obj->getHash(),$hash);
         $this->assertEquals($obj->getRaw(),$this->errorData['raw']);
         $this->assertTrue(is_string($obj->getTime()));
     
         $obj->remove();
         $this->assertFalse($obj->load($id));
+    }
+    
+    public function testIsFamiliar()
+    {
+        $obj = new Error($this->app->getContainer());
+
+        $id = $obj->create();
+        $obj->load($id);
+        
+        $obj->setLevel($this->errorData['level']);
+        $obj->setType($this->errorData['type']);
+        $obj->setMessage($this->errorData['message']);
+        $obj->setFile($this->errorData['file']);
+        $obj->setLine($this->errorData['line']);
+        $obj->setOrigin($this->errorData['origin']);
+        $obj->setUser($this->errorData['user']);
+        $obj->setIp($this->errorData['ip']);
+        $obj->setStatus($this->errorData['status']);
+        $obj->hash();
+        $obj->setRaw($this->errorData['raw']);
+        $obj->save();
+
+        $this->assertFalse($obj->isFamiliar());
+
+        for($i=0;$i<30;$i++) $this->logError();
+        $this->assertTrue($obj->isFamiliar());
+    }
+
+    private function logError()
+    {
+        $obj = new Error($this->app->getContainer());
+        $obj->setLevel($this->errorData['level']);
+        $obj->setType($this->errorData['type']);
+        $obj->setMessage($this->errorData['message']);
+        $obj->setFile($this->errorData['file']);
+        $obj->setLine($this->errorData['line']);
+        $obj->setOrigin($this->errorData['origin']);
+        $obj->setUser($this->errorData['user']);
+
+        $id = $obj->create();
     }
 }

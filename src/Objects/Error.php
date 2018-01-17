@@ -200,7 +200,7 @@ class Error
     // Set hash
     public function hash() 
     {
-        $this->hash = sha1($this->message);
+        $this->hash = sha1($this->level.$this->message.$this->file.$this->line.$this->origin);
     } 
     
     /**
@@ -299,4 +299,42 @@ class Error
         $sql = "DELETE from `errors` WHERE `id` = ".$db->quote($this->getId()).";";
         return $db->exec($sql);
     }
+
+    /** 
+     * Determine whether an error is 'familiar'
+     *
+     * This method stops logging of the same errors when 
+     * they happen too frequently.
+     *
+     * Specifically: max 30 entries over the last 30 minutes 
+     */
+    public function isFamiliar()
+    {
+        if($this->hash === null) $this->hash();
+        if($this->countRecentPerHash($this->hash) >= 30) return true;
+        else return false;
+    }
+
+    /**
+     * Returns the number of recent entries of the same error hash
+     *
+     * @param string $hash The error hash to count
+     * @param int $minutes The number of minutes to look back
+     *
+     * @return in $count The number of counted errors
+     */
+    private function countRecentPerHash($hash, $minutes=30) 
+    {
+        $db = $this->container->get('db');
+
+        $sql = "SELECT COUNT(`id`) as 'count' FROM `errors` WHERE 
+            `hash` = ".$db->quote($hash)." 
+            AND `time` > NOW() - INTERVAL 30 MINUTE;";
+
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+
+        if(!$result) return 0;
+        else return $result->count;
+    }
+
 }
