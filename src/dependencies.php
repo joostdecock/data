@@ -138,3 +138,11 @@ $container['JsonStore'] = function ($container) {
 $container['Error'] = function ($container) {
     return new \Freesewing\Data\Objects\Error($container);
 };
+
+$container['errorHandler'] = function ($container) {
+    return new \Freesewing\Bail\ErrorHandler();
+};
+
+$container['phpErrorHandler'] = function ($container) {
+    return new \Freesewing\Bail\ErrorHandler();
+};

@@ -67,7 +67,7 @@ CREATE TABLE `users` (
 
 CREATE TABLE `errors` (
   `id` int(5) NOT NULL,
-  `type` enum('php-error','php-exception') NOT NULL,
+  `type` enum('php-error','php-exception', 'js-error') NOT NULL,
   `level` int(4) NOT NULL,
   `message` varchar(510) NOT NULL,
   `file` varchar(255) NOT NULL,
