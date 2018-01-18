@@ -7,7 +7,8 @@ use Freesewing\Bail\ErrorHandler;
 if($settings['settings']['bail']['enable'] === true) {
     ErrorHandler::init(
         $settings['settings']['bail']['api'],
-        $settings['settings']['bail']['origin']
+        $settings['settings']['bail']['origin'],
+        __DIR__.'/../templates/error.html'
     );
 }
     
