@@ -216,6 +216,7 @@ class Error
         // Store in database
         $db = $this->container->get('db');
         $sql = "INSERT into `errors`(
+            `type`,
             `level`,
             `message`,
             `file`,
@@ -228,6 +229,7 @@ class Error
             `hash`,
             `raw`
              ) VALUES (
+            ".$db->quote($this->getType()).",
             ".$db->quote($this->getLevel()).",
             ".$db->quote($this->getMessage()).",
             ".$db->quote($this->getFile()).",
