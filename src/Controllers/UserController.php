@@ -566,6 +566,7 @@ class UserController
             'email' => $user->getEmail(), 
             'user' => $user->getUsername(), 
             'patron' => $patron, 
+            'role' => $user->getRole(), 
         ];
 
         // Add badge if needed

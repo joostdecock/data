@@ -33,6 +33,8 @@ return [
                 '/debug', 
                 '/patrons/list',
                 '/error',
+                '/errors',
+                '/errors/all',
             ],
             'attribute' => 'jwt',
             'secret' => getenv("JWT_SECRET"),

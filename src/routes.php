@@ -76,6 +76,16 @@ $app->get('/comments/recent/{count}', 'CommentController:recentComments');
 // Load patron list
 $app->get('/patrons/list', 'UserController:patronList');
 
+// List (recent) errors
+$app->get('/errors', 'ErrorController:loadRecentErrors');
+
+// List all errors
+$app->get('/errors/all', 'ErrorController:loadAllErrors');
+
+// List error group
+$app->get('/errors/{hash:.*}', 'ErrorController:loadGroup');
+
+
 /************************/
 /* Authenticated routes */
 /************************/
@@ -180,6 +190,9 @@ $app->get('/admin/user/{handle}', 'UserController:adminLoad');
 
 // Find users 
 $app->get('/admin/find/users/{filter}', 'UserController:find');
+
+// Update error group
+$app->post('/admin/errors/{hash:.*}', 'ErrorController:updateGroup');
 
 /*******************/
 /* Catch-all route */
