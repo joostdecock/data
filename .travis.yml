@@ -7,6 +7,7 @@ addons:
     - sshpass
     - inkscape
     - ghostscript
+    - php-imagick
 install:
 - composer install --no-interaction
 - composer dump-autoload -o
