@@ -57,7 +57,8 @@ class ToolsController
             $cmd = "/usr/bin/inkscape --export-ps=$path/$hash.ps $path/$filename";
             shell_exec($cmd);
             // Tile postscript to required format
-            $cmd = "/usr/local/bin/tile -a -m".$in->format." -s1 -t\"On-demand tiler\" -h\"../tools/tiler\" $path/$hash.ps > $path/$hash.".strtolower($in->format).".ps";
+            $tile = $this->container['settings']['tile'];
+            $cmd = "$tile -a -m".$in->format." -s1 -t\"On-demand tiler\" -h\"../tools/tiler\" $path/$hash.ps > $path/$hash.".strtolower($in->format).".ps";
             // Convert to PDF
             $cmd .= " ; /usr/bin/ps2pdf14 $path/$hash.".strtolower($in->format).".ps $path/$hash.".strtolower($in->format).".pdf";
             $link = $this->container['settings']['app']['data_api']."/static/export/tiler/$hash/$hash.".strtolower($in->format).".pdf";

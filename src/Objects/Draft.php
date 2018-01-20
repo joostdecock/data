@@ -546,7 +546,8 @@ class Draft
             $this->svgToPs($user); 
 
             // Tile postscript to required format
-            $cmd = "/usr/local/bin/tile -a -m$pf -s1 -t\"$patternName\" -h\"$patternHandle\" $ps > ".$this->getExportPath($user, $format.'.ps');
+            $tile = $this->container['settings']['tile'];
+            $cmd = "$tile -a -m$pf -s1 -t\"$patternName\" -h\"$patternHandle\" $ps > ".$this->getExportPath($user, $format.'.ps');
             // Convert to PDF
             $cmd .= " ; /usr/bin/ps2pdf14 ".$this->getExportPath($user, $format.'.ps').' '.$this->getExportPath($user, $format);
         }
