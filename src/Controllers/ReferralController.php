@@ -61,6 +61,7 @@ class ReferralController
         $sql = "SELECT `id` FROM `referrals` WHERE `site` = '' OR `site` IS NULL";
 
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {

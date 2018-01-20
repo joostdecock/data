@@ -119,6 +119,7 @@ class Comment
         $sql = "SELECT `comments`.`id` FROM `comments` WHERE `parent` =  ".$db->quote($this->getId())." LIMIT 1;";
        
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else return true;
@@ -157,6 +158,7 @@ class Comment
 
         // Retrieve comment ID
         $id = $db->lastInsertId();
+        $db = null;
         
         // Update instance from database
         $this->load($id);
@@ -187,6 +189,7 @@ class Comment
             `comments`.`id` =".$db->quote($id);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else foreach($result as $key => $val)  $this->$key = $val;
@@ -202,7 +205,10 @@ class Comment
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
 
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
 
@@ -217,7 +223,10 @@ class Comment
             // Remove from database
             $db = $this->container->get('db');
             $sql = "DELETE from `comments` WHERE `id` = ".$db->quote($this->getId()).";";
-            return $db->exec($sql);
+            $result = $db->exec($sql);
+            $db = null;
+
+            return $result;
         }
     }
 }

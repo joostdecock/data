@@ -198,6 +198,7 @@ class Model
         $sql = "SELECT * from `models` WHERE `$key` =".$db->quote($value);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
@@ -274,6 +275,7 @@ class Model
         // Set modelname to #ID to encourage people to change it
         $sql = "UPDATE `models` SET `name` = '#$id' WHERE `models`.`id` = '$id';";
         $db->exec($sql);
+        $db = null;
 
         // Update instance from database
         $this->loadFromId($id);
@@ -295,7 +297,10 @@ class Model
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
 
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     /**
@@ -310,6 +315,7 @@ class Model
         $db = $this->container->get('db');
         $sql = "SELECT * from `drafts` WHERE `model` =".$db->quote($this->getId());
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {
@@ -369,7 +375,10 @@ class Model
         $db = $this->container->get('db');
         $sql = "DELETE from `models` WHERE `id` = ".$db->quote($this->getId()).";";
 
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
 }

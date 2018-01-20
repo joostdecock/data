@@ -262,6 +262,7 @@ class Draft
         $sql = "SELECT * from `drafts` WHERE `$key` =".$db->quote($value);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
@@ -382,6 +383,7 @@ class Draft
         // Set draft name to 'pattern for model'
         $sql = "UPDATE `drafts` SET `name` = ".$db->quote('Draft '.$this->getHandle())." WHERE `drafts`.`id` = '$id';";
         $db->exec($sql);
+        $db = null;
 
         // Update instance from database
         $this->loadFromId($id);
@@ -489,7 +491,10 @@ class Draft
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
         
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     /** Remove a draft */
@@ -501,8 +506,10 @@ class Draft
         // Remove from database
         $db = $this->container->get('db');
         $sql = "DELETE from `drafts` WHERE `id` = ".$db->quote($this->getId()).";";
+        $result = $db->exec($sql);
+        $db = null;
 
-        return $db->exec($sql);
+        return $result;
     }
 
     private function getExportPath($user, $format)

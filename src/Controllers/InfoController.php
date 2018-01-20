@@ -148,6 +148,7 @@ class InfoController
         $db = $this->container->get('db');
         $sql = "SELECT COUNT(id) as 'users' FROM `users` WHERE `status` = 'active'";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
 
         return $result[0]->users;
     }
@@ -157,6 +158,7 @@ class InfoController
         $db = $this->container->get('db');
         $sql = "SELECT COUNT(id) as 'drafts' FROM `drafts`";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
 
         return $result[0]->drafts;
     }
@@ -166,6 +168,7 @@ class InfoController
         $db = $this->container->get('db');
         $sql = "SELECT COUNT(id) as 'comments' FROM `comments`";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
 
         return $result[0]->comments;
     }
@@ -175,6 +178,7 @@ class InfoController
         $db = $this->container->get('db');
         $sql = "SELECT COUNT(id) as 'models' FROM `models`";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
 
         return $result[0]->models;
     }

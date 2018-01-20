@@ -61,7 +61,10 @@ class HandleKit
         $db = $this->container->get('db');
         $sql = 'SELECT handle FROM `'.$type.'s` WHERE  `handle` = '.$db->quote($handle).' LIMIT 1';
         
-        if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return false;
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
+    
+        if ($result) return false;
         else return true;
     }
 

@@ -80,6 +80,7 @@ class ErrorController
             return $this->prepResponse($response, [
                 'result' => 'ok', 
                 'id' => $id,
+                'hash' => $error->getHash(),
             ]);
         } else {
             return $this->prepResponse($response, [
@@ -135,16 +136,15 @@ class ErrorController
         $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
 
         $group = $this->getGroupInfo($hash);
-        $group['count'] = $this->getGroupCount($hash);
-        $group['status'] = $this->groupStatus($group['count']);
-        $group['errors'] = $this->getGroupErrors($hash);
-
         if($group === false) {
             return $this->prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'failed_to_load_group',
             ], 400);
         }
+        $group['count'] = $this->getGroupCount($hash);
+        $group['status'] = $this->groupStatus($group['count']);
+        $group['errors'] = $this->getGroupErrors($hash);
 
         return $this->prepResponse($response, [
             'result' => 'ok', 
@@ -223,7 +223,10 @@ class ErrorController
                 )";
         }
         
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
 
     /**
@@ -251,8 +254,9 @@ class ErrorController
             `hash` = ".$db->quote($hash)."
             ORDER BY `time` DESC LIMIT 1";
         $result = $db->query($sql)->fetch(\PDO::FETCH_ASSOC);
+        $db = null;
         
-        if(!$result) return false;
+        if($result === false) return false;
         
         $result['last_seen'] = $result['time'];
         unset($result['time']);
@@ -280,10 +284,10 @@ class ErrorController
             `hash` = ".$db->quote($hash)."
             ORDER BY `time` DESC LIMIT 50";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
         
         if(!$result) return false;
-        
-        return $result;
+        else return $result;
     }
 
     /**
@@ -300,14 +304,15 @@ class ErrorController
         $sql = "SELECT COUNT(`id`) as 'count' FROM `errors` 
             WHERE hash=".$db->quote($hash);
         $result = $db->query($sql)->fetch(\PDO::FETCH_ASSOC);
-        if(!$result) return false;
-    
+
         $count['total'] = (int)$result['count'];
         $sql = "SELECT COUNT(`id`) as 'count', `status` FROM `errors` 
             WHERE hash=".$db->quote($hash)." GROUP BY `status`";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         
+        $db = null;
         if(!$result) return false;
+        
         foreach($result as $key => $val) {
             $count[$val['status']] = $val['count'];
         }
@@ -346,6 +351,7 @@ class ErrorController
             GROUP BY `hash`
             ORDER BY `errors`.`time` DESC";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
 
         if(!$result) return false;
         
@@ -378,6 +384,7 @@ class ErrorController
             ORDER BY `errors`.`time` DESC
             LIMIT 100";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
 
         if(!$result) return false;
         

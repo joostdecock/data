@@ -248,6 +248,7 @@ class CommentController
             WHERE `comments`.`user` = `users`.`id`
             ORDER BY `comments`.`time` DESC LIMIT $count";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {
@@ -286,6 +287,7 @@ class CommentController
             WHERE `comments`.`user` = `users`.`id` AND
             `comments`.`$key` =".$db->quote($val);
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {

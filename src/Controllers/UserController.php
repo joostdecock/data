@@ -502,6 +502,7 @@ class UserController
         $db = $this->container->get('db');
         $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"tier\":%' LIMIT 100";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
         $tiers = $this->container['settings']['patrons']['tiers'];
         if(!$result) {
             return $this->prepResponse($response, [
@@ -1123,42 +1124,6 @@ class UserController
         ]);
     } 
 
-    // FIXME: I think this can be removed? Route is commented out
-    // 
-    /** List user accounts */
-    /*
-    public function userlist($request, $response, $args) 
-    {
-        $db = $this->container->get('db');
-        $sql = "SELECT 
-            `users`.`username`,
-            `users`.`picture`,
-            `users`.`data`,
-            `users`.`created`,
-            `users`.`handle` as userhandle
-            from `users` 
-            WHERE `users`.`status` = 'active'
-            ORDER BY `CREATED` DESC
-            LIMIT 50";
-        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
-
-        if(!$result) return false;
-        else {
-            // Get the AvatarKit to get the avatar url
-            $avatarKit = $this->container->get('AvatarKit');
-            foreach($result as $key => $val) {
-                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
-                $data = json_decode($val->data);
-                if(isset($data->badges)) $val->badges = $data->badges;
-                unset($val->data);
-                $users[$val->userhandle] = $val;
-            }
-        } 
-
-        return $this->prepResponse($response, [ 'users' => $users ]);
-    }
-    */
-
     /** Find user accounts */
     public function find($request, $response, $args) 
     {
@@ -1200,6 +1165,7 @@ class UserController
             ORDER BY `CREATED` DESC
             LIMIT 50";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else {

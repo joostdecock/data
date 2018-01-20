@@ -349,6 +349,7 @@ class User
         $sql = "SELECT * from `users` WHERE `$key` =".$db->quote($value);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else {
@@ -462,6 +463,7 @@ class User
         // Set username to 'user ID' to encourage people to change it
         $sql = "UPDATE `users` SET `username` = 'user $id' WHERE `users`.`id` = '$id';";
         $db->exec($sql);
+        $db = null;
 
         // Update instance from database
         $this->loadFromId($id);
@@ -477,7 +479,10 @@ class User
         $db = $this->container->get('db');
         $sql = 'SELECT `email` FROM `users` WHERE  `email` = '.$db->quote($email).' LIMIT 1';
         
-        if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
+    
+        if ($result) return true;
         else return false;
     }
 
@@ -491,7 +496,10 @@ class User
         $db = $this->container->get('db');
         $sql = 'SELECT `username` FROM `users` WHERE  `username` = '.$db->quote($username).' LIMIT 1';
         
-        if($db->query($sql)->fetch(\PDO::FETCH_OBJ)) return true;
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
+    
+        if ($result) return true;
         else return false;
     }
 
@@ -545,7 +553,10 @@ class User
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
         
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     /** Removes the user */
@@ -561,7 +572,10 @@ class User
             DELETE from `users` WHERE `id` = ".$db->quote($this->getId()).";
         ";
 
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     /**
@@ -572,6 +586,7 @@ class User
         $db = $this->container->get('db');
         $sql = "SELECT * from `models` WHERE `user` =".$db->quote($this->getId());
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
@@ -596,6 +611,7 @@ class User
         $db = $this->container->get('db');
         $sql = "SELECT * from `comments` WHERE `user` =".$db->quote($this->getId());
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {
@@ -617,6 +633,7 @@ class User
         $db = $this->container->get('db');
         $sql = "SELECT * from `drafts` WHERE `user` =".$db->quote($this->getId());
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $db = null;
         
         if(!$result) return false;
         else {

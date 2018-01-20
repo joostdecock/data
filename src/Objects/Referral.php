@@ -100,6 +100,7 @@ class Referral
         $sql = "SELECT * from `referrals` WHERE `id` =".$db->quote($id);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else foreach($result as $key => $val) {
@@ -135,7 +136,10 @@ class Referral
 
         $db->exec($sql);
 
-        return $db->lastInsertId();
+        $id = $db->lastInsertId();
+        $db = null;
+
+        return $id;
     }
 
     /** Saves the referral to the database */
@@ -147,7 +151,10 @@ class Referral
             WHERE 
             `id`       = ".$db->quote($this->getId()).";";
         
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     public function group()

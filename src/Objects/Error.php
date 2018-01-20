@@ -246,6 +246,7 @@ class Error
 
         // Retrieve error ID
         $id = $db->lastInsertId();
+        $db = null;
         
         // Update instance from database
         $this->load($id);
@@ -266,6 +267,7 @@ class Error
         $sql = "SELECT * from `errors` WHERE `errors`.`id` =".$db->quote($id);
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return false;
         else foreach($result as $key => $val)  $this->$key = $val;
@@ -291,7 +293,10 @@ class Error
             WHERE 
             `id`      = ".$db->quote($this->getId()).";";
 
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
     
     /** Remove an error */
@@ -299,7 +304,10 @@ class Error
     {
         $db = $this->container->get('db');
         $sql = "DELETE from `errors` WHERE `id` = ".$db->quote($this->getId()).";";
-        return $db->exec($sql);
+        $result = $db->exec($sql);
+        $db = null;
+
+        return $result;
     }
 
     /** 
@@ -334,6 +342,7 @@ class Error
             AND `time` > NOW() - INTERVAL 30 MINUTE;";
 
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
 
         if(!$result) return 0;
         else return $result->count;
