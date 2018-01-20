@@ -10,6 +10,8 @@ return [
             'api' => getenv('BAIL_API'),
             'origin' => getenv('BAIL_ORIGIN'),
         ],
+        'tile' => '/usr/local/bin/tile', // Location of the freesewing tile binary
+
         // Middleware settings
         'jwt' => [
             "secure" => true, // Don't allow access over an unencrypted connection

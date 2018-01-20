@@ -25,6 +25,7 @@ class TestApp extends App
         $settings['settings']['jwt']['forceEncryption'] = false;
         $settings['settings']['jwt']['secret'] = 'test'; 
         $settings['settings']['app']['core_api'] = self::CORE_API;
+        $settings['settings']['tile'] = __DIR__.'../tests/tile/tile';
 
         // Run the Slim\App contructor
         parent::__construct($settings);
