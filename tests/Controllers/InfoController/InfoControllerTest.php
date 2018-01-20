@@ -74,6 +74,5 @@ class InfoControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue(isset($json['data']['drafts']));
         $this->assertTrue(isset($json['data']['comments']));
         $this->assertTrue(isset($json['data']['models']));
-        $this->assertTrue(isset($json['referrals']));
     }
 }

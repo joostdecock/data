@@ -15,5 +15,6 @@ class Setup extends \PHPUnit\Framework\TestCase
         $db->query($sql);
         $sql = file_get_contents(__DIR__.'/sql/setup.sql'); 
         $db->query($sql);
+        $db = null;
     }
 }
