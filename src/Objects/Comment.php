@@ -150,7 +150,7 @@ class Comment
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getComment()).",
             ".$db->quote($this->getPage()).",
-            NOW(),
+            '".date('Y-m-d H:i:s')."',
             'active',
             ".$db->quote($this->getParent())."
             );";
@@ -187,7 +187,6 @@ class Comment
             from `comments`,`users` 
             WHERE `comments`.`user` = `users`.`id` AND
             `comments`.`id` =".$db->quote($id);
-        
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
         $db = null;
 

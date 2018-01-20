@@ -63,16 +63,15 @@ return [
         
         // Database
         'db' => [
+            'type' => 'mariadb',
             'host' => getenv('DB_HOST'),
             'database' => getenv('DB_DB'),
             'user' => getenv('DB_USER'),
             'password' => getenv('DB_PASS'),
         ],
         'testdb' => [
-            'host' => getenv('TEST_DB_HOST'),
-            'database' => getenv('TEST_DB_DB'),
-            'user' => getenv('TEST_DB_USER'),
-            'password' => getenv('TEST_DB_PASS'),
+            'type' => 'sqlite',
+            'database' => __DIR__.'/../tests/sql/test.sq3',
         ],
         
         // Mailgun

@@ -447,7 +447,7 @@ class User
             ".$db->quote($this->getHandle()).",
             ".$db->quote($this->getHandle()).",
             'inactive',
-            NOW(),
+            '".date('Y-m-d H:i:s')."',
             ".$db->quote($this->getDataAsJson()).",
             'user',
             ".$db->quote($this->getPicture()).",

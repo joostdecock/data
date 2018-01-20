@@ -210,13 +210,13 @@ class UserTest extends \PHPUnit\Framework\TestCase
         
         $email = time().'.testUsernameTaken@freesewing.org';
         $obj->create($email, 'bananas');
-
         $obj->setUsername($email);
         $obj->save();
 
-        // Username field is limimted to 32 chars 
-        $this->assertTrue($obj->usernameTaken(substr($email,0,32)));
-        $this->assertFalse($obj->usernameTaken(substr(time().$email,0,32)));
+        // Username field might be limited in length
+        $limit = strlen($obj->getUsername()); 
+        $this->assertTrue($obj->usernameTaken(substr($email,0,$limit)));
+        $this->assertFalse($obj->usernameTaken(substr(time().$email,0,$limit)));
     }
     
     public function testGetInitial()
@@ -352,7 +352,6 @@ class UserTest extends \PHPUnit\Framework\TestCase
         $model2->setMeasurement('headCircumference', 50);
         $model1->save();
         $model2->save();
-
         $models = $obj->getModels();
         $m1 = $models[$model1->getHandle()];
         $m2 = $models[$model2->getHandle()];

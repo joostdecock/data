@@ -335,6 +335,7 @@ class ErrorController
     {
         $db = $this->container->get('db');
 
+        $time = date('Y-m-d H:i:s', time() - 24*60*60);
         $sql = "SELECT 
             COUNT(`id`) as 'count', 
             `type`,
@@ -347,7 +348,7 @@ class ErrorController
             `hash`
             FROM `errors` WHERE 
             (`status` = 'new' OR `status` = 'open') 
-            AND `time` > NOW() - INTERVAL 24 HOUR 
+            AND `time` > '$time' 
             GROUP BY `hash`
             ORDER BY `errors`.`time` DESC";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
@@ -368,6 +369,7 @@ class ErrorController
     {
         $db = $this->container->get('db');
 
+        $time = date('Y-m-d H:i:s', time() - 28*24*60*60);
         $sql = "SELECT 
             COUNT(`id`) as 'count', 
             `type`,
@@ -379,7 +381,7 @@ class ErrorController
             `line`,
             `hash`
             FROM `errors` WHERE 
-            `time` > NOW() - INTERVAL 28 DAY 
+            `time` > '$time' 
             GROUP BY `hash`
             ORDER BY `errors`.`time` DESC
             LIMIT 100";

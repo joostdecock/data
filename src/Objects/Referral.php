@@ -131,7 +131,7 @@ class Referral
             ".$db->quote($this->getHost()).",
             ".$db->quote($this->getPath()).",
             ".$db->quote($this->getUrl()).",
-            NOW()
+            '".date('Y-m-d H:i:s')."'
             );";
 
         $db->exec($sql);

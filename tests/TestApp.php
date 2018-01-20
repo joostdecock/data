@@ -17,7 +17,8 @@ class TestApp extends App
     {
         // Overwrite settings for testing
         $settings = require __DIR__ . '/../src/settings.php';
-        $settings['settings']['db'] = $settings['settings']['testdb'];
+        $settings['settings']['db']['type'] = $settings['settings']['testdb']['type'];
+        $settings['settings']['db']['database'] = $settings['settings']['testdb']['database'];
         $settings['settings']['storage'] = $settings['settings']['teststorage'];
         $settings['settings']['logger'] = $settings['settings']['testlogger'];
         $settings['settings']['displayErrorDetails'] = true;
@@ -65,16 +66,6 @@ class TestApp extends App
         if (isset($data)) $request = $request->withParsedBody($data);
         
         return $this->process($request, new Response());
-    }
-
-    public function nukeDb()
-    {
-        $db = $this->getContainer()->get('db');
-        
-        $sql = file_get_contents(__DIR__.'/sql/teardown.sql'); 
-        $db->query($sql);
-        $sql = file_get_contents(__DIR__.'/sql/setup.sql'); 
-        $db->query($sql);
     }
 
     public function mockMailgun()

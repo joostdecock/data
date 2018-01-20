@@ -589,7 +589,9 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
     public function testPatronListNoResults()
     {
         // Make sure there's no patrons
-        $this->app->nukeDb();
+        $db = $this->app->getContainer()->get('db');
+        $sql = 'DELETE FROM users';
+        $db->query($sql);
         
         $response = $this->app->call('GET','/patrons/list', null);
 

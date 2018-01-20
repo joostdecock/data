@@ -357,6 +357,7 @@ class Draft
         $sql = "INSERT into `drafts`(
             `user`,
             `pattern`,
+            `name`,
             `model`,
             `handle`,
             `data`,
@@ -367,16 +368,16 @@ class Draft
              ) VALUES (
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getPattern()).",
+            ".$db->quote('Draft '.$this->getHandle()).",
             ".$db->quote($this->getModel()).",
             ".$db->quote($this->getHandle()).",
             ".$db->quote($this->getDataAsJson()).",
             ".$db->quote($this->getSvg()).",
             ".$db->quote($this->getCompared()).",
             ".$db->quote($this->container['settings']['app']['motd']).",
-            NOW()
+            '".date('Y-m-d H:i:s')."'
             );";
         $db->exec($sql);
-
         // Retrieve draft ID
         $id = $db->lastInsertId();
         

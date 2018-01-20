@@ -196,10 +196,10 @@ class Model
     {
         $db = $this->container->get('db');
         $sql = "SELECT * from `models` WHERE `$key` =".$db->quote($value);
-        
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
-        $db = null;
 
+        $db = null;
+        
         if(!$result) return false;
         else foreach($result as $key => $val) {
             if($key == 'data') {
@@ -259,24 +259,30 @@ class Model
         $sql = "INSERT into `models`(
             `user`,
             `handle`,
+            `name`,
+            `data`,
+            `units`,
+            `shared`,
             `picture`,
             `created`
              ) VALUES (
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getHandle()).",
+            'Your model',
+            '{}',
+            'metric',
+            0,
             ".$db->quote($this->getPicture()).",
-            NOW()
+            '".date('Y-m-d H:i:s')."'
             );";
         $db->exec($sql);
 
         // Retrieve model ID
         $id = $db->lastInsertId();
-        
         // Set modelname to #ID to encourage people to change it
         $sql = "UPDATE `models` SET `name` = '#$id' WHERE `models`.`id` = '$id';";
         $db->exec($sql);
         $db = null;
-
         // Update instance from database
         $this->loadFromId($id);
     }

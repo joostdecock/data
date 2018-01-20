@@ -108,7 +108,7 @@ class ErrorControllerTest extends \PHPUnit\Framework\TestCase
     public function testLoadRecentErrorsNoErrors()
     {
         $db = $this->app->getContainer()->get('db');
-        $sql = 'TRUNCATE errors';
+        $sql = 'DELETE FROM errors';
         $db->query($sql);
         
         $response = $this->app->call('GET','/errors');
@@ -138,7 +138,7 @@ class ErrorControllerTest extends \PHPUnit\Framework\TestCase
     public function testLoadAllErrorsNoErrors()
     {
         $db = $this->app->getContainer()->get('db');
-        $sql = 'TRUNCATE errors';
+        $sql = 'DELETE FROM errors';
         $db->query($sql);
         
         $response = $this->app->call('GET','/errors/all');

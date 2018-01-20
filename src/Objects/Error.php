@@ -237,7 +237,7 @@ class Error
             ".$db->quote($this->getOrigin()).",
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getIp()).",
-            NOW(),
+            '".date('Y-m-d H:i:s')."',
             'new',
             ".$db->quote($this->getHash()).",
             ".$db->quote($this->getRaw())."
@@ -337,10 +337,11 @@ class Error
     {
         $db = $this->container->get('db');
 
+        $time = date('Y-m-d H:i:s', time() - 30*60);
+
         $sql = "SELECT COUNT(`id`) as 'count' FROM `errors` WHERE 
             `hash` = ".$db->quote($hash)." 
-            AND `time` > NOW() - INTERVAL 30 MINUTE;";
-
+            AND `time` > '$time';";
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
         $db = null;
 
