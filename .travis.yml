@@ -6,6 +6,7 @@ addons:
     packages:
     - sshpass
     - inkscape
+    - ps2pdf
 install:
 - composer install --no-interaction
 - composer dump-autoload -o

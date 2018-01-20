@@ -38,7 +38,8 @@
     },
 	"scripts": {
         "start": "php -S 0.0.0.0:8080 -t public public/index.php",
-        "test": "cp tests/sql/test.sq3.dist tests/sql/test.sq3 ; phpunit --colors=always"
+        "test": "cp tests/sql/test.sq3.dist tests/sql/test.sq3 ; phpunit --colors=always",
+        "travistest": "cp tests/tile/tile /usr/local/bin/tile ; cp tests/tile/tile cp tests/sql/test.sq3.dist tests/sql/test.sq3 ; phpunit --colors=always"
 	}
 
 }
