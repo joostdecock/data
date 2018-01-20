@@ -4,7 +4,7 @@ $settings = require __DIR__ . '/../src/settings.php'; // Load settings
 
 // Use bail for error handling?
 use Freesewing\Bail\ErrorHandler;
-if($settings['settings']['bail']['enable'] === true) {
+if($settings['settings']['bail']['bail_enabled'] === true) {
     ErrorHandler::init(
         $settings['settings']['bail']['api'],
         $settings['settings']['bail']['origin'],

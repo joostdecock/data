@@ -139,10 +139,16 @@ $container['Error'] = function ($container) {
     return new \Freesewing\Data\Objects\Error($container);
 };
 
-$container['errorHandler'] = function ($container) {
-    return new \Freesewing\Bail\ErrorHandler();
-};
+if($settings['settings']['bail']['bail_enabled'] === true) {
+    $container['errorHandler'] = function ($container) {
+        return new \Freesewing\Bail\ErrorHandler();
+    };
 
-$container['phpErrorHandler'] = function ($container) {
-    return new \Freesewing\Bail\ErrorHandler();
-};
+    $container['phpErrorHandler'] = function ($container) {
+        return new \Freesewing\Bail\ErrorHandler();
+    };
+}
+else {
+    var_dump($container['settings']);
+    die('bail not enabled');
+}

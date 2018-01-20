@@ -6,7 +6,7 @@ return [
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
         'bail' =>
         [
-            'enable' => true,
+            'bail_enabled' => false,
             'api' => getenv('BAIL_API'),
             'origin' => getenv('BAIL_ORIGIN'),
         ],
