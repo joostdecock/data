@@ -148,7 +148,3 @@ if($settings['settings']['bail']['bail_enabled'] === true) {
         return new \Freesewing\Bail\ErrorHandler();
     };
 }
-else {
-    var_dump($container['settings']);
-    die('bail not enabled');
-}
