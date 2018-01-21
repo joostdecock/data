@@ -1,0 +1,13 @@
+{
+    "top": "level",
+    "this": {
+        "is": {
+            "a": {
+                "test": "foo"
+            },
+            "another": {
+                "test": "bar"
+            }
+        }
+    }
+}

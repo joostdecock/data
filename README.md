@@ -1,4 +1,4 @@
-<a href="https://docs/freesewing.org/"><img src="https://docs.freesewing.org/img/logo-black.svg" align="right" width=200 /></a>
+<a href="https://freesewing.org/"><img src="https://freesewing.org/img/logo/logo-black.svg" align="right" width=200 /></a>
 
 # Freesewing data
 [Freesewing](https://freesewing.org/) is an online platform to draft sewing patterns based on your measurements.
@@ -9,7 +9,9 @@ For all info on what freesewing does/is/provides, please check [the about page](
 
 ## About
 
-The website, [freesewing.org](https://freesewing.org/), uses a [JAMstack](https://jamstack.org/) architecture.
+**Data** is freesewing's data backend.
+
+Our website, [freesewing.org](https://freesewing.org/), uses a [JAMstack](https://jamstack.org/) architecture.
 
 JAMstack is *a modern web development architecture based on client-side JavaScript, reusable APIs, and prebuilt Markup*.
 

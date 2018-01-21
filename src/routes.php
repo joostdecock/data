@@ -25,8 +25,8 @@ $app->get('/referrals/group', 'ReferralController:group');
 /* Anonymous routes */
 /********************/
 
-// debug route - here for when you need it
-$app->get('/debug', 'UserController:debug');
+// log error
+$app->post('/error', 'ErrorController:log');
 
 // Preflight requests 
 $app->options('/[{path:.*}]', function($request, $response, $path = null) {
@@ -76,6 +76,16 @@ $app->get('/comments/recent/{count}', 'CommentController:recentComments');
 // Load patron list
 $app->get('/patrons/list', 'UserController:patronList');
 
+// List (recent) errors
+$app->get('/errors', 'ErrorController:loadRecentErrors');
+
+// List all errors
+$app->get('/errors/all', 'ErrorController:loadAllErrors');
+
+// List error group
+$app->get('/errors/{hash:.*}', 'ErrorController:loadGroup');
+
+
 /************************/
 /* Authenticated routes */
 /************************/
@@ -102,7 +112,8 @@ $app->get('/profile/{handle}', 'UserController:profile');
 $app->get('/role', 'UserController:role');
 
 // Load user list
-$app->get('/users', 'UserController:userlist');
+// FIXME: I don't think this is uses
+//$app->get('/users', 'UserController:userlist');
 
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');
@@ -146,9 +157,6 @@ $app->get('/export/model/{handle}', 'ModelController:export');
 // Clone model 
 $app->post('/clone/model/{handle}', 'ModelController:klone');
 
-// Find users 
-$app->post('/find/users/{filter}', 'UserController:find');
-
 // Tiler
 $app->post('/tools/tile', 'ToolsController:tile');
 
@@ -179,6 +187,12 @@ $app->post('/admin/patron/email', 'UserController:sendPatronEmail');
 
 // Load user account
 $app->get('/admin/user/{handle}', 'UserController:adminLoad');
+
+// Find users 
+$app->get('/admin/find/users/{filter}', 'UserController:find');
+
+// Update error group
+$app->post('/admin/errors/{hash:.*}', 'ErrorController:updateGroup');
 
 /*******************/
 /* Catch-all route */
