@@ -21,7 +21,7 @@ before_script:
   - pecl channel-update pecl.php.net
   - yes | pecl install imagick
 script:
-    - composer test
+    - composer testonly
 deploy:
   provider: script
   script: scripts/deploy.sh
