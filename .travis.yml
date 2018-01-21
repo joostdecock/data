@@ -18,7 +18,8 @@ env:
   - FREESEWING_DATA_DEPLOY_PATH=/fs/deploy/data
   - secure: QKqMmAygMpiYyL/d7GPU0AR4DXOxWI1B5kTZ0iyptbhKYNs5K5duzTrKKNbEWshl3yg3ewY06vXkQAv/rvZQuV4aMnLOAz+96ayG5tPUY5MmmpsWhajjXjhHQ6qSkbW1/RTRRZ1xX2jhXZ9jiATVBlhiSXljU0i4Dlkyz0UQy4pFTkRJxJfhp3ZQL9HCeoe7mrku5rGbgu0OqJVJ4azjEbtrf0giaEa1duUx7tNQnNB7Tf+T36LcexLF68n0FpIoqVIOlgM4jX0UiQLK7f9olBHV+PTe2LptHhw2by+s0t2GbCksJS6uLvmHtaFFaI/d4bHsqRTFlpbFLJ5TCpBLhlhYhA8OlJeesVNt6JltBQIqrwDk8Iz9Qu6cS3GBR/ag+ElO6A4znjyKRgEVTEZMZldkEGHO4mhaVksToPNnjzDgGcoCeyTH0BhEGqutcCoLGKxQ8TnVJRMtd6B5bEIM/n5aU6oL8I1/K53vsufhKGHsocvJbrSAv0mjpCoZFmRCv4uv5c/GjZ0PICAGaA0Kk8MzHZVPOMbG7O/Aekn5xAB4S/EIt7WR23DadSy9vGpqN3e5cCTCg85KxFbqc+f7mld7iu1xbo4eV34faipwwaCY8UgPS6yifafnxF7LYCGDjOfrKSmfstCVadrltuxQFBP67OMhg69US82ydXljTN0=
 before_script:
-  - pecl install imagick
+  - pecl channel-update pecl.php.net
+  - yes | pecl install imagick
 script:
     - composer test
 deploy:
