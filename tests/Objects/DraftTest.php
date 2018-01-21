@@ -81,7 +81,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
             'pattern' => 'TrayvonTie',
         ];
 
-        $now = date('Y-m-d H:i');
         $id = $obj->create($data, $user,$model);
         $obj->setOption('fries', 'loads');
 
@@ -92,7 +91,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
         $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
-        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
         $this->assertEquals($obj->getOption('fries'), 'loads');
@@ -227,7 +225,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
             'pattern' => 'TrayvonTie',
         ];
 
-        $now = date('Y-m-d H:i');
         $id = $obj->create($data, $user,$model);
         $handle = $obj->getHandle();
 
@@ -242,7 +239,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
         $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
-        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
     }
@@ -272,7 +268,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
 
         $obj->create($data, $user,$model);
 
-        $now = date('Y-m-d H:i');
         $id = $obj->recreate($data, $user,$model);
         
         $this->assertEquals($obj->getUser(), $user->getId());
@@ -282,7 +277,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
         $this->assertEquals($obj->data->getNode('measurements.neckCircumference'), 42);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
-        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getMeasurement('centerbackneckToWaist'), 52);
     }
@@ -312,7 +306,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
 
         $obj->create($data, $user,$model);
 
-        $now = date('Y-m-d H:i');
         $id = $obj->recreate($data, $user,$model);
         
         $this->assertEquals($obj->getUser(), $user->getId());
@@ -322,7 +315,6 @@ class DraftTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getNotes(), $this->app->getContainer()['settings']['app']['motd']);
         $this->assertEquals(floor($obj->data->getNode('measurements.neckCircumference')), 16);
         $this->assertEquals($obj->data->getNode('options.theme'), 'Basic');
-        $this->assertEquals(substr($obj->getCreated(), 0, 16), $now);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals(floor($obj->getMeasurement('centerbackneckToWaist')), 20);
     }

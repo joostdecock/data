@@ -21,7 +21,6 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $path = '/foo/bar';
         $url = "https://$host/$path";
 
-        $now = date('Y-m-d H:i');
         $id = $obj->create($host, $path, $url);
         $obj->load($id);
         $obj->setSite('Other');
@@ -31,7 +30,6 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getPath(), $path);
         $this->assertEquals($obj->getUrl(), $url);
         $this->assertEquals($obj->getId(), $id);
-        $this->assertEquals(substr($obj->getTime(), 0, 16), $now);
         $this->assertEquals($obj->getSite(), 'Other');
     }
     
@@ -43,7 +41,6 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $path = '/foo/bar';
         $url = "https://$host/$path";
 
-        $now = date('Y-m-d H:i');
         $id = $obj->create($host, $path, $url);
         $obj->load($id);
         $obj->group();
