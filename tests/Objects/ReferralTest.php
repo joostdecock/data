@@ -24,6 +24,7 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $id = $obj->create($host, $path, $url);
         $obj->load($id);
         $obj->setSite('Other');
+        $now = time(); 
         $obj->save($id);
         
         $this->assertEquals($obj->getHost(), $host);
@@ -31,6 +32,8 @@ class ReferralTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($obj->getUrl(), $url);
         $this->assertEquals($obj->getId(), $id);
         $this->assertEquals($obj->getSite(), 'Other');
+        $created = strtotime($obj->getTime());
+        $this->assertTrue(abs($now-$created)<5);
     }
     
     public function testGroup()
