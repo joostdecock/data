@@ -1,5 +1,6 @@
 vendor/
 logs/
-env
+coverage/
 public/static/users
 public/static/export
+tests/sql/test.sq3

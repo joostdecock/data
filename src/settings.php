@@ -4,7 +4,48 @@ return [
     'settings' => [
         'displayErrorDetails' => false, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header
+        'bail' =>
+        [
+            'bail_enabled' => false,
+            'api' => getenv('BAIL_API'),
+            'origin' => getenv('BAIL_ORIGIN'),
+        ],
+        'tile' => '/usr/local/bin/tile', // Location of the freesewing tile binary
 
+        // Middleware settings
+        'jwt' => [
+            "secure" => true, // Don't allow access over an unencrypted connection
+            'path' => '/',
+            'passthrough' => [
+                '/signup', 
+                '/login', 
+                '/recover', 
+                '/reset', 
+                '/activate', 
+                '/resend',
+                '/confirm',
+                '/info/',
+                '/shared/',
+                '/download/',
+                '/referral',
+                '/comments/',
+                '/status', 
+                '/email/', 
+                '/referrals/group', 
+                '/debug', 
+                '/patrons/list',
+                '/error',
+                '/errors',
+                '/errors/all',
+            ],
+            'attribute' => 'jwt',
+            'secret' => getenv("JWT_SECRET"),
+            'lifetime' => "1 month",
+            "error" => function ($request, $response, $arguments) {
+                echo file_get_contents(dirname(__DIR__).'/templates/index.html');
+            }
+        ],
+        
         // Renderer settings
         'renderer' => [
             'template_path' => dirname(__DIR__) . '/templates/',
@@ -16,13 +57,23 @@ return [
             'path' => getenv('LOG_FILE'),
             'level' => \Monolog\Logger::DEBUG,
         ],
+        'testlogger' => [
+            'name' => 'slim-app',
+            'path' => '/tmp/data.freesewing.test.log',
+            'level' => \Monolog\Logger::DEBUG,
+        ],
         
         // Database
         'db' => [
+            'type' => 'mariadb',
             'host' => getenv('DB_HOST'),
             'database' => getenv('DB_DB'),
             'user' => getenv('DB_USER'),
             'password' => getenv('DB_PASS'),
+        ],
+        'testdb' => [
+            'type' => 'sqlite',
+            'database' => __DIR__.'/../tests/sql/test.sq3',
         ],
         
         // Mailgun
@@ -32,13 +83,6 @@ return [
             'instance' => getenv('MAILGUN_INSTANCE'),
         ],
         
-        // Rollbar
-        'rollbar' => [
-            'rollbar_enabled' => false,
-            'access_token' => getenv('ROLLBAR_ACCESS_TOKEN'),
-            'environment' => getenv('ROLLBAR_ENVIRONMENT'),
-        ],
-
         // SEPs (shitty email providers - basically Microsoft domains) will not deliver
         // MailGun messages, so we send email through GMAIL for these domains
         // using SwiftMailer
@@ -77,14 +121,16 @@ return [
             'static_path' => dirname(__DIR__) . '/public/static',
             'temp_path' => '/tmp',
         ],
+        'teststorage' => [
+            'static_path' => '/tmp',
+            'temp_path' => '/tmp',
+        ],
 
         // App settings
         'app' => [
             'data_api' => getenv('DATA_API'),
             'core_api' => getenv('CORE_API'),
             'site' => getenv('SITE'),
-            'jwt_secret' => getenv('JWT_SECRET'),
-            'jwt_lifetime' => "1 month",
             'origin' => getenv('ORIGIN'),
             'user_status' => ['active', 'inactive', 'blocked'],
             'user_role' => ['user', 'moderator', 'admin'],

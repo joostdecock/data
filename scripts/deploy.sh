@@ -9,8 +9,8 @@ else
             echo "Deploying PHP version $TRAVIS_PHP_VERSION build.";
             cd $TRAVIS_BUILD_DIR
             if [ "$TRAVIS_BRANCH" = "master" ]; then
-                replace "'rollbar_enabled' => false," "'rollbar_enabled' => true," -- src/settings.php
-                curl https://api.rollbar.com/api/1/deploy/ -F access_token=$ROLLBAR_ACCESS_TOKEN -F environment=data.freesewing.org -F revision=$TRAVIS_COMMIT -F local_username=travis
+                echo "Enabling bail"
+                sed -i "s#'bail_enabled' => false#'bail_enabled' => true#g" src/settings.php
             fi
             mkdir build
             mv src templates vendor public build/
