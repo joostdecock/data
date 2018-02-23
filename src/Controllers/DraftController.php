@@ -206,6 +206,65 @@ class DraftController
         ]);
     } 
 
+    /** Load a shared draft */
+    public function loadShared($request, $response, $args) 
+    {
+        // Request data
+        $in = new \stdClass();
+        $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get a logger instance from the container
+        $logger = $this->container->get('logger');
+        
+        // Get a draft instance from the container and load its data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($in->handle);
+
+        if(!$draft->getShared()) {
+            // Not a shared draft
+            $logger->info("Load blocked: ".$in->handle." is not a shared draft");
+            return $this->prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'draft_not_shared', 
+            ], 400);
+        }
+        
+        // Get a user instance from the container and load its data
+        $user = $this->container->get('User');
+        $user->loadFromId($draft->getUser());
+        
+        // Get a model instance from the container and load its data
+        $model = $this->container->get('Model');
+        $model->loadFromId($draft->getModel());
+        
+        // Add caching token based on draft data
+        $optionData = $draft->getData();
+        $cacheToken = sha1(serialize($optionData));
+
+        return $this->prepResponse($response, [
+            'draft' => [
+                'id' => $draft->getId(), 
+                'user' => $draft->getUser(), 
+                'userHandle' => $user->getHandle(), 
+                'pattern' => $draft->getPattern(), 
+                'model' => [
+                    'body' => $model->getBody(), 
+                    'units' => $model->getUnits(), 
+                ],
+                'name' => $draft->getName(), 
+                'handle' => $draft->getHandle(), 
+                'svg' => $draft->getSvg(), 
+                'compared' => $draft->getCompared(), 
+                'data' => $optionData,
+                'cache' => $cacheToken,
+                'created' => $draft->getCreated(), 
+                'shared' => $draft->getShared(), 
+                'notes' => $draft->getNotes(), 
+                'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
+            ]
+        ]);
+    } 
+
     /** Update draft */
     public function update($request, $response, $args) 
     {
