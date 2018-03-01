@@ -191,14 +191,24 @@ class ModelController
         $model->loadFromHandle($in->handle);
         // Verify this user owns this model
         if($model->getUser() != $user->getId()) {
-            // Not a model that belongs to the user
             $logger = $this->container->get('logger');
-            $logger->info("Model load blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
-            
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'model_not_yours', 
-            ], 400);
+
+            // Could still be an admin loading this model
+            if($user->getRole() == 'admin') {
+                $logger->info("Model loaded by admin: User ".$user->getId()." loaded model ".$in->handle);
+                // Need to load the real model owner into the user object
+                $admin = $user;
+                $user = clone $this->container->get('User');
+                $user->loadFromId($model->getUser());
+            } else {
+                // Not a model that belongs to the user and not an admin
+                $logger->info("Model load blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
+                
+                return $this->prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'model_not_yours', 
+                ], 400);
+            }
         }
 
         // Get the AvatarKit to get the avatar location
@@ -245,8 +255,8 @@ class ModelController
         $model->loadFromHandle($in->handle);
         
         // Verify this user owns this model
-        if($model->getUser() != $user->getId()) {
-            // Not a model that belongs to the user
+        if($model->getUser() != $user->getId() && $user->getRole() != 'admin') {
+            // Not a model that belongs to the user, nor an admin
             $logger = $this->container->get('logger');
             $logger->info("Model clone blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
             return $this->prepResponse($response, [
