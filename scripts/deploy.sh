@@ -19,7 +19,7 @@ else
             sshpass -e scp -o stricthostkeychecking=no freesewing.tgz $FREESEWING_DATA_DEPLOY_USER@$FREESEWING_DATA_DEPLOY_HOST:$FREESEWING_DATA_DEPLOY_PATH/$TRAVIS_BRANCH/builds
             sshpass -e ssh -o stricthostkeychecking=no $FREESEWING_DATA_DEPLOY_USER@$FREESEWING_DATA_DEPLOY_HOST "cd $FREESEWING_DATA_DEPLOY_PATH/$TRAVIS_BRANCH/builds ; tar -xzf freesewing.tgz ; rm freesewing.tgz ; rm -rf previous ; mv current previous ; mv build current ; cd current/public/static ; ln -s /fs/storage/data/$TRAVIS_BRANCH/users ; ln -s /fs/storage/data/$TRAVIS_BRANCH/export "
             if [ "$TRAVIS_BRANCH" = "admin" ]; then
-                echo "Setting up admin shadow encvironment"
+                echo "Setting up admin shadow environment"
                 sshpass -e ssh -o stricthostkeychecking=no $FREESEWING_DATA_DEPLOY_USER@$FREESEWING_DATA_DEPLOY_HOST "cd $FREESEWING_DATA_DEPLOY_PATH/$TRAVIS_BRANCH/scripts ; ./admincopy.sh "
             fi
             echo "All done.";
