@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Controllers;
 
 use Symfony\Component\Yaml\Yaml;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Handes tools such as the on-demand tiler
@@ -25,16 +26,26 @@ class ToolsController
     {
         $formats = ['pdf','ps','a4','a3','a2','a1','a0','letter','tabloid'];
         $in = new \stdClass();
-        $in->format = $this->scrub($request,'format');
-        $in->svg = $this->scrub($request,'svg');
+        $in->format = Utilities::scrub($request,'format');
+        $in->svg = Utilities::scrub($request,'svg');
 
-        if(!in_array(strtolower($in->format),$formats)) 
-            return $this->prepResponse($response, [ 'result' => 'error', 'reason' => 'invalid_format' ], 400);
+        if(!in_array(strtolower($in->format),$formats)) {
+            return Utilities::prepResponse($response, [ 
+                'result' => 'error',
+                'reason' => 'invalid_format' 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
 
         // Decode SVG data string
-        if(strpos($in->svg,'data:image/svg+xml;base64,') === 0) $svg = base64_decode(substr($in->svg, 26));
-        else return $this->prepResponse($response, [ 'result' => 'error', 'reason' => 'invalid_svg' ], 400);
-        
+        if(strpos($in->svg,'data:image/svg+xml;base64,') === 0) {
+            $svg = base64_decode(substr($in->svg, 26));
+        } else {
+            return Utilities::prepResponse($response, [ 
+                'result' => 'error', 
+                'reason' => 'invalid_svg'
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+
         // Store on disk
         $hash = sha1($svg);
         $filename = "$hash.svg";
@@ -65,27 +76,9 @@ class ToolsController
         }
         shell_exec($cmd);
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'link' => $link,
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
-    
-    private function scrub($request, $key)
-    {
-        $val = false;
-        if(isset($request->getParsedBody()[$key])) $val = filter_var($request->getParsedBody()[$key], FILTER_SANITIZE_STRING);
-        
-        return $val;
-    }
-    
-    private function prepResponse($response, $data, $status=200)
-    {
-        return $response
-            ->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    }
-   
 }

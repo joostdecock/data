@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Controllers;
 
 use \Freesewing\Data\Data\Model as Model;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Holds data for a model.
@@ -20,34 +21,13 @@ class ModelController
         $this->container = $container;
     }
 
-    /**
-     * Helper function to format response and send CORS headers
-     *
-     * @param $data The data to return
-     */
-    private function prepResponse($response, $data, $status=200)
-    {
-        return $response
-            ->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    }
-   
-    private function scrub($request, $key)
-    {
-        $filter = FILTER_SANITIZE_STRING;
-        if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
-        else return false;
-    }
-
     /** Create model */
     public function create($request, $response, $args) 
     {
         // Handle request
         $in = new \stdClass();
-        $in->name = $this->scrub($request,'name');
-        ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
+        $in->name = Utilities::scrub($request,'name');
+        (Utilities::scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -75,14 +55,14 @@ class ModelController
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'message' => 'model/created',
             'handle' => $model->getHandle(),
             'units' => $model->getUnits(),
             'picture' => $model->getPicture(),
             'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Update model */
@@ -97,12 +77,12 @@ class ModelController
             $settingsUpdate = false;
         } else {
             $in->data = null;
-            $in->name = $this->scrub($request,'name');
-            $in->picture = $this->scrub($request,'picture');
-            $in->notes = $this->scrub($request,'notes');
-            ($this->scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
-            ($this->scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
-            ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
+            $in->name = Utilities::scrub($request,'name');
+            $in->picture = Utilities::scrub($request,'picture');
+            $in->notes = Utilities::scrub($request,'notes');
+            (Utilities::scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
+            (Utilities::scrub($request,'body') == 'female') ? $in->body = 'female' : $in->body = 'male';
+            (Utilities::scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
             $settingsUpdate = true;
         }
 
@@ -126,10 +106,10 @@ class ModelController
         if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user
             $logger->info("Model update blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         if($settingsUpdate) { // Updating settings
@@ -161,7 +141,7 @@ class ModelController
         // Get the AvatarKit to get the avatar location
         $avatarKit = $this->container->get('AvatarKit');
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'message' => 'model/updated',
             'name' => $model->getName(),
@@ -169,7 +149,7 @@ class ModelController
             'picture' => $model->getPicture(),
             'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
             'data' => $model->getData(),
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Load model data */
@@ -195,16 +175,16 @@ class ModelController
             $logger = $this->container->get('logger');
             $logger->info("Model load blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
             
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
 
         // Get the AvatarKit to get the avatar location
         $avatarKit = $this->container->get('AvatarKit');
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'model' => [
                 'id' => $model->getId(), 
                 'user' => $model->getUser(), 
@@ -221,7 +201,7 @@ class ModelController
                 'notes' => $model->getNotes(), 
 
             ],
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     } 
 
     /** Clone model data 
@@ -249,10 +229,10 @@ class ModelController
             // Not a model that belongs to the user
             $logger = $this->container->get('logger');
             $logger->info("Model clone blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
 
         // Get a model instance from the container and create a new model
@@ -273,7 +253,7 @@ class ModelController
         $clone->setNotes($model->getNotes());
         $clone->save();
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'handle' => $clone->getHandle(),
             'img' => $avatarKit->getDiskDir($user->getHandle(),'model', $model->getHandle().'/'.$model->getPicture()),
@@ -295,7 +275,7 @@ class ModelController
                 'shared' => $clone->getShared(),
                 'notes'  => $clone->getNotes(),
             ],
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Export model data */
@@ -323,23 +303,23 @@ class ModelController
             // Not a model that belongs to the user
             $logger = $this->container->get('logger');
             $logger->info("Model export blocked: User ".$user->getId()." is not the owner of model ".$in->handle);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
 
         // Export model data to disk
         $dir = $model->export();
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'formats' => [
                 'csv'  => $dir.'/'.$model->getHandle().'.csv',
                 'json' => $dir.'/'.$model->getHandle().'.json',
                 'yaml' => $dir.'/'.$model->getHandle().'.yaml',
             ]
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
 
     }
 
@@ -363,17 +343,17 @@ class ModelController
         if($model->getUser() != $id) {
             $logger = $this->container->get('logger');
             $logger->info("Access blocked: Attempt to remove model ".$model->getId()." by user: ".$user->getId());
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_model', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         $model->remove($user);
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'model_removed', 
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     } 
 }

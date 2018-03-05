@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Controllers;
 
 use \Freesewing\Data\Data\Comment as Comment;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Holds data for a comment.
@@ -20,34 +21,14 @@ class CommentController
         $this->container = $container;
     }
 
-    /**
-     * Helper function to format response and send CORS headers
-     *
-     * @param $data The data to return
-     */
-    private function prepResponse($response, $data, $status=200)
-    {
-        return $response
-            ->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    }
-   
-    private function scrub($request, $key)
-    {
-        if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], FILTER_SANITIZE_STRING);
-        else return false;
-    }
-
     /** Create comment */
     public function create($request, $response, $args) 
     {
         // Handle request
         $in = new \stdClass();
-        $in->page = $this->scrub($request,'page');
-        $in->comment = $this->scrub($request,'comment');
-        $in->parent = $this->scrub($request,'parent');
+        $in->page = Utilities::scrub($request,'page');
+        $in->comment = Utilities::scrub($request,'comment');
+        $in->parent = Utilities::scrub($request,'parent');
         
         // Strip trailing slashes
         if(substr($in->page,-1) == '/') $in->page = substr($in->page,0,-1);
@@ -99,11 +80,11 @@ class CommentController
             }
         } else $handle = false;
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'message' => 'comment/created',
             'id' => $comment->getId(),
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Get page comments */
@@ -118,11 +99,11 @@ class CommentController
         
         $comments = $this->loadPageComments($in->page);
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'count' => count($comments),
             'comments' => $comments,
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Get recent comments */
@@ -134,11 +115,11 @@ class CommentController
         
         $comments = $this->loadRecentComments($in->count);
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'count' => count($comments),
             'comments' => $comments,
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Remove comment */
@@ -159,18 +140,18 @@ class CommentController
         // Does this comment belong to the user?
         if($comment->getUser() != $userid) {
             $logger->info("Access blocked: Attempt to remove comment ".$comment->getId()." by user: ".$userid);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_comment', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         $comment->remove();
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'comment_removed', 
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** Email reply */
@@ -178,9 +159,9 @@ class CommentController
     {
         // Get info from Mailgun POST
         $in = new \stdClass();
-        $in->sender = $this->scrub($request,'sender');
-        $in->subject = $this->scrub($request,'subject');
-        $in->comment = $this->scrub($request,'stripped-text');
+        $in->sender = Utilities::scrub($request,'sender');
+        $in->subject = Utilities::scrub($request,'subject');
+        $in->comment = Utilities::scrub($request,'stripped-text');
         
         // Load the user from email address
         $user = $this->container->get('User');
@@ -210,11 +191,11 @@ class CommentController
             $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
         }
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'message' => 'comment/created',
             'id' => $comment->getId(),
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
 
     }
 
