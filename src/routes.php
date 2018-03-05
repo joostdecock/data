@@ -14,13 +14,6 @@ $app->get('/info/json', 'InfoController:asJson');
 $app->get('/status', 'InfoController:status');
 
 
-/*******************/
-/* Batch routes    */
-/*******************/
-
-// Group ungrouped referrals
-$app->get('/referrals/group', 'ReferralController:group');
-
 /********************/
 /* Anonymous routes */
 /********************/
@@ -111,10 +104,6 @@ $app->get('/profile/{handle}', 'UserController:profile');
 // Load user role
 $app->get('/role', 'UserController:role');
 
-// Load user list
-// FIXME: I don't think this is uses
-//$app->get('/users', 'UserController:userlist');
-
 // Load model data
 $app->get('/model/{handle}', 'ModelController:load');
 
@@ -165,34 +154,28 @@ $app->post('/tools/tile', 'ToolsController:tile');
 /****************/
 
 // Add badge to user profile
-$app->post('/admin/badge', 'UserController:addBadge');
+$app->post('/admin/user/{handle}/badge/{badge}', 'AdminController:userAddBadge');
 
 // Remove badge from user profile
-$app->delete('/admin/badge', 'UserController:removeBadge');
+$app->delete('/admin/user/{handle}/badge/{badge}', 'AdminController:userRemoveBadge');
 
 // Set new user password (by admin)
-$app->put('/admin/password', 'UserController:setPassword');
-
-// Set address (by admin)
-$app->put('/admin/address', 'UserController:setAddress');
-
-// Set birthday (by admin)
-$app->put('/admin/birthday', 'UserController:setBirthday');
+$app->put('/admin/user/{handle}/password', 'AdminController:userSetPassword');
 
 // Set patron status in user profile
-$app->post('/admin/patron', 'UserController:makePatron');
+$app->put('/admin/user/{handle}/patron/{tier}', 'AdminController:userSetPatronTier');
 
 // Send patron email
-$app->post('/admin/patron/email', 'UserController:sendPatronEmail');
+$app->post('/admin/user/{handle}/email/patron', 'AdminController:userSendPatronEmail');
 
 // Load user account
-$app->get('/admin/user/{handle}', 'UserController:adminLoad');
+$app->get('/admin/user/{handle}', 'AdminController:userLoad');
 
 // Find users 
-$app->get('/admin/find/users/{filter}', 'UserController:find');
+$app->get('/admin/find/users/{filter}', 'AdminController:userFind');
 
 // Update error group
-$app->post('/admin/errors/{hash:.*}', 'ErrorController:updateGroup');
+$app->post('/admin/errors/{hash:.*}', 'AdminController:errorUpdateGroup');
 
 /*******************/
 /* Catch-all route */

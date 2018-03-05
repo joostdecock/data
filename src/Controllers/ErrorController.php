@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Controllers;
 
 use \Freesewing\Data\Data\Error as Error;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Holds errors
@@ -20,46 +21,26 @@ class ErrorController
         $this->container = $container;
     }
 
-    /**
-     * Helper function to format response and send CORS headers
-     *
-     * @param $data The data to return
-     */
-    private function prepResponse($response, $data, $status=200)
-    {
-        return $response
-            ->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    }
-   
-    private function scrub($request, $key)
-    {
-        if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], FILTER_SANITIZE_STRING);
-        else return false;
-    }
-
     /** log error */
     public function log($request, $response, $args) 
     {
         // Handle request
         $in = new \stdClass();
-        $in->type = $this->scrub($request,'type');
-        $in->level = $this->scrub($request,'level');
-        $in->message = $this->scrub($request,'message');
-        $in->origin = $this->scrub($request,'origin');
+        $in->type = Utilities::scrub($request,'type');
+        $in->level = Utilities::scrub($request,'level');
+        $in->message = Utilities::scrub($request,'message');
+        $in->origin = Utilities::scrub($request,'origin');
         if($this->hasRequiredInput($in) === false) {
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'missing_input',
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
-        $in->file = $this->scrub($request,'file');
-        $in->line = $this->scrub($request,'line');
-        $in->user = $this->scrub($request,'user');
-        $in->raw = $this->scrub($request,'raw');
+        $in->file = Utilities::scrub($request,'file');
+        $in->line = Utilities::scrub($request,'line');
+        $in->user = Utilities::scrub($request,'user');
+        $in->raw = Utilities::scrub($request,'raw');
 
         // Get an error instance from the container
         $error = $this->container->get('Error');
@@ -77,16 +58,16 @@ class ErrorController
             $error->setRaw($in->raw);
             $id = $error->create();
             
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'id' => $id,
                 'hash' => $error->getHash(),
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
         } else {
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ignored', 
                 'reason' => 'error_is_familiar',
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
 
         }
     }
@@ -96,17 +77,17 @@ class ErrorController
     {
         $errors = $this->getActiveGroups();
         if($errors === false) {
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'count' => 0,
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
         }
 
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'count' => count($errors),
                 'errors' => $errors
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
 
     }
 
@@ -115,17 +96,17 @@ class ErrorController
     {
         $errors = $this->getAllGroups();
         if($errors === false) {
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'count' => 0,
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
         }
 
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'count' => count($errors),
                 'errors' => $errors
-            ]);
+            ], 200, $this->container['settings']['app']['origin']);
 
     }
 
@@ -137,19 +118,19 @@ class ErrorController
 
         $group = $this->getGroupInfo($hash);
         if($group === false) {
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'failed_to_load_group',
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         $group['count'] = $this->getGroupCount($hash);
         $group['status'] = $this->groupStatus($group['count']);
         $group['errors'] = $this->getGroupErrors($hash);
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'group' => $group
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
 
     private function groupStatus($counters) {
@@ -159,53 +140,12 @@ class ErrorController
         return 'closed';
     }
 
-    /** Update error group */
-    public function updateGroup($request, $response, $args) 
-    {
-        // Request data
-        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
-        $status = $this->scrub($request,'status');
-
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        $admin = clone $this->container->get('User');
-        $admin->loadFromId($id);
-
-        // Is user an admin?
-        if($admin->getRole() != 'admin') {
-            $logger = $this->container->get('logger');
-            $logger->info("Failed to update error group status: User ".$admin->getId()." is not an admin");
-
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'access_denied', 
-                'role' => $admin->getRole(), 
-                'id' => $id, 
-                ], 400);
-        }
-
-        // Does the group exist?
-        if($this->getGroupInfo($hash) === false) {
-            return $this->prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'no_such_group', 
-                ], 400);
-        }
-
-        // Update status
-        $this->setGroupStatus($status, $hash);
-        
-        return $this->prepResponse($response, [
-            'result' => 'ok' 
-        ]);
-    }
-
     /** 
      * Updates the status for (all) entries in a group
      *
      * @param string $status The new status
      */
-    private function setGroupStatus($status, $hash)
+    public function setGroupStatus($status, $hash)
     {
         $db = $this->container->get('db');
         if($status == 'open' || $status == 'closed') {
@@ -225,7 +165,6 @@ class ErrorController
         
         $result = $db->exec($sql);
         $db = null;
-
         return $result;
     }
 
@@ -236,7 +175,7 @@ class ErrorController
      *
      * @return array
      */
-    private function getGroupInfo($hash) 
+    public function getGroupInfo($hash) 
     {
         $db = $this->container->get('db');
 

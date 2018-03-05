@@ -4,6 +4,7 @@ namespace Freesewing\Data\Controllers;
 
 use Symfony\Component\Yaml\Yaml;
 use GuzzleHttp\Client as GuzzleClient;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Pulls data from freesewing core info service and bundles it 

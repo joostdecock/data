@@ -90,6 +90,10 @@ $container['ErrorController'] = function ($container) {
     return new \Freesewing\Data\Controllers\ErrorController($container);
 };
 
+$container['AdminController'] = function ($container) {
+    return new \Freesewing\Data\Controllers\AdminController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \Freesewing\Data\Tools\HandleKit($container);
 };
