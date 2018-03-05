@@ -37,12 +37,4 @@ class ReferralControllerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($response->getStatusCode(), 200);
     }
     
-    public function testGroup()
-    {
-        $response = $this->app->call('GET','/referrals/group');
-        $json = json_decode((string)$response->getBody());
-        
-        $this->assertEquals($response->getStatusCode(), 200);
-        $this->assertEquals($json->result, 'ok');
-    }
 }
