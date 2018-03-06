@@ -310,8 +310,8 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $obj->setStatus('active');
         $obj->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'email' => $email,
+            'password' => 'bananas',
         ];
         $response = $this->app->call('POST','/login', $data);
 
@@ -334,8 +334,8 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $obj->setStatus('blocked');
         $obj->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'email' => $email,
+            'password' => 'bananas',
         ];
         $response = $this->app->call('POST','/login', $data);
 
@@ -355,8 +355,8 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $obj->setStatus('inactive');
         $obj->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'email' => $email,
+            'password' => 'bananas',
         ];
         $response = $this->app->call('POST','/login', $data);
 
@@ -376,8 +376,8 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $obj->setStatus('active');
         $obj->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'peaches',
+            'email' => $email,
+            'password' => 'peaches',
         ];
         $response = $this->app->call('POST','/login', $data);
 
@@ -394,8 +394,8 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         
         $email = time().'.testLoginUnknownUser@freesewing.org';
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'email' => $email,
+            'password' => 'bananas',
         ];
         $response = $this->app->call('POST','/login', $data);
 

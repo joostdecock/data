@@ -42,8 +42,8 @@ class ErrorControllerTest extends \PHPUnit\Framework\TestCase
         else $session->user->setRole('user');
         $session->user->save();
         $data = [
-            'login-email' => $email,
-            'login-password' => 'bananas',
+            'email' => $email,
+            'password' => 'bananas',
         ];
 
         $response = $this->app->call('POST','/login', $data);
