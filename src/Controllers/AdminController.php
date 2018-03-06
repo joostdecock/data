@@ -297,7 +297,7 @@ class AdminController
     }
 
     /** Load user account */
-    public function adminLoad($request, $response, $args) 
+    public function userLoad($request, $response, $args) 
     {
         // Handle request data 
         $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
