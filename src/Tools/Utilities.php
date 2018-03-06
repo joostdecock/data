@@ -67,6 +67,9 @@ class Utilities
     static public function scrub($request, $key, $type='string')
     {
         switch($type) {
+            case 'integer':
+                $filter = FILTER_SANITIZE_NUMBER_INT;
+            break;
             case 'email':
                 $filter = FILTER_SANITIZE_EMAIL;
             break;
