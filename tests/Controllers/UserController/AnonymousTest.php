@@ -320,7 +320,7 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($json->reason, 'password_correct');
         $this->assertEquals($json->message, 'login/success');
         $this->assertTrue(isset($json->token));
-        $this->assertEquals($json->userid, $obj->getId());
+        $this->assertEquals($json->id, $obj->getId());
         $this->assertEquals($json->email, $email);
         $this->assertEquals($response->getStatusCode(), 200);
     }
