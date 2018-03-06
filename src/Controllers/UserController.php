@@ -278,17 +278,19 @@ class UserController
     public function login($request, $response, $args) {
         // Handle request data 
         $data = $request->getParsedBody();
+        // We accept either id or email, id takes precedence
         $login_data = [ 
+            'id' => Utilities::scrub($request, 'id', 'integer'), 
             'email' => Utilities::scrub($request, 'email', 'email'), 
             'password' => Utilities::scrub($request, 'password'), 
         ];
-
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
         
         // Get a user instance from the container
         $user = clone $this->container->get('User');
-        $user->loadFromEmail($login_data['email']);
+        if($login_data['id']) $user->loadFromId($login_data['id']);
+        else $user->loadFromEmail($login_data['email']);
 
         if($user->getId() == '') {
             $logger->info("Login blocked: No user with address ".$login_data['email']);
@@ -340,14 +342,19 @@ class UserController
         if($user->isPatron()) $tier = $user->getPatronTier();
         else $tier = 0;
         
+        // Get the AvatarKit to create the avatar
+        $avatarKit = $this->container->get('AvatarKit');
+        
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'password_correct', 
             'message' => 'login/success',
             'token' => $TokenKit->create($user->getId()),
-            'userid' => $user->getId(),
+            'id' => $user->getId(),
+            'handle' => $user->getHandle(),
             'email' => $user->getEmail(),
             'username' => $user->getUsername(),
+            'avatar' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
             'patron' => $tier,
         ], 200, $this->container['settings']['app']['origin']);
     }
