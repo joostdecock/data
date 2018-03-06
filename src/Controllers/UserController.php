@@ -279,8 +279,8 @@ class UserController
         // Handle request data 
         $data = $request->getParsedBody();
         $login_data = [ 
-            'email' => Utilities::scrub($request, 'login-email', 'email'), 
-            'password' => Utilities::scrub($request, 'login-password'), 
+            'email' => Utilities::scrub($request, 'email', 'email'), 
+            'password' => Utilities::scrub($request, 'password'), 
         ];
 
         // Get a logger instance from the container
