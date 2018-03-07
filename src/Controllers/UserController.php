@@ -354,6 +354,7 @@ class UserController
             'handle' => $user->getHandle(),
             'email' => $user->getEmail(),
             'username' => $user->getUsername(),
+            'role' => $user->getRole(),
             'avatar' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
             'patron' => $tier,
         ], 200, $this->container['settings']['app']['origin']);
