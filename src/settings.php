@@ -17,6 +17,7 @@ return [
             "secure" => true, // Don't allow access over an unencrypted connection
             'path' => '/',
             'passthrough' => [
+                '/migrate',
                 '/signup', 
                 '/login', 
                 '/recover', 

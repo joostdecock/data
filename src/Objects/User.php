@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Objects;
 
 use Symfony\Component\Yaml\Yaml;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * The user class.
@@ -52,6 +53,55 @@ class User
     /** @var string $initial The email address the account was created with */
     private $initial;
 
+    /** @var int $patron The patron tier */
+    private $patron;
+
+    /** @var datetime $patronSince The date since this user became a patron */
+    private $patronSince;
+
+    /** @var string $units The units the user prefers */
+    private $units;
+
+    /** @var string $theme The theme the user prefers */
+    private $theme;
+
+    /** @var string $twitter The user's twitter handle */
+    private $twitter;
+
+    /** @var string $instagram The user's instagram handle */
+    private $instagram;
+
+    /** @var string $github The user's github handle */
+    private $github;
+
+    /** Fields that are stored as plain text in the database */
+    CONST CLEARTEXT_FIELDS = [
+        'id',
+        'handle',
+        'status',
+        'created',
+        'migrated',
+        'login',
+        'role',
+        'patron_since',
+        'patron',
+        'picture',
+        'units',
+        'theme',
+        'password', 
+        'pepper'
+    ];
+
+    /** Fields that are encrypted in the database */
+    CONST ENCRYPTED_FIELDS = [
+        'email',
+        'username',
+        'twitter',
+        'instagram',
+        'github',
+        'data',
+        'initial'
+    ];
 
     // constructor receives container instance
     public function __construct(\Slim\Container $container) 
@@ -143,29 +193,29 @@ class User
         return $this->data->getNode('account.pendingEmail');
     } 
 
-    public function getAccountUnits() 
+    public function getUnits() 
     {
-        return $this->data->getNode('account.units');
+        return $this->units;
     } 
 
-    public function getAccountTheme() 
+    public function getTheme() 
     {
-        return $this->data->getNode('account.theme');
+        return $this->theme;
     } 
 
     public function getTwitterHandle() 
     {
-        return $this->data->getNode('social.twitter');
+        return $this->twitter;
     } 
 
     public function getInstagramHandle() 
     {
-        return $this->data->getNode('social.instagram');
+        return $this->instagram;
     } 
 
     public function getGithubHandle() 
     {
-        return $this->data->getNode('social.github');
+        return $this->github;
     } 
 
     public function getBadges() 
@@ -175,32 +225,29 @@ class User
 
     public function getSocial() 
     {
-        return $this->data->getNode('social');
+        return [
+            'twitter' => $this->twitter,
+            'instagram' => $this->instagram,
+            'github' => $this->github
+        ];
     } 
 
     public function getPatron() 
     {
-        return $this->data->getNode('patron');
+        return [
+            'tier' => $this->patron,
+            'since' => $this->patronSince
+        ];
     } 
 
     public function getPatronTier() 
     {
-        return $this->data->getNode('patron.tier');
+        return $this->patron;
     }
 
     public function getPatronSince() 
     {
-        return $this->data->getNode('patron.since');
-    } 
-
-    public function getPatronAddress() 
-    {
-        return $this->data->getNode('patron.address');
-    } 
-
-    public function getPatronBirthday() 
-    {
-        return $this->data->getNode('patron.birthday.day').'/'.$this->data->getNode('patron.birthday.month');
+        return $this->patronSince;
     } 
 
     // Setters
@@ -265,60 +312,47 @@ class User
         $this->data->setNode('account.pendingEmail', $email);
     } 
 
-    public function setAccountUnits($units) 
+    public function setUnits($units) 
     {
-        $this->data->setNode('account.units', $units);
+        $this->units = $units;
     }
 
-    public function setAccountTheme($theme) 
+    public function setTheme($theme) 
     {
-        $this->data->setNode('account.theme', $theme);
+        $this->theme = $theme;
     }
 
     public function setTwitterHandle($handle) 
     {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.twitter', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.twitter');
+        if(strlen(str_replace('@','',$handle)) > 2) $this->twitter = str_replace('@','',$handle);
+        else $this->twitter = NULL;
     }
 
     public function setInstagramHandle($handle) 
     {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.instagram', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.instagram');
+        if(strlen(str_replace('@','',$handle)) > 2) $this->instagram = str_replace('@','',$handle);
+        else $this->instagram = NULL;
     }
 
     public function setGithubHandle($handle) 
     {
-        if(strlen(str_replace('@','',$handle)) > 2) $this->data->setNode('social.github', str_replace('@','',$handle));
-        else $this->data->unsetNode('social.github');
+        if(strlen(str_replace('@','',$handle)) > 2) $this->github = str_replace('@','',$handle);
+        else $this->github = NULL;
     }
-    public function setPatron($tier, $since, $address=false, $birthday=false, $birthmonth=false) 
+    public function setPatron($tier, $since)
     {
-        $this->setPatronTier($tier);
-        $this->setPatronSince($since);
-        if($address) $this->setPatronAddress($address);
-        if($birthday) $this->setPatronBirthday($birthday, $birthmonth);
+        $this->patron = $tier;
+        $this->patronSince = $since;
     }
 
     public function setPatronTier($tier) 
     {
-        $this->data->setNode('patron.tier', $tier);
+        $this->patron= $tier;
     }
 
     public function setPatronSince($date) 
     {
-        $this->data->setNode('patron.since', $date);
-    }
-
-    public function setPatronAddress($address) 
-    {
-        $this->data->setNode('patron.address', $address);
-    }
-
-    public function setPatronBirthday($day, $month) 
-    {
-        $this->data->setNode('patron.birthday.day', $day);
-        $this->data->setNode('patron.birthday.month', $month);
+        $this->patronSince = $since;
     }
 
     public function unsetPendingEmail() 
@@ -345,6 +379,11 @@ class User
      */
     private function load($value, $key='id') 
     {
+        // Email is encrypted, needs special treatment
+        if($key === 'email') { 
+            $key = 'ehash';
+            $value = hash('sha256', $value); 
+        }
         $db = $this->container->get('db');
         $sql = "SELECT * from `users` WHERE `$key` =".$db->quote($value);
         
@@ -353,12 +392,18 @@ class User
 
         if(!$result) return false;
         else {
-            foreach($result as $key => $val) {
-                if($key == 'data') {
-                    if($val != '') $this->data->import($val);
-                    else $this->data = $this->container->get('JsonStore');
-                } else $this->$key = $val;
+            foreach(self::CLEARTEXT_FIELDS as $f) {
+                if($f == 'patron_since') $this->patronSince = $result->{$f};
+                else $this->{$f} = $result->{$f};
+            } 
+            foreach(self::ENCRYPTED_FIELDS as $f) {
+                $this->{$f} = Utilities::decrypt($result->{$f}, $result->pepper);
             }
+            $this->badges = JSON_decode($this->data); 
+            // Password could be included in CLEARTEXT_FIELDS but that
+            // would send the wrong message to people who don't understand
+            // that the password is hashed
+            $this->password = $result->password; 
         }
     }
    

@@ -1,4 +1,8 @@
-<?php
+<?php 
+// Migrate users to new database structure
+$app->get('/migrate', 'UserController:migrate');
+
+
 
 /*******************/
 /* Prefetch routes */
@@ -152,6 +156,7 @@ $app->post('/tools/tile', 'ToolsController:tile');
 /****************/
 /* Admin routes */
 /****************/
+
 
 // Add badge to user profile
 $app->post('/admin/user/{handle}/badge/{badge}', 'AdminController:userAddBadge');

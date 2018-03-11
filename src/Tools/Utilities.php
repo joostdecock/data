@@ -80,4 +80,32 @@ class Utilities
         if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
         else return false;
     }
+
+    /**
+     * Wrapper around libsodium secretbox
+     */
+    static public function encrypt($value, $nonce)
+    {
+        // Key MUST be stored in the environment
+        $key = base64_decode(getenv('LIBSODIUM_KEY'));
+        
+        // Nonce is stored in the database as a base64 encoded string 
+        if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
+        
+        return sodium_crypto_secretbox($value, $nonce, $key);
+    }
+
+    /**
+     * Wrapper around libsodium secretbox_open
+     */
+    static public function decrypt($value, $nonce)
+    {
+        // Key MUST be stored in the environment
+        $key = base64_decode(getenv('LIBSODIUM_KEY'));
+        
+        // Nonce is stored in the database as a base64 encoded string 
+        if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
+        
+        return base64_encode(sodium_crypto_secretbox_open($value, $nonce, $key));
+    }
 }

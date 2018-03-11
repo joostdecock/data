@@ -21,6 +21,78 @@ class UserController
         $this->container = $container;
     }
 
+    // MIGRATION CALL 
+    /** Migrate user accounts to encrypted DB scheme */
+    public function migrate($request, $response, $args) 
+    {
+        $db = $this->container->get('db');
+        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL LIMIT 100";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        if(!$result) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_users_left', 
+            ], 400, $this->container['settings']['app']['origin']);
+        } else {
+            // Cycle through users
+            $count = 0; 
+            foreach($result as $i => $val) {
+                // Merge serialized data into atomic fields
+                $d = json_decode($val['data']);
+                // Units & theme 
+                if(isset($d->account->units)) $units = $d->account->units;
+                else $units = 'metric';
+                if(isset($d->account->theme)) $theme = $d->account->theme;
+                else $theme = 'basic';
+                // Social accounts 
+                foreach(['twitter','instagram','github'] as $s) {
+                    if(isset($d->social->{$s}) && $d->social->{$s} != '') ${$s} = $d->social->{$s}; 
+                    else ${$s} = NULL;
+                }
+                // Patron status 
+                $patron = 0;
+                $patron_since = NULL;
+                if(in_array($d->patron->tier, [2,4,8])) {
+                    if(isset($d->patron->tier)) $patron = $d->patron->tier;
+                    if(isset($d->patron->since)) $patron_since = date("Y-m-d H:i:s",$d->patron->since);
+                }
+                // Badges
+                if(isset($d->badges)) $badges = JSON_encode($d->badges);
+                // Encrypt data at rest
+                $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
+                $email = Utilities::encrypt($val['email'], $nonce);
+                $initial = Utilities::encrypt($val['initial'], $nonce);
+                $username = Utilities::encrypt($val['username'], $nonce);
+                $badges = Utilities::encrypt($badges, $nonce);
+                $twitter = Utilities::encrypt($twitter, $nonce);
+                $instagram = Utilities::encrypt($instagram, $nonce);
+                $github = Utilities::encrypt($github, $nonce);
+                $ehash = hash('sha256', $val['email']);
+                $sql = "UPDATE `users` SET 
+                    `units` = ".$db->quote($units).",
+                    `theme` = ".$db->quote($theme).",
+                    `twitter` = ".$db->quote($twitter).",
+                    `instagram` = ".$db->quote($instagram).",
+                    `github` = ".$db->quote($github).",
+                    `patron` = ".$db->quote($patron).",
+                    `patron_since` = ".$db->quote($patron_since).",
+                    `ehash` = ".$db->quote($ehash).",
+                    `pepper` = ".$db->quote($nonce).",
+                    `email` = ".$db->quote($email).",
+                    `initial` = ".$db->quote($initial).",
+                    `username` = ".$db->quote($username).",
+                    `data` = ".$db->quote($badges)."
+                    WHERE `id` = ".$val['id'];
+                if($db->exec($sql)) $count++;
+                else die("Failed to run query: $sql"); 
+            }
+        }
+        $db = null;
+        echo "Migrated $count users.";
+    }
+
+
+
     // Anonymous calls
 
     /** User signup
@@ -291,7 +363,7 @@ class UserController
         $user = clone $this->container->get('User');
         if($login_data['id']) $user->loadFromId($login_data['id']);
         else $user->loadFromEmail($login_data['email']);
-
+        
         if($user->getId() == '') {
             $logger->info("Login blocked: No user with address ".$login_data['email']);
 
