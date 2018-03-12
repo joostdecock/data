@@ -404,6 +404,7 @@ class User
             // would send the wrong message to people who don't understand
             // that the password is hashed
             $this->password = $result->password; 
+            var_dump($result);
         }
     }
    
@@ -585,19 +586,28 @@ class User
     /** Saves the user to the database */
     public function save() 
     {
+        $nonce = $this->getPepper();
         $db = $this->container->get('db');
         $sql = "UPDATE `users` set 
-            `email`    = ".$db->quote($this->getEmail()).",
-            `username` = ".$db->quote($this->getUsername()).",
-            `status`   = ".$db->quote($this->getStatus()).",
-            `role`     = ".$db->quote($this->getRole()).",
-            `login`    = ".$db->quote($this->getLogin()).",
-            `picture`  = ".$db->quote($this->getPicture()).",
-            `data`     = ".$db->quote(json_encode($this->getData())).",
-            `password` = ".$db->quote($this->getPassword())."
+                   `email` = ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
+                `username` = ".$db->quote(Utilities::encrypt($this->getUsername(), $nonce)).",
+                  `status` = ".$db->quote($this->getStatus()).",
+                   `login` = ".$db->quote($this->getLogin()).",
+                    `role` = ".$db->quote($this->getRole()).",
+            `patron_since` = ".$db->quote($this->getPatronSince()).",
+                  `patron` = ".$db->quote($this->getPatronTier()).",
+                   `units` = ".$db->quote($this->getUnits()).",
+                   `theme` = ".$db->quote($this->getTheme()).",
+                 `picture` = ".$db->quote($this->getPicture()).",
+                `password` = ".$db->quote($this->getPassword()).",
+                 `twitter` = ".$db->quote(Utilities::encrypt($this->getTwitterHandle(), $nonce)).",
+               `instagram` = ".$db->quote(Utilities::encrypt($this->getInstagramHandle(), $nonce)).",
+                  `github` = ".$db->quote(Utilities::encrypt($this->getGithubHandle(), $nonce)).",
+                    `data` = ".$db->quote(Utilities::encrypt(json_encode($this->getData()), $nonce)).",
+                   `ehash` = ".$db->quote(hash('sha265', $this->getEmail()))."
             WHERE 
-            `id`       = ".$db->quote($this->getId()).";";
-        
+                      `id` = ".$db->quote($this->getId());
+       die($sql); 
         $result = $db->exec($sql);
         $db = null;
 

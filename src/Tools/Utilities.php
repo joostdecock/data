@@ -92,7 +92,7 @@ class Utilities
         // Nonce is stored in the database as a base64 encoded string 
         if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
         
-        return sodium_crypto_secretbox($value, $nonce, $key);
+        return base64_encode(sodium_crypto_secretbox($value, $nonce, $key));
     }
 
     /**
@@ -106,6 +106,6 @@ class Utilities
         // Nonce is stored in the database as a base64 encoded string 
         if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
         
-        return base64_encode(sodium_crypto_secretbox_open($value, $nonce, $key));
+        return base64_decode(sodium_crypto_secretbox_open($value, $nonce, $key));
     }
 }
