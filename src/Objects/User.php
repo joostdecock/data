@@ -220,7 +220,7 @@ class User
 
     public function getBadges() 
     {
-        return JSON_decode($this->data->getNode('badges'));
+        return $this->data->getNode('badges');
     } 
 
     public function getSocial() 
@@ -382,7 +382,7 @@ class User
         // Email is encrypted, needs special treatment
         if($key === 'email') { 
             $key = 'ehash';
-            $value = hash('sha256', $value); 
+            $value = hash('sha256', strtolower(trim($value))); 
         }
         $db = $this->container->get('db');
         $sql = "SELECT * from `users` WHERE `$key` =".$db->quote($value);

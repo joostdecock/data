@@ -60,6 +60,6 @@ class JsonStore
     
     public function import($json) 
     {
-        foreach((array)json_decode($json) as $key => $val) $this->$key = json_decode(json_encode($val));
+            foreach((array)json_decode($json) as $key => $val) $this->$key = json_decode(json_encode($val));
     }
 }

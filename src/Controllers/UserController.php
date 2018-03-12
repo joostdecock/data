@@ -58,14 +58,14 @@ class UserController
                 }
                 // Badges
                 $data = new \stdClass();
-                if(isset($d->badges)) $data->badges = JSON_encode($d->badges);
-                print_r($data);
+                if(isset($d->badges)) $data->badges = $d->badges;
                 // Encrypt data at rest
                 $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
                 $email = Utilities::encrypt($val['email'], $nonce);
                 $initial = Utilities::encrypt($val['initial'], $nonce);
                 $username = Utilities::encrypt($val['username'], $nonce);
-                $data = Utilities::encrypt(JSON_encode($data), $nonce);
+                $json = JSON_encode($data, JSON_UNESCAPED_SLASHES);
+                $data = Utilities::encrypt($json, $nonce);
                 $twitter = Utilities::encrypt($twitter, $nonce);
                 $instagram = Utilities::encrypt($instagram, $nonce);
                 $github = Utilities::encrypt($github, $nonce);
@@ -365,8 +365,11 @@ class UserController
         
         // Get a user instance from the container
         $user = clone $this->container->get('User');
-        if($login_data['id']) $user->loadFromId($login_data['id']);
-        else $user->loadFromEmail($login_data['email']);
+        if($login_data['id'] && $login_data['id'] != '') {
+            $user->loadFromId($login_data['id']);
+        } else {
+            $user->loadFromEmail($login_data['email']);
+        }
         if($user->getId() == '') {
             $logger->info("Login blocked: No user with address ".$login_data['email']);
 
