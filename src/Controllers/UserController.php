@@ -26,7 +26,7 @@ class UserController
     public function migrate($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL LIMIT 1";
+        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         if(!$result) {
             return Utilities::prepResponse($response, [
@@ -57,17 +57,20 @@ class UserController
                     if(isset($d->patron->since)) $patron_since = date("Y-m-d H:i:s",$d->patron->since);
                 }
                 // Badges
-                if(isset($d->badges)) $badges = JSON_encode($d->badges);
+                $data = new \stdClass();
+                if(isset($d->badges)) $data->badges = JSON_encode($d->badges);
+                print_r($data);
                 // Encrypt data at rest
                 $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
                 $email = Utilities::encrypt($val['email'], $nonce);
                 $initial = Utilities::encrypt($val['initial'], $nonce);
                 $username = Utilities::encrypt($val['username'], $nonce);
-                $badges = Utilities::encrypt($badges, $nonce);
+                $data = Utilities::encrypt(JSON_encode($data), $nonce);
                 $twitter = Utilities::encrypt($twitter, $nonce);
                 $instagram = Utilities::encrypt($instagram, $nonce);
                 $github = Utilities::encrypt($github, $nonce);
-                $ehash = hash('sha256', $val['email']);
+                $ehash = hash('sha256', strtolower(trim($val['email'])));
+                $uhash = hash('sha256', strtolower(trim($val['username'])));
                 $sql = "UPDATE `users` SET 
                     `units` = ".$db->quote($units).",
                     `theme` = ".$db->quote($theme).",
@@ -77,11 +80,12 @@ class UserController
                     `patron` = ".$db->quote($patron).",
                     `patron_since` = ".$db->quote($patron_since).",
                     `ehash` = ".$db->quote($ehash).",
+                    `uhash` = ".$db->quote($uhash).",
                     `pepper` = ".$db->quote($nonce).",
                     `email` = ".$db->quote($email).",
                     `initial` = ".$db->quote($initial).",
                     `username` = ".$db->quote($username).",
-                    `data` = ".$db->quote($badges)."
+                    `data` = ".$db->quote($data)."
                     WHERE `id` = ".$val['id'];
                 if($db->exec($sql)) $count++;
                 else die("Failed to run query: $sql"); 
@@ -363,7 +367,6 @@ class UserController
         $user = clone $this->container->get('User');
         if($login_data['id']) $user->loadFromId($login_data['id']);
         else $user->loadFromEmail($login_data['email']);
-        
         if($user->getId() == '') {
             $logger->info("Login blocked: No user with address ".$login_data['email']);
 
@@ -424,7 +427,6 @@ class UserController
             'token' => $TokenKit->create($user->getId()),
             'id' => $user->getId(),
             'handle' => $user->getHandle(),
-            'email' => $user->getEmail(),
             'username' => $user->getUsername(),
             'role' => $user->getRole(),
             'avatar' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 

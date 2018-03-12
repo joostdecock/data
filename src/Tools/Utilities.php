@@ -86,12 +86,12 @@ class Utilities
      */
     static public function encrypt($value, $nonce)
     {
-        // Key MUST be stored in the environment
+        // Read base64-encoded key from the environment
         $key = base64_decode(getenv('LIBSODIUM_KEY'));
         
-        // Nonce is stored in the database as a base64 encoded string 
-        if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
-        
+        // Nonce is stored as a base64 encoded string 
+        $nonce = base64_decode($nonce);
+
         return base64_encode(sodium_crypto_secretbox($value, $nonce, $key));
     }
 
@@ -100,12 +100,12 @@ class Utilities
      */
     static public function decrypt($value, $nonce)
     {
-        // Key MUST be stored in the environment
+        // Read base64-encoded key from the environment
         $key = base64_decode(getenv('LIBSODIUM_KEY'));
         
-        // Nonce is stored in the database as a base64 encoded string 
-        if(strlen($nonce) != 24) $nonce = base64_decode($nonce);
+        // Nonce is stored as a base64 encoded string 
+        $nonce = base64_decode($nonce);
         
-        return base64_decode(sodium_crypto_secretbox_open($value, $nonce, $key));
+        return sodium_crypto_secretbox_open(base64_decode($value), $nonce, $key);
     }
 }

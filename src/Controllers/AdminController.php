@@ -371,39 +371,45 @@ class AdminController
 
         $db = $this->container->get('db');
 
-        $sql = "SELECT 
-            `users`.`email`,
-            `users`.`username`,
-            `users`.`picture`,
-            `users`.`data`,
-            `users`.`created`,
-            `users`.`handle` as userhandle
-            from `users` 
-            WHERE `users`.`username` LIKE ".$db->quote("%$filter%")."
-            OR `users`.`email` LIKE ".$db->quote("%$filter%")."
+        $sql = "SELECT `users`.`id` from `users` WHERE 
+            `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+            OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+            OR `users`.`id` = ".$db->quote(trim($filter))."
             OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
             ORDER BY `CREATED` DESC
             LIMIT 50";
-
-        $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $db = null;
 
-        if(!$result) return false;
-        else {
+        if(!$result) {
+            return Utilities::prepResponse($response, [ 
+                'result' => 'error',
+                'reason' => 'no_users_found'
+            ], 404, $this->container['settings']['app']['origin']);
+        } else {
+            $json = [];
             // Get the AvatarKit to get the avatar url
             $avatarKit = $this->container->get('AvatarKit');
-            foreach($result as $key => $val) {
-                $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
-                $data = json_decode($val->data);
-                if(isset($data->badges)) $val->badges = $data->badges;
-                if(isset($data->patron)) $val->patron = $data->patron;
-                unset($val->data);
-                $users[$val->userhandle] = $val;
-            }
+            // Load user account data
+            $user = clone $this->container->get('User');
+            foreach($result as $hit) {
+                $user->loadFromId($hit['id']);
+                $json[$user->getHandle()] = [
+                    'email' => $user->getEmail(),
+                    'username' => $user->getUsername(),
+                    'picture' => '/static'.$avatarKit->getDir($user->getHandle()).'/'.$user->getPicture(),
+                    'created' => $user->getCreated(),
+                    'login' => $user->getLogin(),
+                    'handle' => $user->getHandle(),
+                    'patron' => $user->getPatronTier(),
+                    'patronSince' => $user->getPatronSince(),
+                    'badges' => $user->getBadges()
+                ];
+            } 
         } 
 
         return Utilities::prepResponse($response, [ 
-            'users' => $users,
+            'users' => $json,
             'filter' => $filter
         ], 200, $this->container['settings']['app']['origin']);
     }

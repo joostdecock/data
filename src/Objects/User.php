@@ -220,7 +220,7 @@ class User
 
     public function getBadges() 
     {
-        return $this->data->getNode('badges');
+        return JSON_decode($this->data->getNode('badges'));
     } 
 
     public function getSocial() 
@@ -389,7 +389,6 @@ class User
         
         $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
         $db = null;
-
         if(!$result) return false;
         else {
             foreach(self::CLEARTEXT_FIELDS as $f) {
@@ -397,14 +396,10 @@ class User
                 else $this->{$f} = $result->{$f};
             } 
             foreach(self::ENCRYPTED_FIELDS as $f) {
-                $this->{$f} = Utilities::decrypt($result->{$f}, $result->pepper);
+                if($f == 'data') {
+                    $this->data->import(Utilities::decrypt($result->{$f}, $result->pepper));
+                } else $this->{$f} = Utilities::decrypt($result->{$f}, $result->pepper);
             }
-            $this->badges = JSON_decode($this->data); 
-            // Password could be included in CLEARTEXT_FIELDS but that
-            // would send the wrong message to people who don't understand
-            // that the password is hashed
-            $this->password = $result->password; 
-            var_dump($result);
         }
     }
    
@@ -604,10 +599,9 @@ class User
                `instagram` = ".$db->quote(Utilities::encrypt($this->getInstagramHandle(), $nonce)).",
                   `github` = ".$db->quote(Utilities::encrypt($this->getGithubHandle(), $nonce)).",
                     `data` = ".$db->quote(Utilities::encrypt(json_encode($this->getData()), $nonce)).",
-                   `ehash` = ".$db->quote(hash('sha265', $this->getEmail()))."
+                   `ehash` = ".$db->quote(hash('sha256', $this->getEmail()))."
             WHERE 
                       `id` = ".$db->quote($this->getId());
-       die($sql); 
         $result = $db->exec($sql);
         $db = null;
 
