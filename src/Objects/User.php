@@ -339,12 +339,6 @@ class User
         if(strlen(str_replace('@','',$handle)) > 2) $this->github = str_replace('@','',$handle);
         else $this->github = NULL;
     }
-    public function setPatron($tier, $since)
-    {
-        $this->patron = $tier;
-        $this->patronSince = $since;
-    }
-
     public function setPatronTier($tier) 
     {
         $this->patron= $tier;
@@ -710,8 +704,8 @@ class User
     /** Makes user a patron */
     public function makePatron($tier)
     {
-        $this->data->setNode('patron.tier', $tier);
-        $this->data->setNode('patron.since', time());
+        $this->patron = $tier;
+        $this->patron->since = date("Y-m-d H:i:s", time());
     }
 
     /** Removes a badge from the user */

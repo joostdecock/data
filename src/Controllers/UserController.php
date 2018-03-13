@@ -26,7 +26,7 @@ class UserController
     public function migrate($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1";
+        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1000";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         if(!$result) {
             return Utilities::prepResponse($response, [

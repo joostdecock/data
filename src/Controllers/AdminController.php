@@ -345,8 +345,14 @@ class AdminController
         ], 200, $this->container['settings']['app']['origin']);
     } 
 
+    /** Latest user accounts */
+    public function latestUsers($request, $response, $args) 
+    {
+        return $this->userFind($request, $response, $args, TRUE);
+    }
+
     /** Find user accounts */
-    public function userFind($request, $response, $args) 
+    public function userFind($request, $response, $args, $showLatestUsers=false) 
     {
         // Handle request data 
         $filter = filter_var($args['filter'], FILTER_SANITIZE_STRING);
@@ -371,13 +377,19 @@ class AdminController
 
         $db = $this->container->get('db');
 
-        $sql = "SELECT `users`.`id` from `users` WHERE 
-            `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
-            OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
-            OR `users`.`id` = ".$db->quote(trim($filter))."
-            OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
-            ORDER BY `CREATED` DESC
-            LIMIT 50";
+        if($showLatestUsers) {
+            $sql = "SELECT `users`.`id` from `users` WHERE 1
+                ORDER BY `CREATED` DESC
+                LIMIT 100";
+        } else {
+            $sql = "SELECT `users`.`id` from `users` WHERE 
+                `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+                OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+                OR `users`.`id` = ".$db->quote(trim($filter))."
+                OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
+                ORDER BY `CREATED` DESC
+                LIMIT 50";
+        }
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $db = null;
 
@@ -413,6 +425,7 @@ class AdminController
             'filter' => $filter
         ], 200, $this->container['settings']['app']['origin']);
     }
+
     /** Update error group */
     public function errorUpdateGroup($request, $response, $args) 
     {

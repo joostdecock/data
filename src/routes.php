@@ -179,6 +179,9 @@ $app->get('/admin/user/{handle}', 'AdminController:userLoad');
 // Find users 
 $app->get('/admin/find/users/{filter}', 'AdminController:userFind');
 
+// Recent users 
+$app->get('/admin/latest/users', 'AdminController:latestUsers');
+
 // Update error group
 $app->post('/admin/errors/{hash:.*}', 'AdminController:errorUpdateGroup');
 
