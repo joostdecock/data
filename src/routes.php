@@ -73,16 +73,6 @@ $app->get('/comments/recent/{count}', 'CommentController:recentComments');
 // Load patron list
 $app->get('/patrons/list', 'UserController:patronList');
 
-// List (recent) errors
-$app->get('/errors', 'ErrorController:loadRecentErrors');
-
-// List all errors
-$app->get('/errors/all', 'ErrorController:loadAllErrors');
-
-// List error group
-$app->get('/errors/{hash:.*}', 'ErrorController:loadGroup');
-
-
 /************************/
 /* Authenticated routes */
 /************************/
@@ -171,7 +161,7 @@ $app->put('/admin/user/{handle}/password', 'AdminController:userSetPassword');
 $app->put('/admin/user/{handle}/patron/{tier}', 'AdminController:userSetPatronTier');
 
 // Send patron email
-$app->post('/admin/user/{handle}/email/patron', 'AdminController:userSendPatronEmail');
+$app->get('/admin/user/{handle}/email/patron', 'AdminController:userSendPatronEmail');
 
 // Load user account
 $app->get('/admin/user/{handle}', 'AdminController:userLoad');
@@ -180,10 +170,25 @@ $app->get('/admin/user/{handle}', 'AdminController:userLoad');
 $app->get('/admin/find/users/{filter}', 'AdminController:userFind');
 
 // Recent users 
-$app->get('/admin/latest/users', 'AdminController:latestUsers');
+$app->get('/admin/recent/users', 'AdminController:recentUsers');
+
+// Recent referrals 
+$app->get('/admin/recent/referrals', 'AdminController:recentReferrals');
+
+// Recent referrals for a host 
+$app->get('/admin/recent/referrals/{host}', 'AdminController:recentReferralsForHost');
+
+// List (recent) errors
+$app->get('/admin/recent/errors', 'AdminController:errorsRecent');
+
+// List all errors
+$app->get('/admin/all/errors', 'AdminController:errorsAll');
+
+// List error group
+$app->get('/admin/errors/{hash:.*}', 'AdminController:errorsGroup');
 
 // Update error group
-$app->post('/admin/errors/{hash:.*}', 'AdminController:errorUpdateGroup');
+$app->post('/admin/errors/{hash:.*}', 'AdminController:errorsUpdateGroup');
 
 /*******************/
 /* Catch-all route */

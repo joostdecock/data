@@ -26,7 +26,7 @@ class UserController
     public function migrate($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1000";
+        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 10000";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         if(!$result) {
             return Utilities::prepResponse($response, [
@@ -50,11 +50,13 @@ class UserController
                     else ${$s} = NULL;
                 }
                 // Patron status 
-                $patron = 0;
-                $patron_since = NULL;
-                if(in_array($d->patron->tier, [2,4,8])) {
-                    if(isset($d->patron->tier)) $patron = $d->patron->tier;
-                    if(isset($d->patron->since)) $patron_since = date("Y-m-d H:i:s",$d->patron->since);
+                if(isset($d->patron) && isset($d->patron->tier)) { 
+                    $patron_since = NULL;
+                    $patron = $d->patron->tier;
+                    $patron_since = date("Y-m-d H:i:s",$d->patron->since);
+                } else {
+                    $patron = 0;
+                    $patron_since = NULL;
                 }
                 // Badges
                 $data = new \stdClass();

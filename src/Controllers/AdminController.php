@@ -346,7 +346,7 @@ class AdminController
     } 
 
     /** Latest user accounts */
-    public function latestUsers($request, $response, $args) 
+    public function recentUsers($request, $response, $args) 
     {
         return $this->userFind($request, $response, $args, TRUE);
     }
@@ -354,8 +354,23 @@ class AdminController
     /** Find user accounts */
     public function userFind($request, $response, $args, $showLatestUsers=false) 
     {
-        // Handle request data 
-        $filter = filter_var($args['filter'], FILTER_SANITIZE_STRING);
+        $db = $this->container->get('db');
+        if($showLatestUsers) {
+            $sql = "SELECT `users`.`id` from `users` WHERE 1
+                ORDER BY `CREATED` DESC
+                LIMIT 100";
+        } else {
+            // Handle request data 
+            $filter = filter_var($args['filter'], FILTER_SANITIZE_STRING);
+
+            $sql = "SELECT `users`.`id` from `users` WHERE 
+                `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+                OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+                OR `users`.`id` = ".$db->quote(trim($filter))."
+                OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
+                ORDER BY `CREATED` DESC
+                LIMIT 50";
+        }
         
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
@@ -375,21 +390,6 @@ class AdminController
                 ], 400, $this->container['settings']['app']['origin']);
         }
 
-        $db = $this->container->get('db');
-
-        if($showLatestUsers) {
-            $sql = "SELECT `users`.`id` from `users` WHERE 1
-                ORDER BY `CREATED` DESC
-                LIMIT 100";
-        } else {
-            $sql = "SELECT `users`.`id` from `users` WHERE 
-                `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
-                OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
-                OR `users`.`id` = ".$db->quote(trim($filter))."
-                OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
-                ORDER BY `CREATED` DESC
-                LIMIT 50";
-        }
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $db = null;
 
@@ -453,7 +453,7 @@ class AdminController
 
         // Does the group exist?
         $errorController = $this->container->get('ErrorController');
-        if($errorController->getGroupInfo($hash) === false) {
+        if($errorController->errorsGroupInfo($hash) === false) {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'no_such_group', 
@@ -461,7 +461,7 @@ class AdminController
         }
 
         // Update status
-        $errorController->setGroupStatus($status, $hash);
+        $errorController->errorsSetGroupStatus($status, $hash);
         
         return Utilities::prepResponse($response, [
             'result' => 'ok' 
@@ -473,7 +473,7 @@ class AdminController
      *
      * @param string $status The new status
      */
-    private function setGroupStatus($status, $hash)
+    private function errorsSetGroupStatus($status, $hash)
     {
         $db = $this->container->get('db');
         if($status == 'open' || $status == 'closed') {
@@ -497,4 +497,309 @@ class AdminController
         return $result;
     }
 
+    /** List recent referrals */
+    public function recentReferrals($request, $response, $args, $host=FALSE) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        // Get a user instance from the container and load user data
+        $admin = clone $this->container->get('User');
+        $admin->loadFromId($id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            // Get a logger instance from the container
+            $logger = $this->container->get('logger');
+            $logger->info("Failed to find users: User ".$admin->getId()." is not an admin");
+
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400, $this->container['settings']['app']['origin']);
+        }
+
+        $db = $this->container->get('db');
+        $sql = "SELECT COUNT(`id`) as `hits`, `host`, `url` FROM `referrals` 
+            WHERE `time` > DATE('".date('Y-m-d',strtotime('-1 month'))."') ";
+        if($host === FALSE) $sql .= "GROUP BY `host` ORDER BY `hits` DESC";
+        else $sql .= "AND `host` = ".$db->quote($host)." GROUP BY `url` ORDER BY `hits` DESC";
+        
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
+
+        if(!$result) {
+            return Utilities::prepResponse($response, [ 
+                'result' => 'error',
+                'reason' => 'no_referrals_found'
+            ], 404, $this->container['settings']['app']['origin']);
+        } else {
+            return Utilities::prepResponse($response, [ 
+                'result' => 'ok',
+                'referrals' => $result
+            ], 200, $this->container['settings']['app']['origin']);
+        } 
+    }
+    
+    /** List recent referrals for a host*/
+    public function recentReferralsForHost($request, $response, $args) 
+    {
+        // Handle request data 
+        $host = filter_var($args['host'], FILTER_SANITIZE_STRING);
+        
+        return $this->recentReferrals($request, $response, $args, $host);
+    }
+
+    /** List recent error groups */
+    public function errorsRecent($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        // Get a user instance from the container and load user data
+        $admin = clone $this->container->get('User');
+        $admin->loadFromId($id);
+
+        // Is user an admin?
+        if($admin->getRole() != 'admin') {
+            // Get a logger instance from the container
+            $logger = $this->container->get('logger');
+            $logger->info("Failed to load recent errors: User ".$admin->getId()." is not an admin");
+
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'access_denied', 
+                ], 400, $this->container['settings']['app']['origin']);
+        }
+
+        $errors = $this->errorsActiveGroups();
+        if($errors === false) {
+            return Utilities::prepResponse($response, [
+                'result' => 'ok', 
+                'count' => 0,
+            ], 200, $this->container['settings']['app']['origin']);
+        }
+
+            return Utilities::prepResponse($response, [
+                'result' => 'ok', 
+                'count' => count($errors),
+                'errors' => $errors
+            ], 200, $this->container['settings']['app']['origin']);
+
+    }
+
+    /** List all error groups */
+    public function errorsAll($request, $response, $args) 
+    {
+        $errors = $this->errorsAllGroups();
+        if($errors === false) {
+            return Utilities::prepResponse($response, [
+                'result' => 'ok', 
+                'count' => 0,
+            ], 200, $this->container['settings']['app']['origin']);
+        }
+
+            return Utilities::prepResponse($response, [
+                'result' => 'ok', 
+                'count' => count($errors),
+                'errors' => $errors
+            ], 200, $this->container['settings']['app']['origin']);
+
+    }
+
+    /** Load error group */
+    public function errorsGroup($request, $response, $args) 
+    {
+        // Request data
+        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
+
+        $group = $this->errorsGroupInfo($hash);
+        if($group === false) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'failed_to_load_group',
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+        $group['count'] = $this->errorsGroupCount($hash);
+        $group['status'] = $this->errorsGroupStatus($group['count']);
+        $group['errors'] = $this->errorsGroupErrors($hash);
+
+        return Utilities::prepResponse($response, [
+            'result' => 'ok', 
+            'group' => $group
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+
+    private function errorsGroupStatus($counters) {
+        if($counters['new'] > 0) return 'new';
+        if($counters['open'] > 0) return 'open';
+        if($counters['muted'] > 0) return 'muted';
+        return 'closed';
+    }
+
+
+    /**
+     * Returns the common info for an error group
+     *
+     * @param string $hash The error hash of the group
+     *
+     * @return array
+     */
+    public function errorsGroupInfo($hash) 
+    {
+        $db = $this->container->get('db');
+
+        $sql = "SELECT 
+            `hash`,
+            `level`,
+            `message`,
+            `origin`,
+            `file`,
+            `line`,
+            `type`,
+            `raw`,
+            `time`
+            FROM `errors` WHERE 
+            `hash` = ".$db->quote($hash)."
+            ORDER BY `time` DESC LIMIT 1";
+        $result = $db->query($sql)->fetch(\PDO::FETCH_ASSOC);
+        $db = null;
+        
+        if($result === false) return false;
+        
+        $result['last_seen'] = $result['time'];
+        unset($result['time']);
+        
+        return $result;
+    }
+
+    /**
+     * Returns list of errors for an error group
+     *
+     * @param string $hash The error hash of the group
+     *
+     * @return array
+     */
+    private function errorsGroupErrors($hash) 
+    {
+        $db = $this->container->get('db');
+
+        $sql = "SELECT 
+            `id`,
+            `ip`,
+            `time`,
+            `status`
+            FROM `errors` WHERE 
+            `hash` = ".$db->quote($hash)."
+            ORDER BY `time` DESC LIMIT 50";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
+        
+        if(!$result) return false;
+        else return $result;
+    }
+
+    /**
+     * Returns the error count by statusfor an error group
+     *
+     * @param string $hash The error hash of the group
+     *
+     * @return array
+     */
+    private function errorsGroupCount($hash) 
+    {
+        $db = $this->container->get('db');
+
+        $sql = "SELECT COUNT(`id`) as 'count' FROM `errors` 
+            WHERE hash=".$db->quote($hash);
+        $result = $db->query($sql)->fetch(\PDO::FETCH_ASSOC);
+
+        $count['total'] = (int)$result['count'];
+        $sql = "SELECT COUNT(`id`) as 'count', `status` FROM `errors` 
+            WHERE hash=".$db->quote($hash)." GROUP BY `status`";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        
+        $db = null;
+        if(!$result) return false;
+        
+        foreach($result as $key => $val) {
+            $count[$val['status']] = $val['count'];
+        }
+        // Set missing status types to zero
+        foreach(['new','open','muted','closed'] as $status) {
+            if(!isset($count[$status])) {
+                $count[$status] = 0;
+            } else {
+                $count[$status] = (int)$count[$status];
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * Returns an overview of new/open groups in the last 24 hours
+     */
+    private function errorsActiveGroups() 
+    {
+        $db = $this->container->get('db');
+
+        $time = date('Y-m-d H:i:s', time() - 7*24*60*60);
+        $sql = "SELECT 
+            COUNT(`id`) as 'count', 
+            `type`,
+            `time`,
+            `level`,
+            `message`,
+            `origin`,
+            `file`,
+            `line`,
+            `hash`
+            FROM `errors` WHERE 
+            (`status` = 'new' OR `status` = 'open') 
+            AND `time` > '$time' 
+            GROUP BY `hash`
+            ORDER BY `errors`.`time` DESC";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
+
+        if(!$result) return false;
+        
+        foreach($result as $key => $val) {
+            $result[$key]['status'] = $this->errorsGroupStatus($this->errorsGroupCount($val['hash']));
+        }
+        return $result;
+    }
+
+    /**
+     * Returns an overview of all groups in the last 28 days
+     */
+    private function errorsAllGroups() 
+    {
+        $db = $this->container->get('db');
+
+        $time = date('Y-m-d H:i:s', time() - 28*24*60*60);
+        $sql = "SELECT 
+            COUNT(`id`) as 'count', 
+            `type`,
+            `time`,
+            `level`,
+            `message`,
+            `origin`,
+            `file`,
+            `line`,
+            `hash`
+            FROM `errors` WHERE 
+            `time` > '$time' 
+            GROUP BY `hash`
+            ORDER BY `errors`.`time` DESC
+            LIMIT 100";
+        $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
+        $db = null;
+
+        if(!$result) return false;
+        
+        foreach($result as $key => $val) {
+            $result[$key]['status'] = $this->errorsGroupStatus($this->errorsGroupCount($val['hash']));
+        }
+        return $result;
+    }
 }
