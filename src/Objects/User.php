@@ -705,7 +705,7 @@ class User
     public function makePatron($tier)
     {
         $this->patron = $tier;
-        $this->patron->since = date("Y-m-d H:i:s", time());
+        $this->patronSince = date("Y-m-d H:i:s", time());
     }
 
     /** Removes a badge from the user */

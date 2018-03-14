@@ -65,35 +65,18 @@ class MailKit
     public function patron($user) 
     {
         if($user->getPatronTier() == 2) $template= "patron.welcome.2";
-        else {
-            if(strlen($user->getPatronAddress())>10) $template= 'patron.welcome.confirm-address.'.$user->getPatronTier();
-            else $template= 'patron.welcome.provide-address.'.$user->getPatronTier();
-        }
+        else $template= 'patron.welcome.'.$user->getPatronTier();
+       ]);
 
-        // Send through mailgun
-        $mg = $this->container->get('Mailgun');
-        $mg->messages()->send('mg.freesewing.org', [
-          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
-          'to'      => $user->getEmail(), 
-          'subject' => 'Thank you for your support', 
-          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
-          'text'    => $this->loadTemplate("$template.txt", $user),
-          'html'    => $this->loadTemplate("$template.html", $user),
-        ]);
-
-        // Also send through Gmail if it's a SEP domain
-        // SEP: Shitty email provider
-        if($this->isSep($user->getEmail())) {
-            // Send email via swiftmailer 
-            $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Thank you for your support'))
-                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
-                  ->setTo($user->getEmail())
-                  ->setBody($this->loadTemplate("$template.txt", $user))
-                  ->addPart($this->loadTemplate("$template.html", $user), 'text/html')
-            ;
-            $mailer->send($message);
-        }
+        // Always send patron email through Gmail so we have a paper trail
+        $mailer = $this->container->get('SwiftMailer');
+        $message = (new \Swift_Message('Thank you for your support'))
+                ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
+                ->setTo($user->getEmail())
+                ->setBody($this->loadTemplate("$template.txt", $user))
+                ->addPart($this->loadTemplate("$template.html", $user), 'text/html')
+        ;
+        $mailer->send($message);
 
         return true;
     }
