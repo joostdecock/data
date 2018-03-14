@@ -25,7 +25,7 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
 
         $response = $this->app->call('POST','/signup', $data);
         $json = json_decode((string)$response->getBody());
-
+        
         $this->assertEquals($response->getStatusCode(), 200);
         $this->assertEquals($json->result, 'ok');
         $this->assertEquals($json->reason, 'signup_complete');
@@ -262,7 +262,7 @@ class AnonymousTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($json->result, 'error');
         $this->assertEquals($json->reason, 'no_such_account');
         $this->assertEquals($json->message, 'activation/no-such-account');
-        $this->assertEquals($response->getStatusCode(), 400);
+        $this->assertEquals($response->getStatusCode(), 404);
     }
 
     public function testConfirmBlockedUser()

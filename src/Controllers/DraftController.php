@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Controllers;
 
 use \Freesewing\Data\Data\Model as Model;
+use \Freesewing\Data\Tools\Utilities as Utilities;
 
 /**
  * Drafts controller
@@ -20,36 +21,14 @@ class DraftController
         $this->container = $container;
     }
 
-    /**
-     * Helper function to format response and send CORS headers
-     *
-     * @param $data The data to return
-     */
-    private function prepResponse($response, $data, $status=200)
-    {
-        return $response
-            ->withStatus($status)
-            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
-            ->withHeader("Content-Type", "application/json")
-            ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
-    }
-   
-    private function scrub($request, $key, $type='string')
-    {
-        $filter = FILTER_SANITIZE_STRING;
-        
-        if(isset($request->getParsedBody()[$key])) return filter_var($request->getParsedBody()[$key], $filter);
-        else return false;
-    }
-
     /** Create draft */
     public function create($request, $response, $args, $recreate=false) 
     {
         // Handle request
         $in = new \stdClass();
-        $in->model = $this->scrub($request,'model');
-        $in->handle = $this->scrub($request,'draft');
-        $in->fork = $this->scrub($request,'fork');
+        $in->model = Utilities::scrub($request,'model');
+        $in->handle = Utilities::scrub($request,'draft');
+        $in->fork = Utilities::scrub($request,'fork');
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -68,10 +47,10 @@ class DraftController
         if($model->getUser() != $user->getId()) {
             // Not a model that belongs to the user, and not shared either
             $logger->info("Draft blocked: User ".$user->getId()." can not generate a draft for model ".$in->model);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
          
         // Get a draft instance from the container and create the draft
@@ -91,10 +70,10 @@ class DraftController
             }
         }
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'handle' => $draft->getHandle(),
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
     
     /** Recreate draft */
@@ -102,7 +81,7 @@ class DraftController
     {
         // Handle request
         $in = new \stdClass();
-        $in->handle = $this->scrub($request,'draft');
+        $in->handle = Utilities::scrub($request,'draft');
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -115,10 +94,10 @@ class DraftController
             // Get a logger instance from the container
             $logger = $this->container->get('logger');
             $logger->info("Draft recreation blocked: User ".$in->id." does not own draft ".$in->handle);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
 
         return $this->create($request, $response, $args, true); 
@@ -148,10 +127,10 @@ class DraftController
         if($draft->getUser() != $id && !$draft->getShared() && $admin->getRole() != 'admin') {
             // Not a draft that belongs to the user, nor is it shared
             $logger->info("Load blocked: User $id cannot load draft ".$in->handle);
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours_and_not_shared', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         // Get a user instance from the container and load its data
@@ -174,7 +153,7 @@ class DraftController
         $optionData = $draft->getData();
         $cacheToken = sha1(serialize($optionData));
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
                 'asAdmin' => $asAdmin,
@@ -203,7 +182,7 @@ class DraftController
                 'notes' => $draft->getNotes(), 
                 'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
             ]
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     } 
 
     /** Load a shared draft */
@@ -223,10 +202,10 @@ class DraftController
         if(!$draft->getShared()) {
             // Not a shared draft
             $logger->info("Load blocked: ".$in->handle." is not a shared draft");
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_shared', 
-            ], 400);
+            ], 200, $this->container['settings']['app']['origin']);
         }
         
         // Get a user instance from the container and load its data
@@ -241,7 +220,7 @@ class DraftController
         $optionData = $draft->getData();
         $cacheToken = sha1(serialize($optionData));
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'draft' => [
                 'id' => $draft->getId(), 
                 'user' => $draft->getUser(), 
@@ -262,7 +241,7 @@ class DraftController
                 'notes' => $draft->getNotes(), 
                 'dlroot' => $this->container['settings']['app']['data_api'].$this->container['settings']['app']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$draft->getHandle().'/',
             ]
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     } 
 
     /** Update draft */
@@ -270,9 +249,9 @@ class DraftController
     {
         // Handle request
         $in = new \stdClass();
-        $in->name = $this->scrub($request,'name');
-        $in->notes = $this->scrub($request,'notes');
-        ($this->scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
+        $in->name = Utilities::scrub($request,'name');
+        $in->notes = Utilities::scrub($request,'notes');
+        (Utilities::scrub($request,'shared') == '1') ? $in->shared = 1 : $in->shared = 0;
         $in->handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
      
         
@@ -289,10 +268,10 @@ class DraftController
         // Does this user own this draft?
         if($draft->getUser() != $in->id) {
             $logger->info("Draft edit blocked: User id ".$in->id." is not the owner of draft ".$draft->getHandle());
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         // Get a user instance from the container
@@ -311,13 +290,13 @@ class DraftController
         // Save changes 
         $draft->save();
 
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'handle' => $draft->getHandle(),
             'name' => $draft->getName(),
             'shared' => $draft->getShared(),
             'notes' => $draft->getNotes(),
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     }
     
     /** Remove draft */
@@ -340,18 +319,18 @@ class DraftController
         if($draft->getUser() != $id) {
             $logger = $this->container->get('logger');
             $logger->info("Access blocked: Attempt to remove draft ".$draft->getId()." by user: ".$user->getId());
-            return $this->prepResponse($response, [
+            return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'not_your_draft', 
-            ], 400);
+            ], 400, $this->container['settings']['app']['origin']);
         }
         
         $draft->remove($user);
         
-        return $this->prepResponse($response, [
+        return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'draft_removed', 
-        ]);
+        ], 200, $this->container['settings']['app']['origin']);
     } 
     
     /** Download draft */
