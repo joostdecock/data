@@ -40,6 +40,36 @@ class InfoController
             ->write(json_encode($this->infoBundle(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 
+    /** Locale bundle */
+    public function asLocale($request, $response, $args) 
+    {
+        $info = $this->infoBundle();
+        $info['measurements'] = $info['mapping']['measurementToTitle'];
+        $patterns = $info['patterns'];
+        unset($info['patterns']);
+        foreach($patterns as $pattern) {
+            foreach($pattern['options'] as $oname => $option) {
+                $options[$oname]['title'] = $option['title'];
+                $options[$oname]['description'] = $option['description'];
+            }
+            $pinfo = [
+                'title' => $pattern['info']['name'],
+                'description' => $pattern['info']['description'],
+                'options' => $options
+            ];
+            $info['patterns'][$pattern['info']['handle']] = $pinfo;
+        }
+         
+        unset($info['version']);
+        unset($info['apping']);
+        unset($info['namespaces']);
+         
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write(json_encode($info, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    }
+
     /** Info bundle */
     private function infoBundle() 
     {

@@ -14,6 +14,9 @@ $app->get('/info/yaml', 'InfoController:asYaml');
 // JSON info bundle
 $app->get('/info/json', 'InfoController:asJson');
 
+// Locale bundle bundle
+$app->get('/info/locale', 'InfoController:asLocale');
+
 // Status
 $app->get('/status', 'InfoController:status');
 
