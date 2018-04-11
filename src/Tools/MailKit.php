@@ -66,7 +66,6 @@ class MailKit
     {
         if($user->getPatronTier() == 2) $template= "patron.welcome.2";
         else $template= 'patron.welcome.'.$user->getPatronTier();
-       ]);
 
         // Always send patron email through Gmail so we have a paper trail
         $mailer = $this->container->get('SwiftMailer');

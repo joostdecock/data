@@ -156,7 +156,6 @@ You can write whatever you want here.',
         
         // Measurement titles
         'measurements' => [
-            'acrossBack' => 'Across back',
             'bicepsCircumference' => 'Biceps circumference',
             'bustSpan' => 'Bust span',
             'centerBackNeckToWaist' => 'Centerback neck to waist',

@@ -41,33 +41,93 @@ class InfoController
     }
 
     /** Locale bundle */
-    public function asLocale($request, $response, $args) 
+    private function asLocale($request, $response, $args) 
     {
         $info = $this->infoBundle();
-        $info['measurements'] = $info['mapping']['measurementToTitle'];
+//        $info['measurements'] = $info['mapping']['measurementToTitle'];
         $patterns = $info['patterns'];
+        $info['options'] = [];
         unset($info['patterns']);
         foreach($patterns as $pattern) {
             foreach($pattern['options'] as $oname => $option) {
-                $options[$oname]['title'] = $option['title'];
-                $options[$oname]['description'] = $option['description'];
+                $info['options'][$oname]['title'] = $option['title'];
+                $info['options'][$oname]['description'][$pattern['info']['handle']] = $option['description'];
+            }
+            foreach($pattern['measurements'] as $mname => $default) {
+                $info['measurements'][$mname] = $info['mapping']['measurementToTitle'][$mname];
             }
             $pinfo = [
                 'title' => $pattern['info']['name'],
                 'description' => $pattern['info']['description'],
-                'options' => $options
             ];
             $info['patterns'][$pattern['info']['handle']] = $pinfo;
         }
-         
+        foreach($info['mapping']['measurementToTitle'] as $handle => $title) {
+            $info['measurements'][$handle] = $title;
+        }
+        foreach($info['options'] as $oname => $oinfo) {
+            if(count($oinfo['description']) === 1) {
+                $info['options'][$oname]['description'] = array_shift($oinfo['description']); 
+            } else {
+                arsort($oinfo['description']);
+                $count = 0;
+                foreach($oinfo['description'] as $phandle => $odesc) {
+                    if($count == 0) {
+                        $newDesc['_default'] = $odesc;  
+                    } else {
+                        if($odesc != $newDesc['_default']) {
+                            $newDesc[$phandle] = $odesc;
+                        }
+                    } 
+                    $count++;
+                }
+                if (count($newDesc) == 1) $newDesc = $newDesc['_default'];
+                $info['options'][$oname]['description'] = $newDesc;
+                unset($newDesc);
+                ksort($info['options'][$oname]['description']);
+            }
+        }
         unset($info['version']);
-        unset($info['apping']);
+        unset($info['mapping']);
         unset($info['namespaces']);
+
+        return $info; 
+    }
+
+    /** Locale bundle of patterns */
+    public function patternsAsLocale($request, $response, $args) 
+    {
+        $info = $this->asLocale();
+        ksort($info['patterns']); 
          
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/plain")
-            ->write(json_encode($info, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            ->write(Yaml::dump($info['patterns'],5));
+    }
+
+    /** Locale bundle of measurements */
+    public function measurementsAsLocale($request, $response, $args) 
+    {
+        $info = $this->asLocale();
+        ksort($info['measurements']); 
+        
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write(Yaml::dump($info['measurements'],5));
+    }
+
+    /** Locale bundle of options */
+    public function optionsAsLocale($request, $response, $args) 
+    {
+        $info = $this->asLocale();
+        ksort($info['options']); 
+        
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write(Yaml::dump($info['options'],5));
     }
 
     /** Info bundle */

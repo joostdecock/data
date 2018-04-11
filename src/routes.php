@@ -14,8 +14,10 @@ $app->get('/info/yaml', 'InfoController:asYaml');
 // JSON info bundle
 $app->get('/info/json', 'InfoController:asJson');
 
-// Locale bundle bundle
-$app->get('/info/locale', 'InfoController:asLocale');
+// Locale bundles (these are the basis for translations)
+$app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
+$app->get('/info/locale/options', 'InfoController:optionsAsLocale');
+$app->get('/info/locale/measurements', 'InfoController:measurementsAsLocale');
 
 // Status
 $app->get('/status', 'InfoController:status');
