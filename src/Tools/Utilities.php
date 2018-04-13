@@ -108,4 +108,11 @@ class Utilities
         
         return sodium_crypto_secretbox_open(base64_decode($value), $nonce, $key);
     }
+
+    /**
+     * Returns a (non-secure) token to verify email addresses and so on
+     */
+    static public function getToken($input) {
+       return sha1(getEnv('JWT_SECRET').$input.getEnv('DB_PASS')); 
+    }
 }

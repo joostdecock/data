@@ -26,7 +26,7 @@ class UserController
     public function migrate($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 10000";
+        $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1000";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         if(!$result) {
             return Utilities::prepResponse($response, [
@@ -61,18 +61,20 @@ class UserController
                 // Badges
                 $data = new \stdClass();
                 if(isset($d->badges)) $data->badges = $d->badges;
+
+                // Format username
+                $username = str_replace(' ', '', $val['username']);
+
                 // Encrypt data at rest
                 $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
                 $email = Utilities::encrypt($val['email'], $nonce);
                 $initial = Utilities::encrypt($val['initial'], $nonce);
-                $username = Utilities::encrypt($val['username'], $nonce);
                 $json = JSON_encode($data, JSON_UNESCAPED_SLASHES);
                 $data = Utilities::encrypt($json, $nonce);
                 $twitter = Utilities::encrypt($twitter, $nonce);
                 $instagram = Utilities::encrypt($instagram, $nonce);
                 $github = Utilities::encrypt($github, $nonce);
                 $ehash = hash('sha256', strtolower(trim($val['email'])));
-                $uhash = hash('sha256', strtolower(trim($val['username'])));
                 $sql = "UPDATE `users` SET 
                     `units` = ".$db->quote($units).",
                     `theme` = ".$db->quote($theme).",
@@ -82,7 +84,6 @@ class UserController
                     `patron` = ".$db->quote($patron).",
                     `patron_since` = ".$db->quote($patron_since).",
                     `ehash` = ".$db->quote($ehash).",
-                    `uhash` = ".$db->quote($uhash).",
                     `pepper` = ".$db->quote($nonce).",
                     `email` = ".$db->quote($email).",
                     `initial` = ".$db->quote($initial).",
@@ -103,57 +104,37 @@ class UserController
 
     /** User signup
      *
-     * Handles POST requests to /user/signup 
+     * Handles POST requests to /signup 
      * Expects email and password in request params
      */
     public function signup($request, $response, $args) 
     {
         // Handle request data 
         $in = new \stdClass();
-        $in->email = Utilities::scrub($request, 'signup-email');
-        $in->password = Utilities::scrub($request, 'signup-password');
+        $in->email = Utilities::scrub($request, 'email');
+        $in->password = Utilities::scrub($request, 'password');
         
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        $logger->info("Signup request from: ".$in->email);
-
         // Don't continue if we don't have the required input
         if($in->email === false || $in->password === false || $in->password == '') {
             return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'invalid_input', 
-                'message' => 'generic/error',
+                'result' => 'error',
+                'reason' => 'invalid_input'
             ], 400, $this->container['settings']['app']['origin']);
         }
-        
-        // Get a user instance from the container
-        $user = clone $this->container->get('User');
-        $user->loadFromEmail($in->email);
 
-        // Don't continue if this user already exists
-        if ($user->getId() != '') { 
-            $logger->info("Signup rejected: ".$in->email." already has an account");
-            
-            return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_exists', 
-                'message' => 'signup/account-exists',
-            ], 400, $this->container['settings']['app']['origin']);
-        } 
-        
-        // Create new user
-        $user->create($in->email, $in->password);
+        // Construct token
+        $in->token = Utilities::getToken($in->email);
+         
+        // Create task
+        $task = clone $this->container->get('Task');
+        $task->create('signup', $in);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
-        $mailKit->signup($user);
-        $logger->info("Activation email sent to: ".$in->email);
-        $logger->info("Signup: ".$in->email." is user ".$user->getId());
+        //$mailKit->signup($task);
 
         return Utilities::prepResponse($response, [
-            'result' => 'ok', 
-            'reason' => 'signup_complete', 
-            'message' => 'signup/success',
+            'result' => 'ok' 
         ], 200, $this->container['settings']['app']['origin']);
     }
     
@@ -355,40 +336,24 @@ class UserController
     /** User login */
     public function login($request, $response, $args) {
         // Handle request data 
-        $data = $request->getParsedBody();
-        // We accept either id or email, id takes precedence
-        $login_data = [ 
-            'id' => Utilities::scrub($request, 'id', 'integer'), 
-            'email' => Utilities::scrub($request, 'email', 'email'), 
-            'password' => Utilities::scrub($request, 'password'), 
-        ];
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
+        $username =  Utilities::scrub($request, 'username'); 
         
         // Get a user instance from the container
         $user = clone $this->container->get('User');
-        if($login_data['id'] && $login_data['id'] != '') {
-            $user->loadFromId($login_data['id']);
-        } else {
-            $user->loadFromEmail($login_data['email']);
-        }
-        if($user->getId() == '') {
-            $logger->info("Login blocked: No user with address ".$login_data['email']);
+        $user->loadFromUsername($username);
 
+        if($user->getId() == '') {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'login_failed', 
-                'message' => 'login/failed',
+                'reason' => 'no_such_user', 
+                'username' => $username,
             ], 400, $this->container['settings']['app']['origin']);
         }
 
         if($user->getStatus() === 'blocked') {
-            $logger->info("Login blocked: User ".$user->getId()." is blocked");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
-                'message' => 'login/account-blocked',
             ], 400, $this->container['settings']['app']['origin']);
         }
 

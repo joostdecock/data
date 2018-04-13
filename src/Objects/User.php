@@ -32,6 +32,12 @@ class User
     /** @var string $status Status of the user. One of inactive,active,blocked */
     private $status;
 
+    /** @var bool $profileConsent Whether the user has given their consent to store their profile data */
+    private $profileContent;
+
+    /** @var bool $modelConsent Whether the user has given their consent to store their model data */
+    private $modelContent;
+
     /** @var string $created Time when the accout was created */
     private $created;
 
@@ -77,8 +83,11 @@ class User
     /** Fields that are stored as plain text in the database */
     CONST CLEARTEXT_FIELDS = [
         'id',
+        'username',
         'handle',
         'status',
+        'profile_consent',
+        'model_consent',
         'created',
         'migrated',
         'login',
@@ -95,7 +104,6 @@ class User
     /** Fields that are encrypted in the database */
     CONST ENCRYPTED_FIELDS = [
         'email',
-        'username',
         'twitter',
         'instagram',
         'github',
@@ -159,6 +167,16 @@ class User
     public function getStatus() 
     {
         return $this->status;
+    } 
+
+    public function getProfileConsent() 
+    {
+        return $this->profileConsent;
+    } 
+
+    public function getModelConsent() 
+    {
+        return $this->modelConsent;
     } 
 
     public function getRole() 
@@ -287,6 +305,16 @@ class User
         return false;
     } 
 
+    public function setProfileConsent($val) 
+    {
+        $this->profileConsent = $val;
+    } 
+
+    public function setModelConsent($val) 
+    {
+        $this->modelConsent = $val;
+    } 
+
     public function setRole($role) 
     {
         if(in_array($role, $this->container['settings']['app']['user_role'])) {
@@ -387,6 +415,8 @@ class User
         else {
             foreach(self::CLEARTEXT_FIELDS as $f) {
                 if($f == 'patron_since') $this->patronSince = $result->{$f};
+                if($f == 'profile_consent') $this->profileContent = $result->{$f};
+                if($f == 'model_consent') $this->modelContent = $result->{$f};
                 else $this->{$f} = $result->{$f};
             } 
             foreach(self::ENCRYPTED_FIELDS as $f) {
@@ -395,6 +425,18 @@ class User
                 } else $this->{$f} = Utilities::decrypt($result->{$f}, $result->pepper);
             }
         }
+    }
+   
+    /**
+     * Loads a user based on their username
+     *
+     * @param string $username
+     *
+     * @return object|false A plain user object or false if user does not exist
+     */
+    public function loadFromUsername($username) 
+    {
+        return $this->load($username, 'username');
     }
    
     /**
@@ -541,7 +583,7 @@ class User
     /** 
      * Generates an activation token for a user account
      *
-     * Note that actication tokens never expire
+     * Note that activation tokens never expire
      *
      * @return string The activation token
      */
@@ -579,8 +621,9 @@ class User
         $db = $this->container->get('db');
         $sql = "UPDATE `users` set 
                    `email` = ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
-                `username` = ".$db->quote(Utilities::encrypt($this->getUsername(), $nonce)).",
+                `username` = ".$db->quote($this->getUsername()).",
                   `status` = ".$db->quote($this->getStatus()).",
+         `profile_consent` = ".$db->quote($this->getProfileConsent()).",
                    `login` = ".$db->quote($this->getLogin()).",
                     `role` = ".$db->quote($this->getRole()).",
             `patron_since` = ".$db->quote($this->getPatronSince()).",

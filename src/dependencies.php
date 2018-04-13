@@ -118,6 +118,10 @@ $container['User'] = function ($container) {
     return new \Freesewing\Data\Objects\User($container);
 };
 
+$container['Task'] = function ($container) {
+    return new \Freesewing\Data\Objects\Task($container);
+};
+
 $container['Model'] = function ($container) {
     return new \Freesewing\Data\Objects\Model($container);
 };
