@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="__LOCALE__">
 <head>
 <title>freesewing</title>
 <meta charset="utf-8">
@@ -12,41 +12,20 @@
     table, td{mso-table-lspace:0pt; mso-table-rspace:0pt;}
     img{-ms-interpolation-mode:bicubic;}
 
-    body{margin:0; padding:0;}
+    body{margin:0; padding:0; color: #212121;}
     img{border:0; height:auto; line-height:100%; outline:none; text-decoration:none;}
     table{border-collapse:collapse !important;}
     body{height:100% !important; margin:0; padding:0; width:100% !important;}
     
-    a {color:#663F95; text-decoration: none;}
-    a:hover {color:#663F95; text-decoration: none;}
-    .appleBody a {color:#663F95; text-decoration: none;}
-    .appleFooter a {color:#663F95; text-decoration: none;}
+    a {color:#212121; text-decoration: underline;}
+    a:hover {color:#212121; text-decoration: underline;}
+    .appleBody a {color:#212121; text-decoration: underline;}
+    .appleFooter a {color:#212121; text-decoration: underline;}
 
     @media screen and (max-width: 525px) {
 
         table[class="wrapper"]{
           width:100% !important;
-        }
-
-        td[class="logo"]{
-          text-align: left;
-          padding: 20px 0 20px 0 !important;
-        }
-
-        td[class="logo"] img{
-          margin:0 auto!important;
-        }
-
-        td[class="mobile-hide"]{
-          display:none;}
-
-        img[class="mobile-hide"]{
-          display: none !important;
-        }
-
-        img[class="img-max"]{
-          max-width: 100% !important;
-          height:auto !important;
         }
 
         table[class="responsive-table"]{
@@ -79,10 +58,6 @@
           padding: 50px 15px 50px 15px !important;
         }
 
-        td[class="section-padding-bottom-image"]{
-          padding: 50px 15px 0 15px !important;
-        }
-
         td[class="mobile-wrapper"]{
             padding: 10px 5% 15px 5% !important;
         }
@@ -105,7 +80,7 @@
 <body style="margin: 0; padding: 0;">
 <!-- HIDDEN PREHEADER TEXT -->
 <div style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
-    Yay! It's always a good feeling when somebody joins the freesewing community.
+    __HIDDEN_PREHEADER_TEXT__
 </div>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -118,16 +93,14 @@
             <td align="center" valign="top" width="600">
             <![endif]-->
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" >
-              <!-- NAVIGATION -->
               <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 0 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
-                  <p style="margin: 0;"><a href="https://freesewing.org" target="_blank" style="color: #111111; font-weight: 700;">Freesewing</a></p>
+                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 0 0; color: #212121; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
+                  <p style="margin: 0; font-weight: 700; color: #111111;">__FREESEWING__</p>
                 </td>
               </tr>
-              <!-- PERMISSION REMINDER -->
               <tr>
                 <td bgcolor="#ffffff" align="left" style="padding: 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
-                    <p style="margin: 0;">Please confirm your account<br><hr></p>
+                    <p style="margin: 0;">__PLEASE_CONFIRM__<br><hr></p>
                 </td>
               </tr>
             </table>
@@ -150,14 +123,13 @@
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">
                             <tr>
                                 <td>
-                                    <!-- COPY -->
                                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                         <tr>
-                                          <td align="left" style="font-size: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C; padding-top: 30px;" class="padding-copy">Welcome __USERNAME__ <sup>(*)</sup></td>
+                                          <td align="left" style="font-size: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #212121; padding-top: 30px;" class="padding-copy">__WELCOME__ 🎉</td>
                                         </tr>
                                         <tr>
                                           <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
-                                          Thank you for signing up. Before we get started, you need to confirm your account. Just press the button below:
+                                          __THANK_YOU_NOW_CLICK_BUTTON__
                                           </td>
                                         </tr>
                                         <!-- BULLETPROOF BUTTON -->
@@ -168,7 +140,7 @@
                                                 <td bgcolor="#ffffff" align="center" style="padding: 30px 30px 30px 30px;">
                                                   <table border="0" cellspacing="0" cellpadding="0">
                                                     <tr>
-                                                        <td align="center" style="border-radius: 3px;" bgcolor="#663F95"><a href="__LINK__" target="_blank" style="font-size: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #663F95; display: inline-block;">Confirm account</a></td>
+                                                        <td align="center" style="border-radius: 3px;" bgcolor="#212121"><a href="__LINK__" target="_blank" style="font-size: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #ffffff; text-decoration: none; color: #ffffff; text-decoration: none; padding: 15px 25px; border-radius: 2px; border: 1px solid #111111; display: inline-block;">__CONFIRM_EMAIL__</a></td>
                                                     </tr>
                                                   </table>
                                                 </td>
@@ -178,18 +150,19 @@
                                         </tr>
                                         <tr>
                                           <td align="left" style="padding: 0 0 0 0; font-size: 16px; line-height: 25px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
-                                          If that doesn't work, copy and paste the following link in your browser:
+                                          __OR_PASTE_LINK__
                                           <br><br>
                                           __LINK__
                                           <br><br>
-                                          If you have any questions, just reply to this email . I'm always happy to help out.
+                                          __QUESTIONS_JUST_REPLY__ ☺️
                                           <br><br>
-                                          Love,<br>Joost
+                                          __SIGNATURE__
+                                          <br>
+                                          Joost
                                           </td>
                                         </tr>
                                         <tr>
                                           <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 20px; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #292B2C;" class="padding-copy">
-                                          <small>(*) You-are-not-just-a-number tip: You can change your username to something more&hellip; you</small>
 
                                           </td>
                                         </tr>
@@ -216,12 +189,13 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;" >
               <!-- NAVIGATION -->
               <tr>
-                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 20px 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
+                <td bgcolor="#ffffff" align="left" style="padding: 30px 0 20px 0; color: #212121; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 300; line-height: 18px;" >
                   <p style="margin: 0;">
-                    <a href="https://freesewing.org" target="_blank" style="color: #111111; font-weight: 700;">Home</a> -
-                    <a href="https://twitter.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Twitter</a> -
-                    <a href="https://instagram.com/freesewing_org" target="_blank" style="color: #111111; font-weight: 700;">Instagram</a> -
-                    <a href="https://github.com/freesewing" target="_blank" style="color: #111111; font-weight: 700;">GitHub</a>
+                    <a href="https://freesewing.org" target="_blank" style="color: #212121; font-weight: 700;">__WEBSITE__</a> -
+                    <a href="https://gitter.im/freesewing/freesewing" target="_blank" style="color: #212121; font-weight: 700;">__CHAT_ON_GITTER__</a> -
+                    <a href="https://twitter.com/freesewing_org" target="_blank" style="color: #212121; font-weight: 700;">__TWITTER__</a> -
+                    <a href="https://instagram.com/freesewing_org" target="_blank" style="color: #212121; font-weight: 700;">__INSTAGRAM__</a> -
+                    <a href="https://github.com/freesewing" target="_blank" style="color: #212121; font-weight: 700;">__GITHUB__</a>
                   </p>
                 </td>
               </tr>
@@ -229,9 +203,10 @@
               <tr>
                 <td bgcolor="#ffffff" align="left" style="padding: 0 0 30px 0; color: #292B2C; font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 18px;" >
                     <p style="margin: 0;">
-                    You received this email because you just signed up for an account on freesewing.org
+                    __REASON_WHY__
                     <br><br>
-                    Freesewing is an open source platform for made-to-measure sewing patterns<br>Made with love by Joost De Cock
+                    __SLOGAN__<br>
+                    __CREDITS__
                     </p>
                 </td>
               </tr>

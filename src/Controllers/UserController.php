@@ -133,23 +133,32 @@ class UserController
             ], 400, $this->container['settings']['app']['origin']);
         }
 
+        // Seems like we'll at least be creating a task to send out an email
+        $in->hash = Utilities::getToken('signup'.$in->email);
+        $taskData = new \stdClass();
+        $taskData->email = $in->email;
+        $taskData->hash = $in->hash;
+
         // Do we already have a pending signup for this email address?
-        $task = clone $this->container->get('Task');
-        $task->loadFromHash(Utilities::getToken('signup'.$in->email));
-        if($task->getId()) {
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->loadFromHash($in->hash);
+        if($confirmation->getId()) {
+            // Create task to send signup email
+            $task = clone $this->container->get('Task');
+            $task->create('emailSignup', $taskData);
             return Utilities::prepResponse($response, [
                 'result' => 'error',
                 'reason' => 'signup_pending'
             ], 400, $this->container['settings']['app']['origin']);
         }
 
-        // Create task
-        $task = clone $this->container->get('Task');
-        $task->create('signup', $in);
+        // Create signup confirmation
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->create($in);
 
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->signup($task);
+        // Queue signup email
+        $task = clone $this->container->get('Task');
+        $task->create('emailSignup', $taskData);
 
         return Utilities::prepResponse($response, [
             'result' => 'ok' 

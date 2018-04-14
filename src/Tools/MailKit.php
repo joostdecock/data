@@ -62,6 +62,7 @@ class MailKit
             '__REASON_WHY__',
             '__SLOGAN__',
             '__CREDITS__',
+            '__WEBSITE__',
             '__CHAT_ON_GITTER__',
             '__TWITTER__',
             '__INSTAGRAM__',
@@ -69,7 +70,7 @@ class MailKit
             '__LOCALE__',
         ]; 
         $replace = [
-            $this->container['settings']['app']['site'].'/confirm/'.$task->getHash(),
+            $this->container['settings']['app']['site'].'/confirm/'.$task->data->getNode('hash'),
             $i18n['happyNewUser'],
             $i18n['freesewing'],
             $i18n['pleaseConfirmEmail'],
@@ -83,6 +84,7 @@ class MailKit
             $i18n['whySignup'],
             $i18n['slogan'],
             $i18n['credits'],
+            $i18n['website'],
             $i18n['chatOnGitter'],
             $i18n['twitter'],
             $i18n['instagram'],
@@ -98,9 +100,7 @@ class MailKit
                 ->setBody(str_replace($search, $replace, $txt))
                 ->addPart(str_replace($search, $replace, $html), 'text/html')
         ;
-        $mailer->send($message);
-
-        return true;
+        return $mailer->send($message);
     }
 
     public function patron($user) 

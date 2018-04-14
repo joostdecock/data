@@ -16,6 +16,7 @@ return [
             "secure" => true, // Don't allow access over an unencrypted connection
             'path' => '/',
             'passthrough' => [
+                '/taskrunner',
                 '/migrate',
                 '/signup', 
                 '/login', 
@@ -114,6 +115,7 @@ return [
             'motd' => '
 **Tip**: These are your notes.
 You can write whatever you want here.',  
+            'tasks' => 20,
         ],
         'i18n' => [
           'locales' => ['en', 'nl'],

@@ -94,6 +94,10 @@ $container['AdminController'] = function ($container) {
     return new \Freesewing\Data\Controllers\AdminController($container);
 };
 
+$container['TaskController'] = function ($container) {
+    return new \Freesewing\Data\Controllers\TaskController($container);
+};
+
 $container['HandleKit'] = function ($container) {
     return new \Freesewing\Data\Tools\HandleKit($container);
 };
@@ -116,6 +120,10 @@ $container['UnitsKit'] = function ($container) {
 
 $container['User'] = function ($container) {
     return new \Freesewing\Data\Objects\User($container);
+};
+
+$container['Confirmation'] = function ($container) {
+    return new \Freesewing\Data\Objects\Confirmation($container);
 };
 
 $container['Task'] = function ($container) {

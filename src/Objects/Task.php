@@ -25,38 +25,20 @@ class Task
     /** @var JsonStore $data Other task data stored as JSON */
     public $data;
 
-    /** @var string $time Datetime of when the task was created */
-    private $time;
+    /** @var string $notBefore Datetime before which the task should not run */
+    private $notBefore;
 
-    /** @var string $expires Datetime of when the task expires */
-    private $expires;
-
-    /** @var string $nonce Nonce used for encryption */
-    private $nonce;
-
-    /** @var string $hash A sha-1 hash used as validation token */
-    private $hash;
-
-    /** Fields that are stored as plain text in the database */
-    CONST CLEARTEXT_FIELDS = [
-        'id',
-        'type',
-        'time',
-        'expires',
-        'nonce',
-        'hash'
-    ];
-
-    /** Fields that are encrypted in the database */
-    CONST ENCRYPTED_FIELDS = [
-        'data'
-    ];
-
-    // constructor receives container instance
+    // constructor receives container instance    
     public function __construct(\Slim\Container $container) 
     {
         $this->container = $container;
         $this->data = clone $this->container->get('JsonStore');
+    }
+
+    // Ensure a deep clone when cloning a task    
+    public function __clone() 
+    {
+        $this->data = clone $this->data;
     }
 
     // Getters
@@ -65,24 +47,14 @@ class Task
         return $this->id;
     } 
 
-    public function getNonce() 
-    {
-        return $this->nonce;
-    } 
-
     public function getType() 
     {
         return $this->type;
     } 
 
-    public function getTime() 
+    public function getNotBefore() 
     {
-        return $this->time;
-    } 
-
-    public function getExpires() 
-    {
-        return $this->expires;
+        return $this->notBefore;
     } 
 
     public function getDataAsJson() 
@@ -93,11 +65,6 @@ class Task
     public function getData() 
     {
         return $this->data;
-    } 
-
-    public function getHash() 
-    {
-        return $this->hash;
     } 
 
     // Setters
@@ -111,122 +78,76 @@ class Task
         $this->type = $type;
     } 
 
-    public function setExpires($expires) 
+    public function setNotBefore($notBefore) 
     {
-        $this->expires = $expires;
+        $this->notBefore = $notBefore;
     } 
 
-    public function setNonce($nonce) 
-    {
-        $this->nonce = $nonce;
-    } 
-
-    public function setHash($hash) 
-    {
-        $this->hash = $hash;
-    } 
-
-    /**
-     * Loads a task based on a unique identifier
-     *
-     * @param string $key   The id identifying the task. 
-     * @param string $value The value to look for in the key column
-     *
-     * @return object|false A plain task object or false if the task does not exist
-     */
-    private function load($value, $key='id') 
-    {
-        $db = $this->container->get('db');
-        $sql = "SELECT * from `tasks` WHERE `$key` =".$db->quote($value);
-        
-        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
-        $db = null;
-        if(!$result) return false;
-        else {
-            foreach(self::CLEARTEXT_FIELDS as $f) {
-                $this->{$f} = $result->{$f};
-            } 
-            foreach(self::ENCRYPTED_FIELDS as $f) {
-                if($f == 'data') {
-                    $this->data->import(Utilities::decrypt($result->{$f}, $result->nonce));
-                } else $this->{$f} = Utilities::decrypt($result->{$f}, $result->nonce);
-            }
-        }
-    }
-   
-    /**
-     * Loads a task based on its hash
-     *
-     * @param int $id
-     *
-     * @return object|false A plain task object or false if the task does not exist
-     */
-    public function loadFromHash($hash) 
-    {
-        return $this->load($hash, 'hash');
-    }
-   
     /**
      * Loads a task based on its id
      *
-     * @param int $id
-     *
-     * @return object|false A plain task object or false if the task does not exist
+     * @param string $id The id of the task. 
      */
-    public function loadFromId($id) 
+    public function load($id) 
     {
-        return $this->load($id, 'id');
+        $db = $this->container->get('db');
+        $sql = "SELECT * from `tasks` WHERE `id` =".$db->quote($id);
+        
+        $result = $db->query($sql)->fetch(\PDO::FETCH_ASSOC);
+        $db = null;
+        if(!$result) return false;
+        
+        foreach($result as $key => $value) {
+            if($key === 'data') $this->data->import($value);
+            else $this->{$key} = $value;
+        } 
+        
     }
+    
+    /** alias for load() */
+    public function loadFromId($id)
+    {
+        $this->load($id);
+    } 
    
     /**
      * Creates a new task and stores it in database
      *
      * @param string $type The type of task
-     * @param JsonStore $data The data for the task
-     * @param int $expiresIn The time (in seconds) when the task exires 
-     * after it was created. Default is 604800 (1 week)
+     * @param Object $data The data for the task
+     * @param int $notBefore The time (in seconds) that the task should be held 
      *
-     * @return int The id of the newly created user
+     * @return int The id of the newly created task
      */
-    public function create($type, $data, $expiresIn=604800) 
+    public function create($type, $data, $notBefore=0) 
     {
-        $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
-        $hash = Utilities::getToken($type.$data->email);
-
-        $this->data->setNode('email', $data->email);
-        $this->data->setNode('password', $data->password);
-        $this->data->setNode('locale', $data->locale);
+        $this->data->import(json_encode($data));
 
         // Store in database
         $db = $this->container->get('db');
         $sql = "INSERT into `tasks`(
             `type`,
             `data`,
-            `hash`,
-            `expires`,
-            `nonce`
+            `notBefore`
              ) VALUES (
             ".$db->quote($type).",
-            ".$db->quote(Utilities::encrypt($this->getDataAsJson(), $nonce)).",
-            ".$db->quote($hash).",
-             DATE_ADD(NOW(), INTERVAL $expiresIn SECOND),
-            ".$db->quote($nonce)."
+            ".$db->quote($this->getDataAsJson()).",
+             DATE_ADD(NOW(), INTERVAL $notBefore SECOND)
             );";
         $db->exec($sql);
 
         // Update instance from database
-        $this->loadFromId($db->lastInsertId());
+        $this->load($db->lastInsertId());
     }
 
     /** Saves a task to the database */
     public function save() 
     {
-        $nonce = $this->getNonce();
         $db = $this->container->get('db');
         $sql = "UPDATE `tasks` set 
               `type` = ".$db->quote($this->getType()).",
-              `data` = ".$db->quote(Utilities::encrypt(json_encode($this->getData()), $nonce)).",
-           `expires` = ".$db->quote($this->getExpires())."
+              `data` = ".$db->quote($this->getDataAsJson()).",
+           `notBefore` = ".$db->quote($this->getNotBefore())."
             WHERE 
                 `id` = ".$db->quote($this->getId());
         $result = $db->exec($sql);

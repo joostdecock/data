@@ -27,6 +27,9 @@ $app->get('/status', 'InfoController:status');
 /* Anonymous routes */
 /********************/
 
+// task runner
+$app->get('/taskrunner', 'TaskController:taskRunner');
+
 // log error
 $app->post('/error', 'ErrorController:log');
 
