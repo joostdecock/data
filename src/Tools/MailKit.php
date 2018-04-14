@@ -3,6 +3,7 @@
 namespace Freesewing\Data\Tools;
 
 use Mailgun\Mailgun;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * The MailKit class.
@@ -22,42 +23,82 @@ class MailKit
         $this->container = $container;
     }
 
-    /** Checks wheter an email address is from a shitty email provider (SEP) */
-    private function isSep($email)
+    /** Returns template content */
+    private function loadTemplate($scenario, $format='html')
     {
-        if (in_array(substr($email, strrpos($email, '@')+1), $this->container['settings']['swiftmailer']['domains'])) return true;
-        else return false;
+        return  file_get_contents($this->container['settings']['swiftmailer']['templates']."/$scenario.$format");
     }
 
-    public function signUp($user) 
+    /** Loads a language  */
+    private function loadLanguage($locale)
     {
-        // FIXME: Handle timeout of the mailgun API gracefully
-        // Mailgun API instance
-        $mg = $this->container->get('Mailgun');
+        if(!in_array($locale, $this->container['settings']['i18n']['locales'])) $locale = 'en';
+        
+        return Yaml::parse(file_get_contents($this->container['settings']['i18n']['translations']."/$locale.yaml"));
+    }
 
-        // Send through mailgun
-        $mg->messages()->send('mg.freesewing.org', [
-          'from'    => 'Joost from Freesewing <mg@freesewing.org>', 
-          'to'      => $user->getEmail(), 
-          'subject' => 'Confirm your freesewing account', 
-          'h:Reply-To' => 'Joost De Cock <joost@decock.org>',
-          'text'    => $this->loadTemplate("signup.txt", $user),
-          'html'    => $this->loadTemplate("signup.html", $user),
-        ]);
+    public function signUp($task) 
+    {
+        // Load email template              
+        $html = $this->loadTemplate('signup', 'html');
+        $txt  = $this->loadTemplate('signup', 'txt');
 
-        // Also send through Gmail if it's a SEP domain
-        // SEP: Shitty email provider
-        if($this->isSep($user->getEmail())) {
-            // Send email via swiftmailer 
-            $mailer = $this->container->get('SwiftMailer');
-            $message = (new \Swift_Message('Confirm your freesewing account'))
-                  ->setFrom(['joost@decock.org' => 'Joost from freesewing'])
-                  ->setTo($user->getEmail())
-                  ->setBody($this->loadTemplate("signup.txt", $user))
-                  ->addPart($this->loadTemplate("signup.sep.html", $user), 'text/html')
-            ;
-            $mailer->send($message);
-        }
+        // Load translations
+        $i18n = $this->loadLanguage($task->data->getNode('locale'));
+        
+        // Load text replacements from language
+        $search = [
+            '__LINK__',
+            '__HIDDEN_PREHEADER_TEXT__',
+            '__FREESEWING__',
+            '__PLEASE_CONFIRM__',
+            '__WELCOME__',
+            '__THANK_YOU_NOW_CLICK_BUTTON__',
+            '__THANK_YOU_NOW_CLICK_LINK__',
+            '__CONFIRM_EMAIL__',
+            '__OR_PASTE_LINK__',
+            '__QUESTIONS_JUST_REPLY__',
+            '__SIGNATURE__',
+            '__REASON_WHY__',
+            '__SLOGAN__',
+            '__CREDITS__',
+            '__CHAT_ON_GITTER__',
+            '__TWITTER__',
+            '__INSTAGRAM__',
+            '__GITHUB__',
+            '__LOCALE__',
+        ]; 
+        $replace = [
+            $this->container['settings']['app']['site'].'/confirm/'.$task->getHash(),
+            $i18n['happyNewUser'],
+            $i18n['freesewing'],
+            $i18n['pleaseConfirmEmail'],
+            $i18n['welcomeAboard'],
+            $i18n['thankYouNowConfirmButton'],
+            $i18n['thankYouNowConfirmLink'],
+            $i18n['confirmYourAddress'],
+            $i18n['pasteLink'],
+            $i18n['questionsJustReply'],
+            $i18n['signature'],
+            $i18n['whySignup'],
+            $i18n['slogan'],
+            $i18n['credits'],
+            $i18n['chatOnGitter'],
+            $i18n['twitter'],
+            $i18n['instagram'],
+            $i18n['github'],
+            $task->data->getNode('locale')
+        ];
+         
+        // Send email via swiftmailer 
+        $mailer = $this->container->get('SwiftMailer');
+        $message = (new \Swift_Message($i18n['confirmYourAddress']))
+                ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+                ->setTo($task->data->getNode('email'))
+                ->setBody(str_replace($search, $replace, $txt))
+                ->addPart(str_replace($search, $replace, $html), 'text/html')
+        ;
+        $mailer->send($message);
 
         return true;
     }
@@ -213,7 +254,7 @@ class MailKit
     }
 
 
-    private function loadTemplate($template, $user, $data=null)
+    private function REMOVEMEloadTemplate($template, $user=false, $data=null)
     {
         $t = file_get_contents($this->container['settings']['mailgun']['template_path']."/".$template);
         $search = ['__API__','__SITE__','__STATIC__','__USERNAME__'];
@@ -257,7 +298,7 @@ class MailKit
             break;
         default:
             array_push($search, '__LINK__');
-            array_push($replace, $this->container['settings']['app']['site'].'/confirm#'.$user->getHandle().'.'.$user->getActivationToken());
+            array_push($replace, $this->container['settings']['app']['site'].'/confirm/#'.$user->getHandle().'.'.$user->getActivationToken());
         }
 
         return str_replace($search, $replace, $t);

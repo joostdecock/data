@@ -472,7 +472,7 @@ class User
      */
     public function loadFromEmail($email) 
     {
-        return $this->load($email, 'email');
+        return $this->load(hash('sha256', strtolower(trim($email))), 'ehash');
     }
    
     /**

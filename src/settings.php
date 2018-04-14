@@ -76,44 +76,18 @@ return [
             'database' => __DIR__.'/../tests/sql/test.sq3',
         ],
         
-        // Mailgun
-        'mailgun' => [
-            'api_key' => getenv('MAILGUN_KEY'),
-            'template_path' => dirname(__DIR__) . '/templates/email',
-            'instance' => getenv('MAILGUN_INSTANCE'),
-        ],
         
         // SEPs (shitty email providers - basically Microsoft domains) will not deliver
         // MailGun messages, so we send email through GMAIL for these domains
         // using SwiftMailer
         'swiftmailer' => [
-            'domains' => [
-                'btinternet.com',
-                'hotmail.be',
-                'hotmail.de',
-                'hotmail.fr',
-                'hotmail.com',
-                'hotmail.co.uk',
-                'live.ca',
-                'live.com',
-                'live.co.uk',
-                'live.com.au',
-                'live.nl',
-                'msn.com',
-                'outlook.com',
-                'snkmail.com',
-                'yahoo.com',
-                'yahoo.co.uk',
-                'yahoo.co.nz',
-                'yahoo.de',
-                'yahoo.fr',
-                'ymail.com',
-            ],
             'host' => 'smtp.gmail.com',
             'port' => 587,
             'encryption' => 'tls',
             'username' =>  getenv('GMAIL_USER'),
             'password' =>  getenv('GMAIL_SECRET'),
+            'from' => 'info@freesewing.org',
+            'templates' => dirname(__DIR__) . '/templates/email',
         ],
 
         // Storage settings
@@ -140,6 +114,10 @@ return [
             'motd' => '
 **Tip**: These are your notes.
 You can write whatever you want here.',  
+        ],
+        'i18n' => [
+          'locales' => ['en', 'nl'],
+          'translations'=> dirname(__DIR__) . '/locales',
         ],
         'badges' => [
             'login' => '2018',

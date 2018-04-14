@@ -63,7 +63,7 @@ class UserController
                 if(isset($d->badges)) $data->badges = $d->badges;
 
                 // Format username
-                $username = str_replace(' ', '', $val['username']);
+                $username = str_replace([' ','@','#'], '', $val['username']);
 
                 // Encrypt data at rest
                 $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
@@ -111,8 +111,9 @@ class UserController
     {
         // Handle request data 
         $in = new \stdClass();
-        $in->email = Utilities::scrub($request, 'email');
+        $in->email = strtolower(trim(Utilities::scrub($request, 'email')));
         $in->password = Utilities::scrub($request, 'password');
+        $in->locale = Utilities::scrub($request, 'locale');
         
         // Don't continue if we don't have the required input
         if($in->email === false || $in->password === false || $in->password == '') {
@@ -121,17 +122,34 @@ class UserController
                 'reason' => 'invalid_input'
             ], 400, $this->container['settings']['app']['origin']);
         }
+        
+        // Do we already have a user with this email address?
+        $user = clone $this->container->get('User');
+        $user->loadFromEmail($in->email);
+        if($user->getId()) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error',
+                'reason' => 'user_exists'
+            ], 400, $this->container['settings']['app']['origin']);
+        }
 
-        // Construct token
-        $in->token = Utilities::getToken($in->email);
-         
+        // Do we already have a pending signup for this email address?
+        $task = clone $this->container->get('Task');
+        $task->loadFromHash(Utilities::getToken('signup'.$in->email));
+        if($task->getId()) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error',
+                'reason' => 'signup_pending'
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+
         // Create task
         $task = clone $this->container->get('Task');
         $task->create('signup', $in);
 
         // Send email 
         $mailKit = $this->container->get('MailKit');
-        //$mailKit->signup($task);
+        $mailKit->signup($task);
 
         return Utilities::prepResponse($response, [
             'result' => 'ok' 

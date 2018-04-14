@@ -34,13 +34,17 @@ class Task
     /** @var string $nonce Nonce used for encryption */
     private $nonce;
 
+    /** @var string $hash A sha-1 hash used as validation token */
+    private $hash;
+
     /** Fields that are stored as plain text in the database */
     CONST CLEARTEXT_FIELDS = [
         'id',
         'type',
         'time',
         'expires',
-        'nonce'
+        'nonce',
+        'hash'
     ];
 
     /** Fields that are encrypted in the database */
@@ -91,6 +95,11 @@ class Task
         return $this->data;
     } 
 
+    public function getHash() 
+    {
+        return $this->hash;
+    } 
+
     // Setters
     public function setData(\Freesewing\Data\Objects\JsonStore $data) 
     {
@@ -110,6 +119,11 @@ class Task
     public function setNonce($nonce) 
     {
         $this->nonce = $nonce;
+    } 
+
+    public function setHash($hash) 
+    {
+        $this->hash = $hash;
     } 
 
     /**
@@ -141,6 +155,18 @@ class Task
     }
    
     /**
+     * Loads a task based on its hash
+     *
+     * @param int $id
+     *
+     * @return object|false A plain task object or false if the task does not exist
+     */
+    public function loadFromHash($hash) 
+    {
+        return $this->load($hash, 'hash');
+    }
+   
+    /**
      * Loads a task based on its id
      *
      * @param int $id
@@ -165,18 +191,25 @@ class Task
     public function create($type, $data, $expiresIn=604800) 
     {
         $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
+        $hash = Utilities::getToken($type.$data->email);
+
+        $this->data->setNode('email', $data->email);
+        $this->data->setNode('password', $data->password);
+        $this->data->setNode('locale', $data->locale);
 
         // Store in database
         $db = $this->container->get('db');
-        $sql = "INSERT into `users`(
+        $sql = "INSERT into `tasks`(
             `type`,
             `data`,
+            `hash`,
             `expires`,
             `nonce`
              ) VALUES (
             ".$db->quote($type).",
-            ".$db->quote(Utilities::encrypt($this->getDataAsJson(), $nonce).",
-            ".$db->quote(time()+$expiresIn).",
+            ".$db->quote(Utilities::encrypt($this->getDataAsJson(), $nonce)).",
+            ".$db->quote($hash).",
+             DATE_ADD(NOW(), INTERVAL $expiresIn SECOND),
             ".$db->quote($nonce)."
             );";
         $db->exec($sql);
