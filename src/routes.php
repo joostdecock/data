@@ -1,55 +1,60 @@
 <?php 
-// Migrate users to new database structure
-$app->get('/migrate', 'UserController:migrate');
+// Temporary routes for migration
 
+    // Migrate users to new database structure
+    $app->get('/migrate', 'UserController:migrate');
 
-
-/*******************/
-/* Prefetch routes */
-/*******************/
-
-// YAML info bundle
-$app->get('/info/yaml', 'InfoController:asYaml');
-
-// JSON info bundle
-$app->get('/info/json', 'InfoController:asJson');
-
-// Locale bundles (these are the basis for translations)
-$app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
-$app->get('/info/locale/options', 'InfoController:optionsAsLocale');
-$app->get('/info/locale/measurements', 'InfoController:measurementsAsLocale');
-
-// Status
-$app->get('/status', 'InfoController:status');
-
-
-/********************/
-/* Anonymous routes */
-/********************/
-
-// task runner
-$app->get('/taskrunner', 'TaskController:taskRunner');
-
-// log error
-$app->post('/error', 'ErrorController:log');
 
 // Preflight requests 
-$app->options('/[{path:.*}]', function($request, $response, $path = null) {
-    $settings = require __DIR__ . '/../src/settings.php';
-    return $response
+    $app->options('/[{path:.*}]', function($request, $response, $path = null) {
+        $settings = require __DIR__ . '/../src/settings.php';
+        return $response
         ->withHeader('Access-Control-Allow-Origin', $settings['settings']['app']['origin'])
         ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
         ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 });
 
-// Signup user
-$app->post('/signup', 'UserController:signup');
+
+// Build-time routes 
+
+    // YAML info bundle
+    $app->get('/info/yaml', 'InfoController:asYaml');
+    // JSON info bundle
+    $app->get('/info/json', 'InfoController:asJson');
+
+    // Locale bundles (these are the basis for translations)
+    $app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
+    $app->get('/info/locale/options', 'InfoController:optionsAsLocale');
+    $app->get('/info/locale/measurements', 'InfoController:measurementsAsLocale');
+
+
+// Cron routes 
+
+    // task runner
+    $app->get('/taskrunner', 'TaskController:taskRunner');
+
+
+// Anonymous routes: signup flow
+
+    // Signup user
+    $app->post('/signup', 'UserController:signup');
+
+    // Confirm email address
+    $app->get('/confirm/{hash}', 'UserController:confirmEmailAddress');
+
+
+
+// Status
+$app->get('/status', 'InfoController:status');
+
+// log error
+$app->post('/error', 'ErrorController:log');
+
+
 
 // Resend user activation email
 $app->post('/resend', 'UserController:resend');
 
-// Activate user account
-$app->get('/activate/{handle}/{token}', 'UserController:activate');
 
 // Confirm user email change
 $app->get('/confirm/{handle}/{token}', 'UserController:confirm');

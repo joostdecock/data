@@ -24,7 +24,10 @@ class TaskController
     /** Migrate user accounts to encrypted DB scheme */
     public function taskRunner($request, $response, $args) 
     {
-        foreach($this->loadTasks() as $task) {
+        $tasks =  $this->loadTasks();
+        if(!$tasks) return;
+            
+        foreach($tasks as $task) {
             $this->runTask($task);
         }
     }

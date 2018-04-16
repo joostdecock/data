@@ -138,6 +138,7 @@ class UserController
         $taskData = new \stdClass();
         $taskData->email = $in->email;
         $taskData->hash = $in->hash;
+        $taskData->locale = $in->locale;
 
         // Do we already have a pending signup for this email address?
         $confirmation = clone $this->container->get('Confirmation');
@@ -165,76 +166,29 @@ class UserController
         ], 200, $this->container['settings']['app']['origin']);
     }
     
-    /** User activation */
-    public function activate($request, $response, $args) {
+    /** Confirm email address */
+    public function confirmEmailAddress($request, $response, $args) {
 
-        // Handle request data 
-        $activation_data = [
-            'handle' => filter_var($args['handle'], FILTER_SANITIZE_STRING),
-            'token' => filter_var($args['token'], FILTER_SANITIZE_STRING),
-        ];
+        // Get hash from API endpoint 
+        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
 
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($activation_data['handle']);
+        // Do we have a pending confirmation for this hash?
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->loadFromHash($hash);
 
-        // Does the user exist?
-        if ($user->getId() == '') { 
-            $logger->info("Activation rejected: User handle ".$activation_data['handle']." does not exist");
-        
+        // Does a pending confirmation exist?
+        if ($confirmation->getId() == '') { 
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'no_such_account', 
-                'message' => 'activation/no-such-account'
+                'reason' => 'no_such_pending_confirmation', 
             ], 404, $this->container['settings']['app']['origin']);
         }
 
-        // Is the user blocked? 
-        if($user->getStatus() === 'blocked') {
-            $logger->info('Activation rejected: User '.$user->getId().' is blocked');
-            
-            return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_blocked', 
-                'message' => 'account/blocked'
-            ], 400, $this->container['settings']['app']['origin']);
-        }
-
-        // Is there a token mismatch? 
-        if($activation_data['token'] != $user->getActivationToken()) {
-            $logger->info("Activation rejected: Token mismatch for user ".$user->getId());
-            
-            return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'token_mismatch', 
-                'message' => 'activation/token-mismatch'
-            ], 400, $this->container['settings']['app']['origin']);
-        }
-
-        // Get the token kit from the container
-        $TokenKit = $this->container->get('TokenKit');
-        
-        // Activate user
-        $user->setStatus('active');
-
-        // Login user
-        $user->setLogin();
-        $user->save();
-        
-        // Log
-        $logger->info("Activation: User ".$user->getId()." is now active");
-        $logger->info("Login: User ".$user->getId())." auto-login upon activation";
-        
+        // Set the email as confirmed 
+        $confirmation->data->setNode('emailConfirmed', true);
+        $confirmation->save();
         return Utilities::prepResponse($response, [
-            'result' => 'ok',
-            'reason' => 'signup_complete', 
-            'message' => 'login/success',
-            'token' => $TokenKit->create($user->getId()),
-            'userid' => $user->getId(),
-            'email' => $user->getEmail(),
-            'username' => $user->getUsername(),
+            'result' => 'ok'
         ], 200, $this->container['settings']['app']['origin']);
     }
     

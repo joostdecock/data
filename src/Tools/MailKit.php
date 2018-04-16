@@ -46,6 +46,11 @@ class MailKit
         // Load translations
         $i18n = $this->loadLanguage($task->data->getNode('locale'));
         
+        // Construct confirmation link
+        if($task->data->getNode('locale') == 'en') $lang = '';
+        else $lang = '/'.$task->data->getNode('locale');
+        $link = $this->container['settings']['app']['site'].$lang.'/signup/confirm/'.$task->data->getNode('hash');
+        
         // Load text replacements from language
         $search = [
             '__LINK__',
@@ -70,7 +75,7 @@ class MailKit
             '__LOCALE__',
         ]; 
         $replace = [
-            $this->container['settings']['app']['site'].'/confirm/'.$task->data->getNode('hash'),
+            $link,
             $i18n['happyNewUser'],
             $i18n['freesewing'],
             $i18n['pleaseConfirmEmail'],

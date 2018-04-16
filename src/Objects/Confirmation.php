@@ -209,7 +209,7 @@ class Confirmation
     {
         $nonce = $this->getNonce();
         $db = $this->container->get('db');
-        $sql = "UPDATE `tasks` set 
+        $sql = "UPDATE `confirmations` set 
               `data` = ".$db->quote(Utilities::encrypt(json_encode($this->getData()), $nonce)).",
            `expires` = ".$db->quote($this->getExpires()).",
            `hash` = ".$db->quote($this->getHash())."
