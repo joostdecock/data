@@ -171,7 +171,6 @@ class UserController
 
         // Get hash from API endpoint 
         $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
-
         // Do we have a pending confirmation for this hash?
         $confirmation = clone $this->container->get('Confirmation');
         $confirmation->loadFromHash($hash);
@@ -405,10 +404,14 @@ class UserController
     public function login($request, $response, $args) {
         // Handle request data 
         $username =  Utilities::scrub($request, 'username'); 
+        $password =  Utilities::scrub($request, 'password'); 
         
         // Get a user instance from the container
         $user = clone $this->container->get('User');
         $user->loadFromUsername($username);
+        
+        // We used to use email for logins, so don't punish people who still have that habit
+        if($user->getId() == '') $user->loadFromEmail($username);
 
         if($user->getId() == '') {
             return Utilities::prepResponse($response, [
@@ -426,8 +429,6 @@ class UserController
         }
 
         if($user->getStatus() === 'inactive') {
-            $logger->info("Login blocked: User ".$user->getId()." is inactive");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_inactive', 
@@ -435,9 +436,7 @@ class UserController
             ], 400, $this->container['settings']['app']['origin']);
         }
 
-        if(!$user->checkPassword($login_data['password'])) {
-            $logger->info("Login failed: Incorrect password for user ".$user->getId());
-            
+        if(!$user->checkPassword($password)) {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'login_failed', 
@@ -448,27 +447,13 @@ class UserController
         // Log login
         $user->setLogin();
         $user->save();
-        $logger->info("Login: User ".$user->getId());
         
         // Get the token kit from the container
         $TokenKit = $this->container->get('TokenKit');
-        if($user->isPatron()) $tier = $user->getPatronTier();
-        else $tier = 0;
-        
-        // Get the AvatarKit to create the avatar
-        $avatarKit = $this->container->get('AvatarKit');
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'reason' => 'password_correct', 
-            'message' => 'login/success',
             'token' => $TokenKit->create($user->getId()),
-            'id' => $user->getId(),
-            'handle' => $user->getHandle(),
-            'username' => $user->getUsername(),
-            'role' => $user->getRole(),
-            'avatar' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
-            'patron' => $tier,
         ], 200, $this->container['settings']['app']['origin']);
     }
 
