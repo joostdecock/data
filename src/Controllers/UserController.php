@@ -175,8 +175,6 @@ class UserController
         // Do we have a pending confirmation for this hash?
         $confirmation = clone $this->container->get('Confirmation');
         $confirmation->loadFromHash($hash);
-
-        // Does a pending confirmation exist?
         if ($confirmation->getId() == '') { 
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
@@ -192,6 +190,95 @@ class UserController
         ], 200, $this->container['settings']['app']['origin']);
     }
     
+    /** Remove confirmation, consent for data processing not given */
+    public function removeConfirmation($request, $response, $args) 
+    {
+        // Get hash from API endpoint 
+        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
+
+        // Remove from database
+        $db = $this->container->get('db');
+        $sql = "DELETE from `confirmations` WHERE `hash` = ".$db->quote($hash).";";
+
+        $result = $db->exec($sql);
+        $db = null;
+        
+        return Utilities::prepResponse($response, [
+            'result' => 'ok'
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+    
+    /** Create account from confirmation, consent for data processing given */
+    public function createAccount($request, $response, $args) 
+    {
+        // Get hash from POST data 
+        $hash = Utilities::scrub($request, 'hash');
+        // Do we have a pending confirmation for this hash?
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->loadFromHash($hash);
+        if ($confirmation->getId() == '') { 
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_pending_confirmation', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+
+        // Load user object
+        $user = clone $this->container->get('User');
+        // Do we already have a user with this email address?
+        $user->loadFromEmail($confirmation->data->getNode('email'));
+        if(is_numeric($user->getId())) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'user_exists', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+        // Create user
+        $user->create(
+            $confirmation->data->getNode('email'),
+            $confirmation->data->getNode('password'),
+            $confirmation->data->getNode('locale')
+        ); 
+        // Create username from email address
+        $user->setUsername($this->suggestUsername($confirmation->data->getNode('email')));
+        $user->save();
+
+        // Remove confirmation
+        $confirmation->remove();
+
+        // Get the token kit from the container
+        $TokenKit = $this->container->get('TokenKit');
+        
+        return Utilities::prepResponse($response, [
+            'result' => 'ok',
+            'token' => $TokenKit->create($user->getId())
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+
+    private function suggestUsername($email) {
+        $initial = array_shift(explode('@', $email));
+        $count=2;
+        $proposal = $initial;
+        while(!$this->usernameIsFree($proposal)) {
+            $proposal = $initial.$count;
+            $count++;
+        }
+
+        return $proposal;
+    }
+
+    private function usernameIsFree($username) 
+    {
+        $db = $this->container->get('db');
+        $sql = 'SELECT `id` FROM `users` WHERE  `username` = '.$db->quote($username).' LIMIT 1';
+        
+        $result = $db->query($sql)->fetch(\PDO::FETCH_OBJ);
+        $db = null;
+    
+        if ($result) return false;
+        else return true;
+    }
+
     /** Resend actication email
      *
      * Handles POST requests to /user/resend 

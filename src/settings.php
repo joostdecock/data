@@ -19,6 +19,7 @@ return [
                 '/taskrunner',
                 '/migrate',
                 '/signup', 
+                '/newuser', 
                 '/login', 
                 '/recover', 
                 '/reset', 

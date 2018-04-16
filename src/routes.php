@@ -42,6 +42,12 @@
     // Confirm email address
     $app->get('/confirm/{hash}', 'UserController:confirmEmailAddress');
 
+    // Remove confirmation / No consent for data processing given
+    $app->delete('/confirm/{hash}', 'UserController:removeConfirmation');
+
+    // Create account from confirmation / Consent for data processing given
+    $app->post('/newuser', 'UserController:createAccount');
+
 
 
 // Status
@@ -210,9 +216,5 @@ $app->post('/admin/errors/{hash:.*}', 'AdminController:errorsUpdateGroup');
 
 // Catch-all GET requests that don't match anything
 $app->get('/[{name}]', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Slim-Skeleton '/' route");
-
-    // Render index view
     return $this->renderer->render($response, 'index.html', $args);
 });

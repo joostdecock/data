@@ -33,10 +33,10 @@ class User
     private $status;
 
     /** @var bool $profileConsent Whether the user has given their consent to store their profile data */
-    private $profileContent;
+    private $profileConsent;
 
     /** @var bool $modelConsent Whether the user has given their consent to store their model data */
-    private $modelContent;
+    private $modelConsent;
 
     /** @var string $created Time when the accout was created */
     private $created;
@@ -65,6 +65,9 @@ class User
     /** @var datetime $patronSince The date since this user became a patron */
     private $patronSince;
 
+    /** @var string $locale The locale/language the user prefers */
+    private $locale;
+
     /** @var string $units The units the user prefers */
     private $units;
 
@@ -86,16 +89,17 @@ class User
         'username',
         'handle',
         'status',
-        'profile_consent',
-        'model_consent',
+        'profileConsent',
+        'modelConsent',
         'created',
         'migrated',
         'login',
         'role',
-        'patron_since',
+        'patronSince',
         'patron',
         'picture',
         'units',
+        'locale',
         'theme',
         'password', 
         'pepper'
@@ -209,6 +213,11 @@ class User
     public function getPendingEmail() 
     {
         return $this->data->getNode('account.pendingEmail');
+    } 
+
+    public function getLocale() 
+    {
+        return $this->locale;
     } 
 
     public function getUnits() 
@@ -340,6 +349,11 @@ class User
         $this->data->setNode('account.pendingEmail', $email);
     } 
 
+    public function setLocale($locale) 
+    {
+        $this->locale = $locale;
+    }
+
     public function setUnits($units) 
     {
         $this->units = $units;
@@ -414,10 +428,7 @@ class User
         if(!$result) return false;
         else {
             foreach(self::CLEARTEXT_FIELDS as $f) {
-                if($f == 'patron_since') $this->patronSince = $result->{$f};
-                if($f == 'profile_consent') $this->profileContent = $result->{$f};
-                if($f == 'model_consent') $this->modelContent = $result->{$f};
-                else $this->{$f} = $result->{$f};
+                $this->{$f} = $result->{$f};
             } 
             foreach(self::ENCRYPTED_FIELDS as $f) {
                 if($f == 'data') {
@@ -483,67 +494,75 @@ class User
      *
      * @return int The id of the newly created user
      */
-    public function create($email, $password) 
+    public function create($email, $password, $locale) 
     {
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
+        $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
+        $ehash = hash('sha256', strtolower(trim($email)));
         
         // Set basic info    
         $this->setPassword($password);
         $this->setEmail($email);
+        $this->setLocale($locale);
 
         // Get the HandleKit to create the handle
         $handleKit = $this->container->get('HandleKit');
         $this->setHandle($handleKit->create('user'));
-        $logger->info("Got handle ".$this->getHandle()." for: ".$email);
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
         $this->setPicture($avatarKit->create($this->getHandle(), 'user'));
 
         // Set defaults
-        $this->setAccountUnits('metric');
-        $this->setAccountTheme('classic');
+        $this->setUnits('metric');
+        $this->setTheme('classic');
 
         // Store in database
         $db = $this->container->get('db');
         $sql = "INSERT into `users`(
             `email`,
             `username`,
+            `locale`,
             `handle`,
             `status`,
             `created`,
+            `login`,
             `data`,
+            `units`,
+            `theme`,
             `role`,
+            `profileConsent`,
             `picture`,
             `password`,
             `initial`,
+            `ehash`,
             `pepper`
              ) VALUES (
-            ".$db->quote($this->getEmail()).",
+            ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
+            ".$db->quote('user__'.$this->getHandle()).",
+            ".$db->quote($this->getLocale()).",
             ".$db->quote($this->getHandle()).",
-            ".$db->quote($this->getHandle()).",
-            'inactive',
+            'active',
             '".date('Y-m-d H:i:s')."',
-            ".$db->quote($this->getDataAsJson()).",
+            '".date('Y-m-d H:i:s')."',
+            ".$db->quote(Utilities::encrypt($this->getDataAsJson(), $nonce)).",
+            ".$db->quote($this->getUnits()).",
+            ".$db->quote($this->getTheme()).",
             'user',
+            1,
             ".$db->quote($this->getPicture()).",
             ".$db->quote($this->getPassword()).",
-            ".$db->quote($this->getEmail()).",
-            ".$db->quote(hash('sha256', random_bytes(256)))."
+            ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
+            ".$db->quote($ehash).",
+            ".$db->quote($nonce)."
             );";
         $db->exec($sql);
 
-        // Retrieve user ID
+        // Update instance from database
         $id = $db->lastInsertId();
-
-        // Set username to 'user ID' to encourage people to change it
-        $sql = "UPDATE `users` SET `username` = 'user $id' WHERE `users`.`id` = '$id';";
-        $db->exec($sql);
+        $this->loadFromId($id);
         $db = null;
 
-        // Update instance from database
-        $this->loadFromId($id);
+        return $id;
     }
 
     /** 
@@ -618,15 +637,17 @@ class User
     public function save() 
     {
         $nonce = $this->getPepper();
+
         $db = $this->container->get('db');
         $sql = "UPDATE `users` set 
                    `email` = ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
                 `username` = ".$db->quote($this->getUsername()).",
                   `status` = ".$db->quote($this->getStatus()).",
-         `profile_consent` = ".$db->quote($this->getProfileConsent()).",
+         `profileConsent` = ".$db->quote($this->getProfileConsent()).",
                    `login` = ".$db->quote($this->getLogin()).",
                     `role` = ".$db->quote($this->getRole()).",
-            `patron_since` = ".$db->quote($this->getPatronSince()).",
+                  `locale` = ".$db->quote($this->getLocale()).",
+            `patronSince` = ".$db->quote($this->getPatronSince()).",
                   `patron` = ".$db->quote($this->getPatronTier()).",
                    `units` = ".$db->quote($this->getUnits()).",
                    `theme` = ".$db->quote($this->getTheme()).",
