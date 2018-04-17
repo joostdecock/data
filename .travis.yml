@@ -1,6 +1,6 @@
 language: php
 php:
-- '7.0.22'
+- '7.1'
 addons:
   apt:
     packages:
@@ -21,7 +21,7 @@ before_script:
   - pecl channel-update pecl.php.net
   - yes | pecl install imagick
 script:
-    #    - composer testonly
+    /bin/true
 deploy:
   provider: script
   script: scripts/deploy.sh
