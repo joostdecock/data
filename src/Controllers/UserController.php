@@ -80,7 +80,7 @@ class UserController
                     `instagram` = ".$db->quote($instagram).",
                     `github` = ".$db->quote($github).",
                     `patron` = ".$db->quote($patron).",
-                    `patronSince` = ".$db->quote($patron_since).",
+                    `patronSince` = ".$db->quote($patronSince).",
                     `ehash` = ".$db->quote($ehash).",
                     `pepper` = ".$db->quote($nonce).",
                     `email` = ".$db->quote($email).",
@@ -98,6 +98,9 @@ class UserController
     
     private function migrateUsername($username) {
         $initial = str_replace([' ','@','#'], '', $username);
+        // Some users don't need a change
+        if($initial == $username) return $username;
+
         $count=2;
         $proposal = $initial;
         while(!$this->usernameIsFree($proposal)) {
