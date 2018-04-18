@@ -5,9 +5,9 @@ addons:
   apt:
     packages:
     - sshpass
-    - inkscape
-    - ghostscript
-    - imagemagick
+      #- inkscape
+      #- ghostscript
+      #- imagemagick
 install:
 - composer install --no-interaction
 - composer dump-autoload -o
