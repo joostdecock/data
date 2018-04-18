@@ -51,19 +51,19 @@ class UserController
                 }
                 // Patron status 
                 if(isset($d->patron) && isset($d->patron->tier)) { 
-                    $patron_since = NULL;
+                    $patronSince = NULL;
                     $patron = $d->patron->tier;
-                    $patron_since = date("Y-m-d H:i:s",$d->patron->since);
+                    $patronSince = date("Y-m-d H:i:s",$d->patron->since);
                 } else {
                     $patron = 0;
-                    $patron_since = NULL;
+                    $patronSince = NULL;
                 }
                 // Badges
                 $data = new \stdClass();
                 if(isset($d->badges)) $data->badges = $d->badges;
 
                 // Format username
-                $username = str_replace([' ','@','#'], '', $val['username']);
+                $username = $this->migrateUsername($val['username']);
 
                 // Encrypt data at rest
                 $nonce = base64_encode(random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES)); 
@@ -71,18 +71,16 @@ class UserController
                 $initial = Utilities::encrypt($val['initial'], $nonce);
                 $json = JSON_encode($data, JSON_UNESCAPED_SLASHES);
                 $data = Utilities::encrypt($json, $nonce);
-                $twitter = Utilities::encrypt($twitter, $nonce);
-                $instagram = Utilities::encrypt($instagram, $nonce);
-                $github = Utilities::encrypt($github, $nonce);
                 $ehash = hash('sha256', strtolower(trim($val['email'])));
                 $sql = "UPDATE `users` SET 
                     `units` = ".$db->quote($units).",
                     `theme` = ".$db->quote($theme).",
+                    `locale` = 'en',
                     `twitter` = ".$db->quote($twitter).",
                     `instagram` = ".$db->quote($instagram).",
                     `github` = ".$db->quote($github).",
                     `patron` = ".$db->quote($patron).",
-                    `patron_since` = ".$db->quote($patron_since).",
+                    `patronSince` = ".$db->quote($patron_since).",
                     `ehash` = ".$db->quote($ehash).",
                     `pepper` = ".$db->quote($nonce).",
                     `email` = ".$db->quote($email).",
@@ -96,6 +94,18 @@ class UserController
         }
         $db = null;
         echo "Migrated $count users.";
+    }
+    
+    private function migrateUsername($username) {
+        $initial = str_replace([' ','@','#'], '', $username);
+        $count=2;
+        $proposal = $initial;
+        while(!$this->usernameIsFree($proposal)) {
+            $proposal = $initial.$count;
+            $count++;
+        }
+
+        return $proposal;
     }
 
 
