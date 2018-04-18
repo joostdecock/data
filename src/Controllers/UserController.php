@@ -28,12 +28,8 @@ class UserController
         $db = $this->container->get('db');
         $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1000";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
-        if(!$result) {
-            return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'no_users_left', 
-            ], 400, $this->container['settings']['app']['origin']);
-        } else {
+        if(!$result) return "All users migrated\n";
+        else {
             // Cycle through users
             $count = 0; 
             foreach($result as $i => $val) {
@@ -93,7 +89,7 @@ class UserController
             }
         }
         $db = null;
-        echo "Migrated $count users.";
+        return "Migrated $count users.\n";
     }
     
     private function migrateUsername($username) {
