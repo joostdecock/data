@@ -1,6 +1,6 @@
 language: php
 php:
-- '7.0.29'
+- '7.0.27'
 addons:
   apt:
     packages:
