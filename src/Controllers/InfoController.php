@@ -146,7 +146,8 @@ class InfoController
         foreach ($patternlist as $namespace => $list) {
             foreach ($list as $handle => $title) {
                 $patternInfo = json_decode(file_get_contents($this->container['settings']['app']['core_api'].'/index.php?service=info&pattern='.$handle));
-                $info['patterns'][$handle] = $this->patternToArray($patternInfo);
+                $patternInfo->info->class = $handle;
+                $info['patterns'][$patternInfo->info->handle] = $this->patternToArray($patternInfo);
                 $info['namespaces'][$namespace][] = $patternInfo->info->handle;
                 $info['mapping']['handleToPatternTitle'][$patternInfo->info->handle] = $patternInfo->info->name;
                 $info['mapping']['handleToPattern'][$patternInfo->info->handle] = $handle;
