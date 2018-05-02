@@ -750,7 +750,7 @@ class User
                     unset($val->compared);
                 }
                 $val->data = json_decode($val->data);
-                $drafts[$val->id] = $val;
+                $drafts[$val->handle] = $val;
             }
         } 
         return $drafts;

@@ -24,29 +24,32 @@ class DraftController
     /** Create draft */
     public function create($request, $response, $args, $recreate=false) 
     {
-        // Handle request
-        $in = new \stdClass();
-        $in->model = Utilities::scrub($request,'model');
-        $in->handle = Utilities::scrub($request,'draft');
-        $in->fork = Utilities::scrub($request,'fork');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
+        switch(Utilities::scrub($request,'type')) {
+            case 'draftFromModel':
+                return $this->createFromModel($request, $response, $args);
+                break;
+            default: 
+                // Not a supported way to create draft
+                return Utilities::prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'unsupported_draft_type', 
+                ], 400, $this->container['settings']['app']['origin']);
+                break;
+        }
+    } 
+
+    public function createFromModel($request, $response, $args, $recreate=false) 
+    {
         // Get a user instance from the container
         $user = clone $this->container->get('User');
-        $user->loadFromId($in->id);
+        $user->loadFromId($request->getAttribute("jwt")->user);
 
         // Get a model instance from the container and load the model
         $model = clone $this->container->get('Model');
-        $model->loadFromHandle($in->model);
+        $model->loadFromHandle(Utilities::scrub($request,'model'));
         
-        if($model->getUser() != $user->getId()) {
-            // Not a model that belongs to the user, and not shared either
-            $logger->info("Draft blocked: User ".$user->getId()." can not generate a draft for model ".$in->model);
+        if($model->getUser() != $user->getId() && !$model->getShared()) {
+            // Not a model that belongs to the user, or shared model
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'model_not_yours', 
@@ -60,19 +63,13 @@ class DraftController
             $draft->recreate($request->getParsedBody(), $user, $model);
         } else {
             $draft->create($request->getParsedBody(), $user, $model);
-            $logger->info("Drafted ".$draft->getHandle()." for user ".$user->getId());
             // Add badge if needed
-            if($in->fork !== false) {
-                if($user->addBadge('fork')) $user->save();
-            } else {
-                if($user->addBadge('draft')) $user->save();
-            
-            }
+            if($user->addBadge('draft')) $user->save();
         }
-        
+
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'handle' => $draft->getHandle(),
+            'handle' => $draft->getHandle()
         ], 200, $this->container['settings']['app']['origin']);
     }
     
@@ -124,9 +121,16 @@ class DraftController
         $draft = $this->container->get('Draft');
         $draft->loadFromHandle($in->handle);
 
+        // Does draft even exist?
+        if(!is_numeric($draft->getId())) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_draft', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+
         if($draft->getUser() != $id && !$draft->getShared() && $admin->getRole() != 'admin') {
             // Not a draft that belongs to the user, nor is it shared
-            $logger->info("Load blocked: User $id cannot load draft ".$in->handle);
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours_and_not_shared', 
@@ -173,8 +177,6 @@ class DraftController
                 ],
                 'name' => $draft->getName(), 
                 'handle' => $draft->getHandle(), 
-                'svg' => $draft->getSvg(), 
-                'compared' => $draft->getCompared(), 
                 'data' => $optionData,
                 'cache' => $cacheToken,
                 'created' => $draft->getCreated(), 
@@ -244,6 +246,38 @@ class DraftController
         ], 200, $this->container['settings']['app']['origin']);
     } 
 
+    /** Upgrade draft */
+    public function upgrade($request, $response, $args) 
+    {
+        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a draft instance from the container and load its data
+        $draft = $this->container->get('Draft');
+        $draft->loadFromHandle($handle);
+
+        // Does this user own this draft?
+        if($draft->getUser() != $id) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'draft_not_yours', 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+        
+        // Get a user instance from the container
+        $user = $this->container->get('User');
+        $user->loadFromId($id);
+
+        $draft->upgrade($user);
+        
+        return Utilities::prepResponse($response, [
+            'result' => 'ok', 
+            'handle' => $draft->getHandle(),
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+    
     /** Update draft */
     public function update($request, $response, $args) 
     {

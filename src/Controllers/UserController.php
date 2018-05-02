@@ -683,15 +683,24 @@ class UserController
         return Utilities::prepResponse($response, [
             'account' => [
                 'id' => $user->getId(), 
-                'email' => $user->getEmail(), 
                 'username' => $user->getUsername(), 
                 'handle' => $user->getHandle(), 
+                'patron' => $user->getPatron(), 
+                'role' => $user->getRole(), 
+                'units' => $user->getUnits(), 
+                'theme' => $user->getTheme(), 
+                'consent' => [
+                    'profile' => $user->getProfileConsent(), 
+                    'model' => $user->getModelConsent() 
+                ],
+                'social' => $user->getSocial(),
                 'status' => $user->getStatus(), 
                 'created' => $user->getCreated(), 
                 'login' => $user->getLogin(), 
                 'picture' => $user->getPicture(), 
                 'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
                 'data' => $user->getData(), 
+                'email' => $user->getEmail(), 
             ],
             'models' => $user->getModels(),
             'drafts' => $user->getDrafts(),

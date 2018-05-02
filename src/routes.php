@@ -21,6 +21,8 @@
     $app->get('/info/yaml', 'InfoController:asYaml');
     // JSON info bundle
     $app->get('/info/json', 'InfoController:asJson');
+    // Requied measurementes bundle (used by DATA API itself, only called at build-time)
+    $app->get('/info/measurements', 'InfoController:measurements');
 
     // Locale bundles (these are the basis for translations)
     $app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
@@ -140,6 +142,9 @@ $app->get('/draft/{handle}', 'DraftController:load');
 
 // Update draft
 $app->put('/draft/{handle}', 'DraftController:update');
+
+// Upgrade draft
+$app->post('/draft/{handle}/upgrade', 'DraftController:upgrade');
 
 // Remove draft
 $app->delete('/draft/{handle}', 'DraftController:remove');

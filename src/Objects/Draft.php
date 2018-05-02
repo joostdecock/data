@@ -294,7 +294,7 @@ class Draft
     /**
      * Creates a new draft and stores it in the database
      *
-     * @param array $in The pattern options
+     * @param array $in The data submitted from the frontend
      * @param Model $model The model object     
      * @param User $user The user object     
      * 
@@ -302,14 +302,17 @@ class Draft
      */
     public function create($in, $user, $model) 
     {
+        $data = [];
         // Passing model measurements to core
-        foreach($model->getData()->measurements as $key => $val) {
-            if(strtolower($model->getUnits()) != strtolower($in['userUnits'])) {
-                // Measurements need to be converted
+        $measurements = $model->getData()->measurements;
+        foreach($this->container['settings']['patternRequiredMeasurements'][$in['pattern']] as $key) {
+            $val = $measurements->{$key};
+            if(strtolower($model->getUnits()) != strtolower($user->getUnits())) {
+                // Measurements need to be converted to user's units
                 if(strtolower($model->getUnits() == 'imperial')) $val = $val * 2.54;
                 else $val = $val / 2.54;
             }
-            $in[$key] = $val;
+            $data[$key] = $val;
             $this->setMeasurement($key, $val);
         }
 
@@ -318,34 +321,43 @@ class Draft
         $this->setHandle($handleKit->create('draft'));
         
         // Pass units, handle and model name to core
-        $in['unitsIn'] = strtolower($in['userUnits']);
-        $in['unitsOut'] = strtolower($in['userUnits']);
-        $in['draftHandle'] = $this->getHandle();
-        $in['modelName'] = $model->getName();
+        $data['unitsIn'] = strtolower($user->getUnits());
+        $data['unitsOut'] = strtolower($user->getUnits());
+        $data['draftHandle'] = $this->getHandle();
+        $data['modelName'] = $model->getName();
 
         // Switch theme to its JSON variant
-        $originalTheme = $in['theme'];
-        $in['theme'] = $in['theme'].'Json';
+        $originalTheme = $in['draftOptions']['theme'];
+        $data['theme'] = $originalTheme.'Json';
+        
+        // Set SA for core
+        $data['sa'] = $in['draftOptions']['sa']['value'];
+
+        // Add options to url
+        foreach($in['patternOptions'] as $key => $val) {
+            $data[$key] = $val;
+        }
+        
+        // Set pattern to class name
+        $data['pattern'] = $this->container['settings']['patternHandleToPatternClass'][$in['pattern']];
+        $data['inpattern'] = $in['pattern'];
 
         // Getting draft from core
-        $in['service'] = 'draft';
+        $data['service'] = 'draft';
 
-        $json = json_decode($this->getDraft($in));
+        $json = json_decode($this->getDraft($data));
         $this->setSvg($json->svg);
-        
-        // Restoring original theme
-        $in['theme'] = $originalTheme;
         
         // Prep data
         $this->setVersion($json->version);
         $this->setOptions($in);
-        $this->setUnits($in['userUnits']);
-        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
+        $this->setUnits($user->getUnits());
+        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($data));
         
         // Getting compare from core
-        $in['service'] = 'compare';
-        $in['theme'] = 'Compare'; // Overriding theme
-        $this->setCompared($this->getDraft($in));
+        $data['service'] = 'compare';
+        $data['theme'] = 'Compare'; // Overriding theme
+        $this->setCompared($this->getDraft($data));
         
         // Set basic info    
         $this->setUser($user->getId());
@@ -447,6 +459,59 @@ class Draft
         $this->setVersion($json->version);
         $this->setOptions((object)$in);
         $this->setUnits($model->getUnits());
+        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
+        
+        // Getting compare from core
+        $in['service'] = 'compare';
+        $in['theme'] = 'Compare';
+        $this->setCompared($this->getDraft($in));
+        
+        // Save draft to database
+        $this->save();
+
+        // Store on disk
+        $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
+        $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
+        fwrite($handle, $this->getSvg());
+        fclose($handle);
+        $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
+        fwrite($handle, $this->getCompared());
+        fclose($handle);
+
+        return $this->getId();
+    }
+
+    /**
+     * Upgrades a draft in-place stores it in the database
+     *
+     */
+    public function upgrade($user) 
+    {
+        // Passing model measurements to core
+        foreach($this->getData()->measurements as $key => $val) {
+            $in[$key] = $val;
+            $this->setMeasurement($key, $val);
+        }
+        foreach($this->getData()->options as $key => $val) {
+            $in[$key] = $val;
+        }
+        
+        // Switch theme to its JSON variant
+        $originalTheme = $this->getData()->options->theme;
+        $in['theme'] = $originalTheme.'Json';
+
+        // Getting draft from core
+        $in['service'] = 'draft';
+        $json = json_decode($this->getDraft($in));
+        $this->setSvg($json->svg);
+        
+        // Restoring original theme
+        $in['theme'] = $originalTheme;
+        
+        // Storing data
+        $this->setVersion($json->version);
+        $this->setOptions((object)$in);
+        $this->setUnits($this->getData()->model->units);
         $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
         
         // Getting compare from core

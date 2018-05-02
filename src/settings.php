@@ -1,4 +1,6 @@
 <?php
+require_once('__prefetch_requiredMeasurements.php');
+
 return [
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
@@ -162,5 +164,27 @@ You can write whatever you want here.',
             'upperLegCircumference' => 'Upper leg circumference',
             'wristCircumference' => 'Wrist circumference',
         ],
+        "patternHandleToPatternClass" => [ // Temporary needed until core v2
+            "aaron" => "AaronAshirt",
+            "brian" => "BrianBodyBlock",
+            "bruce" => "BruceBoxerBriefs",
+            "cathrin" => "CathrinCorset",
+            "hugo" => "HugoHoodie",
+            "simon" => "SimonShirt",
+            "sven" => "SvenSweatshirt",
+            "tamiko" => "TamikoTop",
+            "theo" => "TheoTrousers",
+            "theodore" => "TheodoreTrousers",
+            "trayvon" => "TrayvonTie",
+            "wahid" => "WahidWaistcoat",
+            "benjamin" => "BenjaminBowTie",
+            "bent" => "BentBodyBlock",
+            "carlita" => "CarlitaCoat",
+            "carlton" => "CarltonCoat",
+            "florent" => "FlorentFlatCap",
+            "huey" => "HueyHoodie",
+            "jaeger" => "JaegerJacket"
+        ],
+        "patternRequiredMeasurements" => __requiredMeasurements()
     ],
 ];

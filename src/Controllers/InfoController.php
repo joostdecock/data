@@ -22,6 +22,24 @@ class InfoController
         $this->container = $container;
     }
 
+    /** Required measurements bundle (YAML) */
+    public function measurements($request, $response, $args) 
+    {
+        $info = $this->infoBundle();
+        foreach($info['patterns'] as $handle => $pattern) {
+            foreach($pattern['measurements'] as $key => $default) {
+                $measurements[$handle][] = $key;
+            }
+        } 
+
+        $body = "<?php \n /* This file is auto-generated. Do not edit! */\n\n";
+        $body .="function __requiredMeasurements()\n{\n    return ".var_export($measurements, 1).";\n}";
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write($body);
+    }
+
     /** Info bundle as YAML */
     public function asYaml($request, $response, $args) 
     {
