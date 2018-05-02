@@ -742,22 +742,19 @@ class UserController
         }
 
         // Handle username change
-        if($user->getUsername() != $in->username) {
+        if($in->username !== false && $user->getUsername() != $in->username) {
             if($user->usernameTaken($in->username)) {
-                $logger->info("Failed to update profile for user ".$user->getId().": Username ".$in->username." is taken");
-                
                 return Utilities::prepResponse($response, [
                     'result' => 'error', 
                     'reason' => 'username_taken', 
-                    'message' => 'account/username-taken',
-                ], 400, $this->container['settings']['app']['origin']);
+                ], 200, $this->container['settings']['app']['origin']);
             }
             $user->setUsername($in->username);
         }
 
         // Handle toggles
-        if($user->getAccountUnits() != $in->units) $user->setAccountUnits($in->units);
-        if($user->getAccountTheme() != $in->theme) $user->setAccountTheme($in->theme);
+        if($user->getUnits() != $in->units) $user->setUnits($in->units);
+        if($user->getTheme() != $in->theme) $user->setTheme($in->theme);
         
         // Handle 3rd party accounts
         $user->setTwitterHandle($in->twitter);
