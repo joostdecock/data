@@ -1,6 +1,9 @@
 <?php 
 // Temporary routes for migration
 
+// test email delivery
+    $app->get('/test', 'UserController:test');
+
     // Migrate users to new database structure
     $app->get('/migrate', 'UserController:migrate');
 

@@ -1,9 +1,9 @@
-{goodbye}
+__goodbye__
 
-{thankYouForGivingFreesewingAChance}
-{iRespectYourDecisionToLeave}
+__thankYouForGivingFreesewingAChance__
+__iRespectYourDecisionToLeave__
 
-{allTheBest}
+__allTheBest__
 Joost
 
-{psWhyLeave}
+__psWhyLeave__

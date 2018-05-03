@@ -1,8 +1,8 @@
-__WELCOME__ 🎉
+__welcomeAboard__
 
-__THANK_YOU_NOW_CLICK_LINK__
+__thankYouNowConfirmLink__
                                                                 
 __LINK__
 
-__QUESTIONS_JUST_REPLY__ ☺️
+__questionsJustReply__
 

@@ -21,6 +21,21 @@ class UserController
         $this->container = $container;
     }
 
+    // TEST EMAIL DELIVERY
+    public function test($request, $response, $args) 
+    {
+        $data = new \stdClass();
+        $data->email = 'testdev@decock.org';
+        $data->locale = 'en';
+        //$data->hash = 'yadayahash';
+        //$data->username = 'J-dog';
+
+        $this->container->get('MailKit')->goodbye($data);
+        
+        $data->locale = 'nl';
+        $this->container->get('MailKit')->goodbye($data);
+    }
+
     // MIGRATION CALL 
     /** Migrate user accounts to encrypted DB scheme */
     public function migrate($request, $response, $args) 

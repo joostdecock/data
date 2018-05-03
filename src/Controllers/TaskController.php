@@ -62,7 +62,7 @@ class TaskController
     /** Runs an emailSignup task */
     private function runTask__emailSignup($task) 
     {
-        return $this->container->get('MailKit')->signup($task);
+        return $this->container->get('MailKit')->signup($task->getData());
     }
     
     /** Runs an emailSignup task */

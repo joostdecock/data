@@ -1,12 +1,12 @@
-{authorPostedAReply}
+__authorPostedAReply__
 
-{comment}
-
-
-{replyWillBePostedAsComment}
-{orReplyOnline} {commentLink}
+__comment__
 
 
-{yourOriginalComment}
+__replyWillBePostedAsComment__
+__orReplyOnline__: __commentLink__
 
-{parentComment}
+
+__yourOriginalComment__
+
+__PARENT_COMMENT__

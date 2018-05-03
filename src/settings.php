@@ -18,6 +18,7 @@ return [
             "secure" => true, // Don't allow access over an unencrypted connection
             'path' => '/',
             'passthrough' => [
+                '/test',
                 '/taskrunner',
                 '/migrate',
                 '/signup', 

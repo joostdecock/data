@@ -1,20 +1,13 @@
-Wow, you are awesome!
+__wowYouAreAwesome__
 
-Thank you so much for joining the freesewing patrons, as a Captain no less! This is great news.
+__txt-patron8-1__
 
-I'll be sending your gift in the mail soon, but before doing so I'll reach out to you to double-check your shipping address. 
+__txt-patron4-2__
 
-Meanwhile, I've already added you to our list of patrons on freesewing.org.
+__txt-patron4-3__
 
-Love,
-
+__signature__
 joost
 
-PS: If you are on Twitter, Instagram, or GitHub, please let me know so we can follow you from the official freesewing acccount. It's a patron's priviledge :)
-
---
-You received this email because you just became a Patron on freesewing.org 
-
-Freesewing is an open source platform for made-to-measure sewing patterns
-Made with love by Joost De Cock 
+__txt-patron2-ps__
 

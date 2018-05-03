@@ -1,6 +1,6 @@
                     
 ---
-__REASON_WHY__
+__WHY__
                     
-__SLOGAN__
-__CREDITS__
+__slogan__
+__credits__
