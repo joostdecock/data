@@ -73,6 +73,12 @@ class Utilities
             case 'email':
                 $filter = FILTER_SANITIZE_EMAIL;
             break;
+            case 'username':
+                if(isset($request->getParsedBody()[$key])) {
+                    return filter_var(preg_replace("/[^A-Za-z0-9-_.]/", '', $request->getParsedBody()[$key]), FILTER_SANITIZE_STRING);
+                } else {
+                    return false;
+                }
             default:
                 $filter = FILTER_SANITIZE_STRING;
         }

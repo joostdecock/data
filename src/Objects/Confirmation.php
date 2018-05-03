@@ -189,11 +189,13 @@ class Confirmation
         $db = $this->container->get('db');
         $sql = "INSERT into `confirmations`(
             `data`,
+            `time`,
             `hash`,
             `expires`,
             `nonce`
              ) VALUES (
             ".$db->quote(Utilities::encrypt($this->getDataAsJson(), $nonce)).",
+            NOW(),
             ".$db->quote($data->hash).",
              DATE_ADD(NOW(), INTERVAL $expiresIn SECOND),
             ".$db->quote($nonce)."

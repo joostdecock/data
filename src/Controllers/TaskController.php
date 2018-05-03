@@ -21,7 +21,7 @@ class TaskController
         $this->container = $container;
     }
 
-    /** Migrate user accounts to encrypted DB scheme */
+    /** Taskrunner */
     public function taskRunner($request, $response, $args) 
     {
         $tasks =  $this->loadTasks();
@@ -62,7 +62,12 @@ class TaskController
     /** Runs an emailSignup task */
     private function runTask__emailSignup($task) 
     {
-        var_dump($task->data);
         return $this->container->get('MailKit')->signup($task);
+    }
+    
+    /** Runs an emailSignup task */
+    private function runTask__emailChange($task) 
+    {
+        return $this->container->get('MailKit')->emailChange($task);
     }
 }

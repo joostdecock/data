@@ -713,7 +713,7 @@ class UserController
         // Handle request
         $in = new \stdClass();
         $in->email = Utilities::scrub($request,'email','email');
-        $in->username = Utilities::scrub($request,'username');
+        $in->username = Utilities::scrub($request,'username', 'username');
         $in->address = Utilities::scrub($request,'address');
         $in->birthmonth = Utilities::scrub($request,'birthday-month');
         $in->birthday = Utilities::scrub($request,'birthday-day');
@@ -769,40 +769,36 @@ class UserController
         $pendingEmail = false;
         if($in->email !== false && $user->getEmail() != $in->email) {
             if($user->emailTaken($in->email)) {
-                $logger->info("Failed to update profile for user ".$user->getId().": Email ".$in->email." is taken");
-
                 return Utilities::prepResponse($response, [
                     'result' => 'error', 
                     'reason' => 'email_taken', 
-                    'message' => 'account/email-taken',
                 ], 400, $this->container['settings']['app']['origin']);
             }
-            // Send email 
-            $mailKit = $this->container->get('MailKit');
-            $mailKit->emailChange($user, $in->email);
-            $logger->info("Email change requested for user ".$user->getId().": From ".$user->getEmail()." to ".$in->email);
-            // Store future email address pending confirmation
-            $user->setPendingEmail($in->email);
-            
-            // Save changes 
-            $user->save();
 
-            return Utilities::prepResponse($response, [
-                'result' => 'ok', 
-                'message' => 'account/updated',
-                'pendingEmail' => $user->getPendingEmail(),
-                'data' => $user->getDataAsJson(),
-            ], 200, $this->container['settings']['app']['origin']);
-        } else {
-            // Save changes 
-            $user->save();
-            
-            return Utilities::prepResponse($response, [
-                'result' => 'ok', 
-                'message' => 'account/updated',
-                'data' => $user->getDataAsJson(),
-            ], 200, $this->container['settings']['app']['origin']);
-        }
+            // Queue confirmation email 
+            $taskData = new \stdClass();
+            $taskData->oldemail = $user->getEmail();
+            $taskData->email = $in->email;
+            $taskData->username = $user->getUsername();
+            $taskData->locale = $user->getLocale();
+            $taskData->hash = Utilities::getToken('emailChange'.$in->email);
+            $task = clone $this->container->get('Task');
+            $task->create('emailChange', $taskData);
+        
+            // Create confirmation
+            $confirmation = clone $this->container->get('Confirmation');
+            $confirmation->create($taskData);
+        
+        } 
+
+        // Save changes 
+        $user->save();
+        
+        return Utilities::prepResponse($response, [
+            'result' => 'ok', 
+            'message' => 'account/updated',
+            'data' => $user->getDataAsJson(),
+        ], 200, $this->container['settings']['app']['origin']);
     }
     
     /** Load user profile */

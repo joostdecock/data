@@ -210,11 +210,6 @@ class User
         return $this->data;
     } 
 
-    public function getPendingEmail() 
-    {
-        return $this->data->getNode('account.pendingEmail');
-    } 
-
     public function getLocale() 
     {
         return $this->locale;
@@ -344,11 +339,6 @@ class User
         $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
-    public function setPendingEmail($email) 
-    {
-        $this->data->setNode('account.pendingEmail', $email);
-    } 
-
     public function setLocale($locale) 
     {
         $this->locale = $locale;
@@ -390,11 +380,6 @@ class User
     {
         $this->patronSince = $since;
     }
-
-    public function unsetPendingEmail() 
-    {
-        $this->data->unsetNode('account.pendingEmail');
-    } 
 
     public function isPatron() 
     {

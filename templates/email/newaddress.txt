@@ -1,4 +1,4 @@
-Hello __USERNAME__
+|helloUsername|
 
 Please confirm your new email address (__NEW_ADDRESS__) by clicking the link below:
 
