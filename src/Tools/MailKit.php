@@ -217,6 +217,11 @@ class MailKit
         return $mailer->send($message);
     }
 
+    /* Goodbye E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     */
     public function goodbye($data) 
     {
         // Load language
@@ -236,7 +241,7 @@ class MailKit
         
         // Send email via swiftmailer 
         $mailer = $this->container->get('SwiftMailer');
-        $message = (new \Swift_Message($i18n['goodbye']))
+        $message = (new \Swift_Message('😞 '.$i18n['goodbye']))
             ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
             ->setTo($data->email)
             ->setBody($txt)
@@ -246,52 +251,110 @@ class MailKit
         return $mailer->send($message);
     }
 
-    public function commentNotify($user, $comment, $parentAuthor, $parentComment)
+    /* Comment reply notification E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     * $data->author => Username of the comment author
+     * $data->comment => The reply comment
+     * $data->commentLink => Link to the reply comment
+     * $data->parentComment => The parent comment
+     * $data->parentCommentLink => Link to the parent comment
+     *
+     */
+    public function commentNotify($data)
     {
-        $instance = $this->container['settings']['mailgun']['instance'];
-        if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
-        else $replyTo = $this->container['settings']['mailgun']['instance'].'.comment@mg.freesewing.org';
+        // Load language file and replace tokens
+        $i18n = [];
+        $search = ['{author}'];
+        $replace = [$data->author];
+        foreach($this->loadLanguage($data->locale) as $key => $val) {
+            $i18n[$key] = str_replace($search, $replace, $val);
+        }
+        
+        // Construct confirmation link
+        if($data->locale == 'en') $lang = '';
+        else $lang = '/'.$data->locale;
 
-        $templateData = [
-            'user' => $user->getUsername(), 
-            'comment' => $comment->getComment(), 
-            'parentComment' => $parentComment->getComment(), 
-            'commentLink' => $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId(), 
-            'parentCommentLink' => $this->container['settings']['app']['site'].$parentComment->getPage().'#comment-'.$parentComment->getId(), 
-        ];
+        // Add remaining tokens
+        $i18n['COMMENT'] = $data->comment;
+        $i18n['COMMENT_LINK'] = $data->commentLink;
+        $i18n['PARENT_COMMENT'] = $data->parentComment;
+        $i18n['PARENT_COMMENT_LINK'] = $data->parentCommentLink;
+        $i18n['OPENING_LINE'] = $i18n['authorPostedAReply'];
+        $i18n['HIDDEN'] = $i18n['authorPostedAReply'];
+        $i18n['WHY'] = $i18n['whyCommentReply'];
 
+        // Load email template and replace tokens       
+        $search = [];
+        foreach($i18n as $key => $val) $search[] = '__'.$key.'__';
+        $replace = array_values($i18n);
+        $html = str_replace($search, $replace, $this->loadTemplate('comment.reply', 'html'));
+        $txt  = str_replace($search, $replace, $this->loadTemplate('comment.reply',  'txt'));
+
+        // Send email via swiftmailer 
         $mailer = $this->container->get('SwiftMailer');
-        $message = (new \Swift_Message($user->getUsername().' replied to your comment [comment#'.$comment->getId().']'))
-                ->setFrom(['info@freesewing.org' => 'Joost from freesewing'])
-                ->setTo($parentAuthor->getEmail())
-                ->setReplyTo($replyTo)
-                ->setBody($this->loadTemplate("goodbye.txt", $user, $templateData))
-                ->addPart($this->loadTemplate("goodbye.html", $user, $templateData), 'text/html')
+        $message = (new \Swift_Message('💬  '.$i18n['authorPostedAReply'].' [comment#'.$data->commentId.']'))
+            ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+            ->setTo($data->email)
+            ->setReplyTo('comment@mg.freesewing.org')
+            ->setBody($txt)
+            ->addPart($html, 'text/html')
         ;
-        $mailer->send($message);
+
+        return $mailer->send($message);
     }
 
 
-    public function profileCommentNotify($user, $comment, $profile)
+    /* Profile comment notification E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     * $data->author => Username of the comment author
+     * $data->comment => The comment
+     * $data->commentLink => Link to the comment
+     *
+     */
+    public function profileCommentNotify($data)
     {
-        $instance = $this->container['settings']['mailgun']['instance'];
-        if($instance == 'master') $replyTo = 'comment@mg.freesewing.org';
-        else $replyTo = $this->container['settings']['mailgun']['instance'].'.comment@mg.freesewing.org';
+        // Load language file and replace tokens
+        $i18n = [];
+        $search = ['{author}'];
+        $replace = [$data->author];
+        foreach($this->loadLanguage($data->locale) as $key => $val) {
+            $i18n[$key] = str_replace($search, $replace, $val);
+        }
+        
+        // Construct confirmation link
+        if($data->locale == 'en') $lang = '';
+        else $lang = '/'.$data->locale;
 
-        $templateData = [
-            'user' => $user->getUsername(), 
-            'comment' => $comment->getComment(), 
-            'commentLink' => $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId(), 
-        ];
+        // Add remaining tokens
+        $i18n['COMMENT'] = $data->comment;
+        $i18n['COMMENT_LINK'] = $data->commentLink;
+        $i18n['OPENING_LINE'] = $i18n['authorCommentedOnYourProfilePage'];
+        $i18n['HIDDEN'] = $i18n['authorCommentedOnYourProfilePage'];
+        $i18n['WHY'] = $i18n['whyProfileComment'];
 
+        // Load email template and replace tokens       
+        $search = [];
+        foreach($i18n as $key => $val) $search[] = '__'.$key.'__';
+        $replace = array_values($i18n);
+        $html = str_replace($search, $replace, $this->loadTemplate('profilecomment.reply', 'html'));
+        $txt  = str_replace($search, $replace, $this->loadTemplate('profilecomment.reply',  'txt'));
+
+        // Send email via swiftmailer 
         $mailer = $this->container->get('SwiftMailer');
-        $message = (new \Swift_Message($user->getUsername().' commented on your profile page [comment#'.$comment->getId().']'))
-                ->setFrom(['info@freesewing.org' => 'Joost from freesewing'])
-                ->setTo($profile->getEmail())
-                ->setReplyTo($replyTo)
-                ->setBody($this->loadTemplate("profilecomment.reply.txt", $user, $templateData))
-                ->addPart($this->loadTemplate("profilecomment.reply.html", $user, $templateData), 'text/html')
+        $message = (new \Swift_Message('💬 ' 
+            .$i18n['authorCommentedOnYourProfilePage'].' [comment#'.$data->commentId.']'))
+            ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+            ->setTo($data->email)
+            ->setReplyTo('comment@mg.freesewing.org')
+            ->setBody($txt)
+            ->addPart($html, 'text/html')
         ;
-        $mailer->send($message);
+
+        return $mailer->send($message);
+
     }
 }

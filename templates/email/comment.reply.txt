@@ -1,10 +1,10 @@
 __authorPostedAReply__
 
-__comment__
+__COMMENT__
 
 
 __replyWillBePostedAsComment__
-__orReplyOnline__: __commentLink__
+__orReplyOnline__: __COMMENT_LINK__
 
 
 __yourOriginalComment__

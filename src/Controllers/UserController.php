@@ -27,13 +27,15 @@ class UserController
         $data = new \stdClass();
         $data->email = 'testdev@decock.org';
         $data->locale = 'en';
-        //$data->hash = 'yadayahash';
-        //$data->username = 'J-dog';
+        $data->comment = 'This is the profile comment';
+        $data->commentLink = "yadacommentloink";
+        $data->commentId = 69;
+        $data->author = 'VettigeSwa';
 
-        $this->container->get('MailKit')->goodbye($data);
+        $this->container->get('MailKit')->profileCommentNotify($data);
         
         $data->locale = 'nl';
-        $this->container->get('MailKit')->goodbye($data);
+        $this->container->get('MailKit')->profileCommentNotify($data);
     }
 
     // MIGRATION CALL 
