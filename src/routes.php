@@ -44,8 +44,11 @@
     // Signup user
     $app->post('/signup', 'UserController:signup');
 
-    // Confirm email address
+    // Confirm email address at signup
     $app->get('/confirm/{hash}', 'UserController:confirmEmailAddress');
+
+    // Confirm email address change (after signup)
+    $app->get('/confirm/email/{hash}', 'UserController:confirmEmailChange');
 
     // Remove confirmation / No consent for data processing given
     $app->delete('/confirm/{hash}', 'UserController:removeConfirmation');

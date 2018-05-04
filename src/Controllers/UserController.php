@@ -21,23 +21,6 @@ class UserController
         $this->container = $container;
     }
 
-    // TEST EMAIL DELIVERY
-    public function test($request, $response, $args) 
-    {
-        $data = new \stdClass();
-        $data->email = 'testdev@decock.org';
-        $data->locale = 'en';
-        $data->comment = 'This is the profile comment';
-        $data->commentLink = "yadacommentloink";
-        $data->commentId = 69;
-        $data->author = 'VettigeSwa';
-
-        $this->container->get('MailKit')->profileCommentNotify($data);
-        
-        $data->locale = 'nl';
-        $this->container->get('MailKit')->profileCommentNotify($data);
-    }
-
     // MIGRATION CALL 
     /** Migrate user accounts to encrypted DB scheme */
     public function migrate($request, $response, $args) 
@@ -192,7 +175,7 @@ class UserController
         ], 200, $this->container['settings']['app']['origin']);
     }
     
-    /** Confirm email address */
+    /** Confirm email address at signup*/
     public function confirmEmailAddress($request, $response, $args) {
 
         // Get hash from API endpoint 
@@ -210,6 +193,40 @@ class UserController
         // Set the email as confirmed 
         $confirmation->data->setNode('emailConfirmed', true);
         $confirmation->save();
+        return Utilities::prepResponse($response, [
+            'result' => 'ok'
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+    
+    /** Confirm email address change after signup */
+    public function confirmEmailChange($request, $response, $args) {
+
+        // Get hash from API endpoint 
+        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
+        // Do we have a pending confirmation for this hash?
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->loadFromHash($hash);
+        if ($confirmation->getId() == '') { 
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_pending_confirmation', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+
+        // Load user object
+        $user = clone $this->container->get('User');
+        $user->loadFromId($confirmation->getData()->userid);
+        if(!is_numeric($user->getId())) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_user', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+
+        $user->setEmail($confirmation->getData()->newemail);
+        $user->save();
+        $confirmation->remove();
+
         return Utilities::prepResponse($response, [
             'result' => 'ok'
         ], 200, $this->container['settings']['app']['origin']);
@@ -706,6 +723,7 @@ class UserController
                 'role' => $user->getRole(), 
                 'units' => $user->getUnits(), 
                 'theme' => $user->getTheme(), 
+                'locale' => $user->getLocale(), 
                 'consent' => [
                     'profile' => $user->getProfileConsent(), 
                     'model' => $user->getModelConsent() 
@@ -727,6 +745,8 @@ class UserController
     /** Update account */
     public function update($request, $response, $args) 
     {
+        $update = false; 
+        
         // Handle request
         $in = new \stdClass();
         $in->email = Utilities::scrub($request,'email','email');
@@ -737,10 +757,12 @@ class UserController
         $in->twitter = Utilities::scrub($request,'twitter');
         $in->instagram = Utilities::scrub($request,'instagram');
         $in->github = Utilities::scrub($request,'github');
-        $in->picture = Utilities::scrub($request,'picture');
+        $in->locale = Utilities::scrub($request,'locale');
+        $in->currentPassword = Utilities::scrub($request,'currentPassword');
+        $in->newPassword = Utilities::scrub($request,'newPassword');
         (Utilities::scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         (Utilities::scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
-        
+
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
         
@@ -756,6 +778,23 @@ class UserController
             // Get the AvatarKit to create the avatar
             $avatarKit = $this->container->get('AvatarKit');
             $user->setPicture($avatarKit->createFromDataString($in->picture, $user->getHandle()));
+            $update = true;
+        }
+
+        // Handle preferences
+        foreach(['units', 'theme', 'locale'] as $field) {
+            if($in->{$field} !== false && $user->{'get'.ucfirst($field)}() != $in->{$field}) {
+                $user->{'set'.ucfirst($field)}($in->{$field});
+                $update = true;
+            }
+        }
+
+        // Handle 3rd party accounts
+        foreach(['twitter', 'instagram', 'github'] as $field) {
+            if($in->{$field} !== false && $user->{'get'.ucfirst($field).'Handle'}() != $in->{$field}) {
+               $user->{'set'.ucfirst($field).'Handle'}($in->{$field});
+               $update = true;
+            }
         }
 
         // Handle username change
@@ -767,23 +806,10 @@ class UserController
                 ], 200, $this->container['settings']['app']['origin']);
             }
             $user->setUsername($in->username);
+            $update = true;
         }
 
-        // Handle toggles
-        if($user->getUnits() != $in->units) $user->setUnits($in->units);
-        if($user->getTheme() != $in->theme) $user->setTheme($in->theme);
-        
-        // Handle 3rd party accounts
-        $user->setTwitterHandle($in->twitter);
-        $user->setInstagramHandle($in->instagram);
-        $user->setGithubHandle($in->github);
-
-        // Patron info 
-        if($in->address !== false) $user->setPatronAddress($in->address);
-        if($in->birthday !== false) $user->setPatronBirthday($in->birthday, $in->birthmonth);
-
         // Handle email change
-        $pendingEmail = false;
         if($in->email !== false && $user->getEmail() != $in->email) {
             if($user->emailTaken($in->email)) {
                 return Utilities::prepResponse($response, [
@@ -795,26 +821,58 @@ class UserController
             // Queue confirmation email 
             $taskData = new \stdClass();
             $taskData->oldemail = $user->getEmail();
-            $taskData->email = $in->email;
+            $taskData->newemail = $in->email;
             $taskData->username = $user->getUsername();
+            $taskData->userid = $user->getId();
             $taskData->locale = $user->getLocale();
-            $taskData->hash = Utilities::getToken('emailChange'.$in->email);
+            $taskData->hash = Utilities::getToken('emailChange'.$in->email.$user->getId());
             $task = clone $this->container->get('Task');
             $task->create('emailChange', $taskData);
         
             // Create confirmation
             $confirmation = clone $this->container->get('Confirmation');
             $confirmation->create($taskData);
-        
+            $update = true;
         } 
 
+        // Handle password change
+        if($in->currentPassword !== false && $in->newPassword != $in->github && $in->newPassword != '') {
+            if(!$user->checkPassword($in->currentPassword)) {
+                return Utilities::prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'password_incorrect', 
+                ], 400, $this->container['settings']['app']['origin']);
+            }
+            $user->setPassword($in->newPassword); 
+            $update = true;
+        }
+
+        // Handle avatar upload
+        if(
+            $request->getContentType() === 'image/jpeg' ||
+            $request->getContentType() === 'image/png' ||
+            $request->getContentType() === 'image/gif' 
+        ) {
+            // Get the AvatarKit to create the avatar
+            $avatarKit = $this->container->get('AvatarKit');
+            $user->setPicture($avatarKit->createFromData($request->getBody()->getContents(), $user->getHandle()));
+            $update = true;
+        }
+
         // Save changes 
-        $user->save();
+        if($update) {
+            $user->save();
+        
+            return Utilities::prepResponse($response, [
+                'result' => 'ok', 
+                'reason' => 'account_updated',
+            ], 200, $this->container['settings']['app']['origin']);
+
+        }
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'message' => 'account/updated',
-            'data' => $user->getDataAsJson(),
+            'reason' => 'no_changes_made',
         ], 200, $this->container['settings']['app']['origin']);
     }
     

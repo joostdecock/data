@@ -103,6 +103,47 @@ class AvatarKit
     }
 
     /**
+     * Loads an avater from a PUT request body
+     *
+     * @param binary $data The image data
+     * @param string $handle The user handle
+     * @param string $type One of user/model/draft
+     *
+     * @return string The avatar filename
+     */
+    public function createFromData($data, $userHandle,$type='user', $typeHandle=null) 
+    {
+        $filepath = $this->container['settings']['storage']['temp_path']."/$userHandle.tmp";
+        if ($handle = fopen($filepath, 'w')) {
+            fwrite($handle, $data);
+            fclose($handle);
+        }
+
+        // Imagick instance with the user's picture
+        $imagick = new Imagick();
+        $handle = fopen($filepath, 'r');
+        $imagick->readImageFile($handle);
+        fclose($handle);
+
+        $imagick = $this->thumbnail($imagick);
+
+        switch($imagick->getImageMimeType()) {
+            case 'image/png':
+                $ext = '.png';
+            break;
+            case 'image/gif':
+                $ext = '.gif';
+            break;
+            default:
+                $ext = '.jpg';
+        }
+        ($typeHandle === null) ? $handle = $userHandle : $handle = $typeHandle;
+
+        // Save avatar and return filename
+        return $this->saveAvatar($handle.$ext, $imagick->getImageBlob(), $userHandle, $type, $typeHandle);
+    }
+
+    /**
      * Loads an avater from a data string
      *
      * @param string $data The original data string
