@@ -5,3 +5,4 @@ coverage/
 public/static/users
 public/static/export
 tests/sql/test.sq3
+src/include/*.php

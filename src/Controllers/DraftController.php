@@ -168,7 +168,7 @@ class DraftController
                 'model' => [
                     'handle' => $model->getHandle(),
                     'name' => $model->getName(),
-                    'body' => $model->getBody(), 
+                    'breasts' => $model->getBreasts(), 
                     'picture' => $model->getPicture(), 
                     'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'model',$model->getHandle()).'/'.$model->getPicture(), 
                     'units' => $model->getUnits(), 
@@ -229,7 +229,7 @@ class DraftController
                 'userHandle' => $user->getHandle(), 
                 'pattern' => $draft->getPattern(), 
                 'model' => [
-                    'body' => $model->getBody(), 
+                    'breasts' => $model->getBreasts(), 
                     'units' => $model->getUnits(), 
                 ],
                 'name' => $draft->getName(), 

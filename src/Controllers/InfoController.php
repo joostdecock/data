@@ -23,17 +23,38 @@ class InfoController
     }
 
     /** Required measurements bundle (YAML) */
-    public function measurements($request, $response, $args) 
+    public function dataConfig($request, $response, $args) 
     {
         $info = $this->infoBundle();
+
+        $allMeasurements = [];
+        $breastsMeasurements = [];
+        $noBreastsMeasurements = [];
+        $fbo = $this->container['settings']['forBreastsOnly'];
+        $classnames = [];
         foreach($info['patterns'] as $handle => $pattern) {
+            // Measurements
             foreach($pattern['measurements'] as $key => $default) {
                 $measurements[$handle][] = $key;
+                $allMeasurements[$key] = $key;
+                if(!in_array($key, $fbo)) $noBreastsMeasurements[$key] = $key;
+                else $breastsMeasurements[$key] = $key;
             }
+            // Classnames - Core doesn't know what 'simon' is (for now)
+            $classnames[$handle] = $pattern['info']['class'];
         } 
 
         $body = "<?php \n /* This file is auto-generated. Do not edit! */\n\n";
         $body .="function __requiredMeasurements()\n{\n    return ".var_export($measurements, 1).";\n}";
+        $body .= "\n\n";
+        $body .="function __allMeasurements()\n{\n    return ".var_export($allMeasurements, 1).";\n}";
+        $body .= "\n\n";
+        $body .="function __breastsMeasurements()\n{\n    return ".var_export($breastsMeasurements, 1).";\n}";
+        $body .= "\n\n";
+        $body .="function __noBreastsMeasurements()\n{\n    return ".var_export($noBreastsMeasurements, 1).";\n}";
+        $body .= "\n\n";
+        $body .="function __patternsToClassNames()\n{\n    return ".var_export($classnames, 1).";\n}";
+        
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/plain")

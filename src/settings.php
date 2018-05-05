@@ -1,5 +1,5 @@
 <?php
-require_once('__prefetch_requiredMeasurements.php');
+require_once('includes/__config.php');
 
 return [
     'settings' => [
@@ -18,7 +18,7 @@ return [
             "secure" => true, // Don't allow access over an unencrypted connection
             'path' => '/',
             'passthrough' => [
-                '/test',
+                '/config/',
                 '/taskrunner',
                 '/migrate',
                 '/signup', 
@@ -136,56 +136,18 @@ You can write whatever you want here.',
         'mmp' => [
             'public_path' => 'https://makemypattern.com/sites/default/files/styles/user_picture/public',
         ],
-        
-        // Measurement titles
-        'measurements' => [
-            'bicepsCircumference' => 'Biceps circumference',
-            'bustSpan' => 'Bust span',
-            'centerBackNeckToWaist' => 'Centerback neck to waist',
-            'chestCircumference' => 'Chest circumference',
-            'headCircumference' => 'Head circumference',
-            'highBust' => 'High bust',
-            'highPointShoulderToBust' => 'High point shoulder to bust',
-            'hipsCircumference' => 'Hips circumference',
-            'hipsToUpperLeg' => 'Hips to upper leg',
-            'inseam' => 'Inseam',
-            'naturalWaist' => 'Natural waist',
-            'naturalWaistToFloor' => 'Natural waist to floor',
-            'naturalWaistToHip' => 'Natural waist to hip',
-            'naturalWaistToSeat' => 'Natural waist to seat',
-            'naturalWaistToUnderbust' => 'Natural waist to underbust',
-            'neckCircumference' => 'Neck circumference',
-            'seatCircumference' => 'Seat circumference',
-            'seatDepth' => 'Seat depth',
-            'shoulderSlope' => 'Shoulder slope',
-            'shoulderToElbow' => 'Shoulder to elbow',
-            'shoulderToShoulder' => 'Shoulder to shoulder',
-            'shoulderToWrist' => 'Shoulder to wrist',
-            'underBust' => 'Underbust',
-            'upperLegCircumference' => 'Upper leg circumference',
-            'wristCircumference' => 'Wrist circumference',
+        'forBreastsOnly' => [
+            'underBust',
+            'bustSpan',
+            'highBust',
+            'highPointShoulderToBust',
         ],
-        "patternHandleToPatternClass" => [ // Temporary needed until core v2
-            "aaron" => "AaronAshirt",
-            "brian" => "BrianBodyBlock",
-            "bruce" => "BruceBoxerBriefs",
-            "cathrin" => "CathrinCorset",
-            "hugo" => "HugoHoodie",
-            "simon" => "SimonShirt",
-            "sven" => "SvenSweatshirt",
-            "tamiko" => "TamikoTop",
-            "theo" => "TheoTrousers",
-            "theodore" => "TheodoreTrousers",
-            "trayvon" => "TrayvonTie",
-            "wahid" => "WahidWaistcoat",
-            "benjamin" => "BenjaminBowTie",
-            "bent" => "BentBodyBlock",
-            "carlita" => "CarlitaCoat",
-            "carlton" => "CarltonCoat",
-            "florent" => "FlorentFlatCap",
-            "huey" => "HueyHoodie",
-            "jaeger" => "JaegerJacket"
-        ],
-        "patternRequiredMeasurements" => __requiredMeasurements()
+        "patternHandleToPatternClass" => __patternsToClassNames(), // Temporary needed until core v2
+        "patternRequiredMeasurements" => __requiredMeasurements(),
+        "measurements" => [
+            'all' => __allMeasurements(),
+            'breasts' => __breastsMeasurements(),
+            'noBreasts' => __noBreastsMeasurements(),
+        ]
     ],
 ];

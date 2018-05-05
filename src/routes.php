@@ -24,8 +24,12 @@
     $app->get('/info/yaml', 'InfoController:asYaml');
     // JSON info bundle
     $app->get('/info/json', 'InfoController:asJson');
-    // Requied measurementes bundle (used by DATA API itself, only called at build-time)
-    $app->get('/info/measurements', 'InfoController:measurements');
+
+    // Info about what's available on core doesn't change so we generate this at build time and include it
+    // This is for the data backend
+    $app->get('/config/data', 'InfoController:dataConfig');
+    // And this is for the site
+    $app->get('/config/site', 'InfoController:siteConfig');
 
     // Locale bundles (these are the basis for translations)
     $app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
