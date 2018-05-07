@@ -28,8 +28,13 @@
     // Info about what's available on core doesn't change so we generate this at build time and include it
     // This is for the data backend
     $app->get('/config/data', 'InfoController:dataConfig');
-    // And this is for the site
-    $app->get('/config/site', 'InfoController:siteConfig');
+    
+    // YAML files for site config
+    $app->get('/config/patterns', 'InfoController:patternsAsYaml');
+    $app->get('/config/versions', 'InfoController:versionsAsYaml');
+    $app->get('/config/namespaces', 'InfoController:namespacesAsYaml');
+    $app->get('/config/mapping', 'InfoController:mappingAsYaml');
+    $app->get('/config/measurements', 'InfoController:measurementsAsYaml');
 
     // Locale bundles (these are the basis for translations)
     $app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');

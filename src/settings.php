@@ -2,6 +2,7 @@
 require_once('includes/__config.php');
 
 return [
+    'version' => '2.0.0-alpha1',
     'settings' => [
         'displayErrorDetails' => true, // set to false in production
         'addContentLengthHeader' => false, // Allow the web server to send the content-length header

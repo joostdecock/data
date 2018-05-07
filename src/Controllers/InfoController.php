@@ -22,6 +22,58 @@ class InfoController
         $this->container = $container;
     }
 
+    /** Pattern info as YAML for site config */
+    public function patternsAsYaml($request, $response, $args) 
+    {
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/x-yaml")
+            ->write(Yaml::dump($this->infoBundle()['patterns'],5));
+    }
+
+    /** Version info as YAML for site config */
+    public function versionsAsYaml($request, $response, $args) 
+    {
+        $versions = $this->infoBundle()['version'];
+        $versions['data'] = $this->container['version']; 
+        $versions['site'] = $request->getHeaderLine('Freesewing-Site-Version');
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/x-yaml")
+            ->write(Yaml::dump($versions,5));
+    }
+
+    /** Namespaces info as YAML for site config */
+    public function namespacesAsYaml($request, $response, $args) 
+    {
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/x-yaml")
+            ->write(Yaml::dump($this->infoBundle()['namespaces'],5));
+    }
+
+    /** Mapping info as YAML for site config */
+    public function mappingAsYaml($request, $response, $args) 
+    {
+        $mapping = $this->infoBundle()['mapping'];
+        unset($mapping['measurementToTitle']);
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/x-yaml")
+            ->write(Yaml::dump($mapping,5));
+    }
+
+    /** Measurements info as YAML for site config */
+    public function measurementsAsYaml($request, $response, $args) 
+    {
+        $mapping = $this->infoBundle()['mapping'];
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/x-yaml")
+            ->write(Yaml::dump($mapping['measurementToTitle'],5));
+    }
+
+
     /** Required measurements bundle (YAML) */
     public function dataConfig($request, $response, $args) 
     {
