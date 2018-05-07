@@ -29,10 +29,9 @@ class Model
     /** @var string $handle Unique handle of the model */
     private $handle;
 
-    /** @var string $body The body type of the model. One of female/male/other 
-     * Note: This is not about gender, but about curves
+    /** @var bool $breasts Whether the model has breasts or not.
      */
-    private $body;
+    private $breasts;
 
     /** @var string $picture File name of the user's avatar */
     private $picture;
@@ -83,9 +82,9 @@ class Model
         return $this->notes;
     } 
 
-    public function getBody() 
+    public function getBreasts() 
     {
-        return $this->body;
+        return (int) $this->breasts;
     } 
 
     public function getShared() 
@@ -149,9 +148,9 @@ class Model
         $this->notes = $notes;
     } 
 
-    public function setBody($body) 
+    public function setBreasts($breasts) 
     {
-        $this->body = $body;
+        $this->breasts = (int) $breasts;
     } 
 
     public function setShared($shared) 
@@ -259,6 +258,7 @@ class Model
         $sql = "INSERT into `models`(
             `user`,
             `handle`,
+            `breasts`,
             `name`,
             `data`,
             `units`,
@@ -268,9 +268,10 @@ class Model
              ) VALUES (
             ".$db->quote($this->getUser()).",
             ".$db->quote($this->getHandle()).",
-            'Your model',
+            ".$db->quote($this->getBreasts()).",
+            ".$db->quote($this->getName()).",
             '{}',
-            'metric',
+            ".$db->quote($this->getUnits()).",
             0,
             ".$db->quote($this->getPicture()).",
             '".date('Y-m-d H:i:s')."'
@@ -279,9 +280,6 @@ class Model
 
         // Retrieve model ID
         $id = $db->lastInsertId();
-        // Set modelname to #ID to encourage people to change it
-        $sql = "UPDATE `models` SET `name` = '#$id' WHERE `models`.`id` = '$id';";
-        $db->exec($sql);
         $db = null;
         // Update instance from database
         $this->loadFromId($id);
@@ -294,7 +292,7 @@ class Model
         $sql = "UPDATE `models` set 
             `user`    = ".$db->quote($this->getUser()).",
             `name` = ".$db->quote($this->getName()).",
-            `body`   = ".$db->quote($this->getBody()).",
+            `breasts`   = ".$db->quote($this->getBreasts()).",
             `picture`  = ".$db->quote($this->getPicture()).",
             `data`     = ".$db->quote($this->getDataAsJson()).",
             `units`     = ".$db->quote($this->units).",

@@ -79,6 +79,7 @@ class Utilities
                 } else {
                     return false;
                 }
+            break;
             default:
                 $filter = FILTER_SANITIZE_STRING;
         }

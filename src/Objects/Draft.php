@@ -321,6 +321,7 @@ class Draft
         $this->setHandle($handleKit->create('draft'));
         
         // Pass units, handle and model name to core
+        $data['userUnits'] = strtolower($user->getUnits());
         $data['unitsIn'] = strtolower($user->getUnits());
         $data['unitsOut'] = strtolower($user->getUnits());
         $data['draftHandle'] = $this->getHandle();

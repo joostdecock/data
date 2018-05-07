@@ -60,9 +60,10 @@ class ModelController
             $in->name = Utilities::scrub($request,'name');
             $in->picture = Utilities::scrub($request,'picture');
             $in->notes = Utilities::scrub($request,'notes');
-            $in->units = (Utilities::scrub($request,'units') == 'imperial') ? 'imperial' : 'metric';
-            $in->breasts = (Utilities::scrub($request,'breasts')) ? true : false;
-            $in->shared = (Utilities::scrub($request,'shared')) ? true : false;
+            $in->units = Utilities::scrub($request,'units');
+            if($in->units !== 'imperial' && $in->units !== 'metric') $in->units = false;
+            $in->breasts = Utilities::scrub($request,'breasts', 'integer');
+            $in->shared = Utilities::scrub($request,'shared', 'integer');
             $settingsUpdate = true;
         }
 
@@ -97,7 +98,7 @@ class ModelController
 
         // Handle boolean fields changes
         foreach(['breasts', 'shared'] as $field) {
-            if(($in->{$field} === false || $in->{$field} === true) && $model->{'get'.ucfirst($field)}() != $in->{$field}) {
+            if($in->{$field} !== false && $model->{'get'.ucfirst($field)}() != $in->{$field}) {
                 $model->{'set'.ucfirst($field)}($in->{$field});
                 $update = true;
             }
@@ -116,10 +117,11 @@ class ModelController
         }
 
         // Handle measurement changes 
+        $unitsKit = $this->container->get('UnitsKit');
         foreach($this->container['settings']['measurements']['all'] as $m) {
             $value = Utilities::scrub($request, $m);
+            if($value !== false && $model->getUnits() === 'imperial') $value = $unitsKit->asFloat($value); // Handle imperial
             if(is_numeric($value) && $value != $model->getMeasurement($m)) {
-                if($model->getUnits() == 'imperial') $value = $unitsKit->asFloat($value); // Handle imperial
                 $model->setMeasurement($m, $value);
                 $update = true;
             }
@@ -131,14 +133,14 @@ class ModelController
         
             return Utilities::prepResponse($response, [
                 'result' => 'ok', 
-                'reason' => 'model_updated',
+                'reason' => 'model_updated'
             ], 200, $this->container['settings']['app']['origin']);
 
         }
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'reason' => 'no_changes_made',
+            'reason' => 'no_changes_made'
         ], 200, $this->container['settings']['app']['origin']);
     }
 

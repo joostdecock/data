@@ -213,3 +213,96 @@ function __requiredMeasurements()
   ),
 );
 }
+
+function __allMeasurements()
+{
+    return array (
+  'bicepsCircumference' => 'bicepsCircumference',
+  'centerBackNeckToWaist' => 'centerBackNeckToWaist',
+  'chestCircumference' => 'chestCircumference',
+  'naturalWaistToHip' => 'naturalWaistToHip',
+  'neckCircumference' => 'neckCircumference',
+  'shoulderToShoulder' => 'shoulderToShoulder',
+  'shoulderSlope' => 'shoulderSlope',
+  'hipsCircumference' => 'hipsCircumference',
+  'shoulderToWrist' => 'shoulderToWrist',
+  'wristCircumference' => 'wristCircumference',
+  'upperLegCircumference' => 'upperLegCircumference',
+  'hipsToUpperLeg' => 'hipsToUpperLeg',
+  'underBust' => 'underBust',
+  'naturalWaist' => 'naturalWaist',
+  'naturalWaistToUnderbust' => 'naturalWaistToUnderbust',
+  'headCircumference' => 'headCircumference',
+  'shoulderToElbow' => 'shoulderToElbow',
+  'seatCircumference' => 'seatCircumference',
+  'inseam' => 'inseam',
+  'seatDepth' => 'seatDepth',
+  'naturalWaistToFloor' => 'naturalWaistToFloor',
+  'naturalWaistToSeat' => 'naturalWaistToSeat',
+  'highBust' => 'highBust',
+  'bustSpan' => 'bustSpan',
+  'highPointShoulderToBust' => 'highPointShoulderToBust',
+);
+}
+
+function __breastsMeasurements()
+{
+    return array (
+  'underBust' => 'underBust',
+  'highBust' => 'highBust',
+  'bustSpan' => 'bustSpan',
+  'highPointShoulderToBust' => 'highPointShoulderToBust',
+);
+}
+
+function __noBreastsMeasurements()
+{
+    return array (
+  'bicepsCircumference' => 'bicepsCircumference',
+  'centerBackNeckToWaist' => 'centerBackNeckToWaist',
+  'chestCircumference' => 'chestCircumference',
+  'naturalWaistToHip' => 'naturalWaistToHip',
+  'neckCircumference' => 'neckCircumference',
+  'shoulderToShoulder' => 'shoulderToShoulder',
+  'shoulderSlope' => 'shoulderSlope',
+  'hipsCircumference' => 'hipsCircumference',
+  'shoulderToWrist' => 'shoulderToWrist',
+  'wristCircumference' => 'wristCircumference',
+  'upperLegCircumference' => 'upperLegCircumference',
+  'hipsToUpperLeg' => 'hipsToUpperLeg',
+  'naturalWaist' => 'naturalWaist',
+  'naturalWaistToUnderbust' => 'naturalWaistToUnderbust',
+  'headCircumference' => 'headCircumference',
+  'shoulderToElbow' => 'shoulderToElbow',
+  'seatCircumference' => 'seatCircumference',
+  'inseam' => 'inseam',
+  'seatDepth' => 'seatDepth',
+  'naturalWaistToFloor' => 'naturalWaistToFloor',
+  'naturalWaistToSeat' => 'naturalWaistToSeat',
+);
+}
+
+function __patternsToClassNames()
+{
+    return array (
+  'aaron' => 'AaronAshirt',
+  'brian' => 'BrianBodyBlock',
+  'bruce' => 'BruceBoxerBriefs',
+  'cathrin' => 'CathrinCorset',
+  'hugo' => 'HugoHoodie',
+  'simon' => 'SimonShirt',
+  'sven' => 'SvenSweatshirt',
+  'tamiko' => 'TamikoTop',
+  'theo' => 'TheoTrousers',
+  'theodore' => 'TheodoreTrousers',
+  'trayvon' => 'TrayvonTie',
+  'wahid' => 'WahidWaistcoat',
+  'benjamin' => 'BenjaminBowTie',
+  'bent' => 'BentBodyBlock',
+  'carlita' => 'CarlitaCoat',
+  'carlton' => 'CarltonCoat',
+  'florent' => 'FlorentFlatCap',
+  'huey' => 'HueyHoodie',
+  'jaeger' => 'JaegerJacket',
+);
+}
