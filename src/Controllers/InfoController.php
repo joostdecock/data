@@ -135,7 +135,6 @@ class InfoController
     private function asLocale($request, $response, $args) 
     {
         $info = $this->infoBundle();
-//        $info['measurements'] = $info['mapping']['measurementToTitle'];
         $patterns = $info['patterns'];
         $info['options'] = [];
         unset($info['patterns']);

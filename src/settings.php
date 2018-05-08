@@ -20,6 +20,7 @@ return [
             'path' => '/',
             'passthrough' => [
                 '/config/',
+                '/locale/',
                 '/taskrunner',
                 '/migrate',
                 '/signup', 

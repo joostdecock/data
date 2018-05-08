@@ -37,9 +37,9 @@
     $app->get('/config/measurements', 'InfoController:measurementsAsYaml');
 
     // Locale bundles (these are the basis for translations)
-    $app->get('/info/locale/patterns', 'InfoController:patternsAsLocale');
-    $app->get('/info/locale/options', 'InfoController:optionsAsLocale');
-    $app->get('/info/locale/measurements', 'InfoController:measurementsAsLocale');
+    $app->get('/locale/patterns', 'InfoController:patternsAsLocale');
+    $app->get('/locale/options', 'InfoController:optionsAsLocale');
+    $app->get('/locale/measurements', 'InfoController:measurementsAsLocale');
 
 
 // Cron routes 
