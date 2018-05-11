@@ -45,7 +45,12 @@ class MailKit
         $dir = $this->container['settings']['i18n']['translations'];
         $file = (is_readable("$dir/$locale.yaml")  ? "$dir/$locale.yaml" : "$dir/en.yaml");
         
-        return Yaml::parse(file_get_contents($file));
+        $data = Yaml::parse(file_get_contents($file));
+        foreach($data as $key => $value) {
+            $data[$key] = str_replate(['DONE', 'TODO'], ['',''], $value)
+        }
+        
+        return $data;
     }
 
     /* Send signup E-mail, expects the following data:
