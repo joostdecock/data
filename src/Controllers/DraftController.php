@@ -44,10 +44,11 @@ class DraftController
         $user = clone $this->container->get('User');
         $user->loadFromId($request->getAttribute("jwt")->user);
 
+        // Load the gist
+        $gist = Utilities::loadGist($request);
         // Get a model instance from the container and load the model
         $model = clone $this->container->get('Model');
-        $model->loadFromHandle(Utilities::scrub($request,'model'));
-        
+        $model->loadFromHandle($gist['model']['handle']);
         if($model->getUser() != $user->getId() && !$model->getShared()) {
             // Not a model that belongs to the user, or shared model
             return Utilities::prepResponse($response, [
@@ -58,14 +59,9 @@ class DraftController
          
         // Get a draft instance from the container and create the draft
         $draft = $this->container->get('Draft');
-        if($recreate) {
-            $draft->loadFromHandle($in->handle);
-            $draft->recreate($request->getParsedBody(), $user, $model);
-        } else {
-            $draft->create($request->getParsedBody(), $user, $model);
-            // Add badge if needed
-            if($user->addBadge('draft')) $user->save();
-        }
+        $draft->create($gist, $user, $model);
+        // Add badge if needed
+        if($user->addBadge('draft')) $user->save();
 
         return Utilities::prepResponse($response, [
             'result' => 'ok', 

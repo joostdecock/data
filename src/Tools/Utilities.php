@@ -89,6 +89,15 @@ class Utilities
     }
 
     /**
+     * Helper function to load a posted draft gist
+     * FIXME: This should include input validation
+     */
+    static public function loadGist($request)
+    {
+        return $request->getParsedBody();
+    }
+
+    /**
      * Wrapper around libsodium secretbox
      */
     static public function encrypt($value, $nonce)

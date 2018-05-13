@@ -117,7 +117,12 @@ return [
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
             'static_path' => '/static',
-            'female_measurements' => ['underBust'],
+            'female_measurements' => [
+                'underBust',
+                'bustSpan',
+                'highBust',
+                'highPointShoulderToBust',
+            ],
             'motd' => '
 **Tip**: These are your notes.
 You can write whatever you want here.',  

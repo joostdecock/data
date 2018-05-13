@@ -70,6 +70,11 @@ class Draft
         return $this->data->getNode('coreUrl');
     }
 
+    public function getGist()
+    {
+        return $this->data->getNode('gist');
+    }
+
     public function getCreated() 
     {
         return $this->created;
@@ -230,6 +235,11 @@ class Draft
         $this->data->setNode('coreUrl', $url);
     }
 
+    public function setGist($gist)
+    {
+        $this->data->setNode('gist', $gist);
+    }
+
     public function setUnits($units)
     {
         $this->data->setNode('units', strtolower($units));
@@ -294,26 +304,31 @@ class Draft
     /**
      * Creates a new draft and stores it in the database
      *
-     * @param array $in The data submitted from the frontend
-     * @param Model $model The model object     
+     * @param array $gist The gist submitted from the frontend
      * @param User $user The user object     
+     * @param Model $model The model object     
      * 
-     * @return int The id of the newly created model
+     * @return int The id of the newly created draft
      */
-    public function create($in, $user, $model) 
+    public function create($gist, $user, $model) 
     {
         $data = [];
         // Passing model measurements to core
-        $measurements = $model->getData()->measurements;
-        foreach($this->container['settings']['patternRequiredMeasurements'][$in['pattern']] as $key) {
-            $val = $measurements->{$key};
-            if(strtolower($model->getUnits()) != strtolower($user->getUnits())) {
+        $measurements = $gist['model']['measurements'];
+        foreach($gist['model']['measurements'] as $key => $val) {
+            if(strtolower($gist['model']['units']) != strtolower($user->getUnits())) {
                 // Measurements need to be converted to user's units
-                if(strtolower($model->getUnits() == 'imperial')) $val = $val * 2.54;
+                if(strtolower($gist['model']['units'] == 'imperial')) $val = $val * 2.54;
                 else $val = $val / 2.54;
             }
             $data[$key] = $val;
             $this->setMeasurement($key, $val);
+        }
+
+        // Passing pattern options to core
+        $measurements = $gist['model']['measurements'];
+        foreach($gist['patternOptions'] as $key => $val) {
+            $data[$key] = $val;
         }
 
         // Get the HandleKit to create the handle
@@ -321,27 +336,23 @@ class Draft
         $this->setHandle($handleKit->create('draft'));
         
         // Pass units, handle and model name to core
-        $data['userUnits'] = strtolower($user->getUnits());
-        $data['unitsIn'] = strtolower($user->getUnits());
-        $data['unitsOut'] = strtolower($user->getUnits());
+        $u = strtolower($gist['units']);
+        $data['userUnits'] = $u;
+        $data['unitsIn'] = $u;
+        $data['unitsOut'] = $u;
         $data['draftHandle'] = $this->getHandle();
-        $data['modelName'] = $model->getName();
+        $data['modelName'] = $gist['model']['name'];
 
         // Switch theme to its JSON variant
-        $originalTheme = $in['draftOptions']['theme'];
+        $originalTheme = $gist['draftOptions']['theme'];
         $data['theme'] = $originalTheme.'Json';
         
         // Set SA for core
-        $data['sa'] = $in['draftOptions']['sa']['value'];
+        $data['sa'] = $gist['draftOptions']['sa']['value'];
 
-        // Add options to url
-        foreach($in['patternOptions'] as $key => $val) {
-            $data[$key] = $val;
-        }
-        
         // Set pattern to class name
-        $data['pattern'] = $this->container['settings']['patternHandleToPatternClass'][$in['pattern']];
-        $data['inpattern'] = $in['pattern'];
+        $data['pattern'] = $gist['patternClass'];
+        $data['inpattern'] = $gist['pattern'];
 
         // Getting draft from core
         $data['service'] = 'draft';
@@ -351,7 +362,7 @@ class Draft
         
         // Prep data
         $this->setVersion($json->version);
-        $this->setOptions($in);
+        $this->setGist($gist);
         $this->setUnits($user->getUnits());
         $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($data));
         
@@ -363,7 +374,7 @@ class Draft
         // Set basic info    
         $this->setUser($user->getId());
         $this->setModel($model->getId());
-        $this->setPattern($in['pattern']);
+        $this->setPattern($gist['pattern']);
 
         // Store in database
         $db = $this->container->get('db');

@@ -39,6 +39,7 @@
     // Locale bundles (these are the basis for translations)
     $app->get('/locale/patterns', 'InfoController:patternsAsLocale');
     $app->get('/locale/options', 'InfoController:optionsAsLocale');
+    $app->get('/locale/optiongroups', 'InfoController:optiongroupsAsLocale');
     $app->get('/locale/measurements', 'InfoController:measurementsAsLocale');
 
 

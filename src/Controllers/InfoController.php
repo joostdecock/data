@@ -28,7 +28,7 @@ class InfoController
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
             ->withHeader("Content-Type", "text/x-yaml")
-            ->write(Yaml::dump($this->infoBundle()['patterns'],5));
+            ->write(Yaml::dump($this->infoBundle()['patterns'], 5));
     }
 
     /** Version info as YAML for site config */
@@ -137,11 +137,16 @@ class InfoController
         $info = $this->infoBundle();
         $patterns = $info['patterns'];
         $info['options'] = [];
+        $info['optiongroups'] = [];
         unset($info['patterns']);
         foreach($patterns as $pattern) {
             foreach($pattern['options'] as $oname => $option) {
                 $info['options'][$oname]['title'] = $option['title'];
                 $info['options'][$oname]['description'][$pattern['info']['handle']] = $option['description'];
+                $info['optiongroups'][$option['group']] = $option['group'];
+                if($option['type'] === 'chooseOne') {
+                    $info['options'][$oname]['options'][$pattern['info']['handle']] = $option['options'];
+                }
             }
             foreach($pattern['measurements'] as $mname => $default) {
                 $info['measurements'][$mname] = $info['mapping']['measurementToTitle'][$mname];
@@ -176,7 +181,11 @@ class InfoController
                 unset($newDesc);
                 ksort($info['options'][$oname]['description']);
             }
+            if(count($oinfo['options']) === 1) {
+                $info['options'][$oname]['options'] = array_shift($oinfo['options']); 
+            }
         }
+
         unset($info['version']);
         unset($info['mapping']);
         unset($info['namespaces']);
@@ -220,6 +229,18 @@ class InfoController
             ->write(Yaml::dump($info['options'],5));
     }
 
+    /** Locale bundle of options */
+    public function optiongroupsAsLocale($request, $response, $args) 
+    {
+        $info = $this->asLocale();
+        ksort($info['optiongroups']); 
+        
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])
+            ->withHeader("Content-Type", "text/plain")
+            ->write(Yaml::dump($info['optiongroups'],5));
+    }
+
     /** Info bundle */
     private function infoBundle() 
     {
@@ -230,7 +251,6 @@ class InfoController
         // Iterate over patterns to get remaining info
         $patternlist = $coreinfo->patterns;
         $female = $this->container['settings']['app']['female_measurements'];
-        //$male = $this->container['settings']['app']['female_measurements'];
         $measurementTitles = $this->container['settings']['app']['female_measurements'];
         
         foreach ($patternlist as $namespace => $list) {
@@ -263,11 +283,10 @@ class InfoController
         unset($pattern->models);
         unset($pattern->pattern);
 
-        
         foreach($pattern as $key => $val) {
             if($key == 'options') {
                 foreach($val as $okey => $oval) {
-                    $options[$okey] = (array) $oval;
+                    $options[$okey] = $this->optionToArray($oval);
                     $ogroups[$oval->group][] = $okey;
                 }
                 $p['options'] = $options;
@@ -284,6 +303,16 @@ class InfoController
         }
         
         return $p;
+    }
+
+    private function optionToArray($option) 
+    {
+        if($option->type === 'chooseOne') {
+            $option->options = (array) $option->options;
+        }
+        
+        return (array) $option;
+
     }
     
     /** Status info */
