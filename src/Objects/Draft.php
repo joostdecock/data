@@ -350,6 +350,11 @@ class Draft
         // Set SA for core
         $data['sa'] = $gist['draftOptions']['sa']['value'];
 
+        // Set scope for core, if needed
+        if($gist['draftOptions']['scope']['type'] === 'parts') {
+            $data['parts'] = implode(',', array_keys($gist['draftOptions']['scope']['included']));
+        }
+
         // Set pattern to class name
         $data['pattern'] = $gist['patternClass'];
         $data['inpattern'] = $gist['pattern'];
@@ -364,6 +369,7 @@ class Draft
         $this->setVersion($json->version);
         $this->setGist($gist);
         $this->setUnits($user->getUnits());
+        $data['theme'] = $originalTheme;
         $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($data));
         
         // Getting compare from core

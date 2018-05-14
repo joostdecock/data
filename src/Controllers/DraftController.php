@@ -26,6 +26,7 @@ class DraftController
     {
         switch(Utilities::scrub($request,'type')) {
             case 'draftFromModel':
+            case 'forkFromModel':
                 return $this->createFromModel($request, $response, $args);
                 break;
             default: 
