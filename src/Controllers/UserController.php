@@ -618,7 +618,7 @@ class UserController
     public function patronList($request, $response, $args) 
     {
         $db = $this->container->get('db');
-        $sql = "SELECT `id` FROM `users` WHERE `data` LIKE '%\"tier\":%' LIMIT 100";
+        $sql = "SELECT `id` FROM `users` WHERE `patron` != 0 LIMIT 100";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
         $db = null;
         $tiers = $this->container['settings']['patrons']['tiers'];
