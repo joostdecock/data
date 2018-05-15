@@ -72,7 +72,7 @@ class Draft
 
     public function getGist()
     {
-        return $this->data->getNode('gist');
+        return json_decode(json_encode($this->data->getNode('gist')), true);
     }
 
     public function getCreated() 
@@ -304,21 +304,17 @@ class Draft
     /**
      * Creates a new draft and stores it in the database
      *
-     * @param array $gist The gist submitted from the frontend
      * @param User $user The user object     
      * @param Model $model The model object     
-     * @param string $handle If set, the draft with this handle will be overwritten, 
-     * rather than a new one created (for redraft/update of drafts)
+     * @param string $redraft If set, the draft with overwrite the current draft 
      *
      * @return int The id of the created/updated draft
      */
-    public function create($gist, $user, $model, $handle='') 
+    public function create($user, $model, $redraft=false) 
     {
-        // New draft or in-place update/redraft ?
-        if ($handle !== '') $redraft = true;
-        else $redraft = false;
-
         $data = [];
+        $gist = $this->getGist();
+        
         // Passing model measurements to core
         $measurements = $gist['model']['measurements'];
         foreach($gist['model']['measurements'] as $key => $val) {
@@ -337,9 +333,7 @@ class Draft
             $data[$key] = $val;
         }
 
-        if($redraft) {
-            $this->setHandle($handle);
-        } else {
+        if(!$redraft) {
             // Get the HandleKit to create the handle
             $handleKit = $this->container->get('HandleKit');
             $this->setHandle($handleKit->create('draft'));
@@ -447,126 +441,6 @@ class Draft
         return $id;
     }
 
-    /**
-     * Recreates a draft and stores it in the database
-     *
-     * @param array $in The pattern options
-     * @param Model $model The model object     
-     * @param User $user The user object     
-     * 
-     * @return int The id of the newly created model
-     */
-    public function REMOVEMErecreate($in, $user, $model) 
-    {
-        // Passing model measurements to core
-        foreach($model->getData()->measurements as $key => $val) {
-            if(strtolower($model->getUnits()) != strtolower($in['userUnits'])) {
-                // Measurements need to be converted
-                if(strtolower($model->getUnits() == 'imperial')) $val = $val * 2.54;
-                else $val = $val / 2.54;
-            }
-            $in[$key] = $val;
-            $this->setMeasurement($key, $val);
-        }
-            
-        // Pass units and handle to core
-        $in['unitsIn'] = strtolower($in['userUnits']);
-        $in['unitsOut'] = strtolower($in['userUnits']);
-        $in['reference'] = $this->getHandle();
-        $in['draftHandle'] = $this->getHandle();
-        $in['modelName'] = $model->getName();
-        
-        // Switch theme to its JSON variant
-        $originalTheme = $in['theme'];
-        $in['theme'] = $in['theme'].'Json';
-        
-        // Getting draft from core
-        $in['service'] = 'draft';
-        $json = json_decode($this->getDraft($in));
-        $this->setSvg($json->svg);
-        
-        // Restoring original theme
-        $in['theme'] = $originalTheme;
-        
-        // Storing data
-        $this->setVersion($json->version);
-        $this->setOptions((object)$in);
-        $this->setUnits($model->getUnits());
-        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
-        
-        // Getting compare from core
-        $in['service'] = 'compare';
-        $in['theme'] = 'Compare';
-        $this->setCompared($this->getDraft($in));
-        
-        // Save draft to database
-        $this->save();
-
-        // Store on disk
-        $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
-        $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
-        fwrite($handle, $this->getSvg());
-        fclose($handle);
-        $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
-        fwrite($handle, $this->getCompared());
-        fclose($handle);
-
-        return $this->getId();
-    }
-
-    /**
-     * Upgrades a draft in-place stores it in the database
-     *
-     */
-    public function upgrade($user) 
-    {
-        // Passing model measurements to core
-        foreach($this->getData()->measurements as $key => $val) {
-            $in[$key] = $val;
-            $this->setMeasurement($key, $val);
-        }
-        foreach($this->getData()->options as $key => $val) {
-            $in[$key] = $val;
-        }
-        
-        // Switch theme to its JSON variant
-        $originalTheme = $this->getData()->options->theme;
-        $in['theme'] = $originalTheme.'Json';
-
-        // Getting draft from core
-        $in['service'] = 'draft';
-        $json = json_decode($this->getDraft($in));
-        $this->setSvg($json->svg);
-        
-        // Restoring original theme
-        $in['theme'] = $originalTheme;
-        
-        // Storing data
-        $this->setVersion($json->version);
-        $this->setOptions((object)$in);
-        $this->setUnits($this->getData()->model->units);
-        $this->setCoreUrl($this->container['settings']['app']['core_api']."/index.php?".http_build_query($in));
-        
-        // Getting compare from core
-        $in['service'] = 'compare';
-        $in['theme'] = 'Compare';
-        $this->setCompared($this->getDraft($in));
-        
-        // Save draft to database
-        $this->save();
-
-        // Store on disk
-        $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
-        $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
-        fwrite($handle, $this->getSvg());
-        fclose($handle);
-        $handle = fopen($dir.'/'.$this->getHandle().'.compared.svg', 'w');
-        fwrite($handle, $this->getCompared());
-        fclose($handle);
-
-        return $this->getId();
-    }
-
     private function getDraft($args)
     {
         $url = $this->container['settings']['app']['core_api']."/index.php?".http_build_query($args);
@@ -609,6 +483,48 @@ class Draft
         $db = null;
 
         return $result;
+    }
+
+    /* Create a gist for older drafts that don't have one */
+    public function createGist($user, $model)
+    {
+        $gist = [];
+        $gist['type'] = 'draftFromModel';
+        $gist['units'] = $user->getUnits();
+        $gist['pattern'] = array_search($this->getPattern(), $this->container['settings']['patternHandleToPatternClass']);
+        $gist['patternClass'] = $this->getPattern();
+        $gist['model'] = [
+            'units' => $model->getUnits(),
+            'handle' => $model->getHandle(),
+            'name' => $model->getName(),
+            'measurements' => []
+        ];
+        foreach($this->container['settings']['patternRequiredMeasurements'][$gist['pattern']] as $m) {
+            $gist['model']['measurements'][$m] = $model->getMeasurement($m);
+        }
+        $gist['patternOptions'] = [];
+        foreach($this->container['settings']['patterns'][$gist['pattern']]['options'] as $key => $option) {
+            $gist['patternOptions'][$key] = $this->data->getNode("options.$key");
+        }
+        $gist['draftOptions'] = [
+            'sa' => [
+                'type' => 'custom',
+                'value' => $this->data->getNode("options.sa")
+            ],
+            'scope' => [ ],
+            'theme' => $this->data->getNode("options.theme"),
+            'locale' => $user->getLocale()
+        ];
+        $parts = $this->data->getNode("options.parts"); 
+        if($parts !== false) {
+           $gist['draftOptions']['scope']['type'] = 'parts'; 
+           $gist['draftOptions']['scope']['included'] = explode(',', $parts); 
+        } else {
+           $gist['draftOptions']['scope']['type'] = 'pattern'; 
+           $gist['draftOptions']['scope']['included'] = [];
+        }
+
+        $this->setGist($gist);
     }
 
     private function getExportPath($user, $format)

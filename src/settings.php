@@ -151,6 +151,7 @@ You can write whatever you want here.',
         ],
         "patternHandleToPatternClass" => __patternsToClassNames(), // Temporary needed until core v2
         "patternRequiredMeasurements" => __requiredMeasurements(),
+        "patterns" => __patterns(), // This is probaly all we need
         "measurements" => [
             'all' => __allMeasurements(),
             'breasts' => __breastsMeasurements(),

@@ -106,6 +106,8 @@ class InfoController
         $body .="function __noBreastsMeasurements()\n{\n    return ".var_export($noBreastsMeasurements, 1).";\n}";
         $body .= "\n\n";
         $body .="function __patternsToClassNames()\n{\n    return ".var_export($classnames, 1).";\n}";
+        $body .= "\n\n";
+        $body .="function __patterns()\n{\n    return ".var_export($info['patterns'], 1).";\n}";
         
         return $response
             ->withHeader('Access-Control-Allow-Origin', $this->container['settings']['app']['origin'])

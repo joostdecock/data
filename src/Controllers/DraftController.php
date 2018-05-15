@@ -73,10 +73,12 @@ class DraftController
                 ], 400, $this->container['settings']['app']['origin']);
             }
             // Recreate draft
-            $draft->create($gist, $user, $model, $draft->getHandle());
+            $draft->setGist($gist);
+            $draft->create($user, $model, true);
         } else {
             // Create draft
-            $draft->create($gist, $user, $model);
+            $draft->setGist($gist);
+            $draft->create($user, $model);
             // Add badge if needed
             if(isset($gist['draftOptions']['fork'])) $badge = 'fork';
             else $badge = 'draft';
@@ -272,28 +274,38 @@ class DraftController
     /** Upgrade draft */
     public function upgrade($request, $response, $args) 
     {
-        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
-        
-        // Get ID from authentication middleware
-        $id = $request->getAttribute("jwt")->user;
-        
+        // Get a user instance from the container
+        $user = clone $this->container->get('User');
+        $user->loadFromId($request->getAttribute("jwt")->user);
+
         // Get a draft instance from the container and load its data
         $draft = $this->container->get('Draft');
-        $draft->loadFromHandle($handle);
+        $draft->loadFromHandle(filter_var($args['handle'], FILTER_SANITIZE_STRING));
 
         // Does this user own this draft?
-        if($draft->getUser() != $id) {
+        if($draft->getUser() != $user->getId()) {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
             ], 400, $this->container['settings']['app']['origin']);
         }
-        
-        // Get a user instance from the container
-        $user = $this->container->get('User');
-        $user->loadFromId($id);
 
-        $draft->upgrade($user);
+        // Get a model instance from the container and load the model
+        $model = clone $this->container->get('Model');
+        $model->loadFromId($draft->getModel());
+        if($model->getUser() != $user->getId() && !$model->getShared()) {
+            // Not a model that belongs to the user, or shared model
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+         
+        // Load the gist
+        $gist = $draft->getGist();
+        if($gist === false) $gist = $draft->createGist($user, $model);
+
+        $draft->create($user, $model, true);
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
