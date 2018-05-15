@@ -22,7 +22,7 @@ class DraftController
     }
 
     /** Create draft */
-    public function create($request, $response, $args, $recreate=false) 
+    public function create($request, $response, $args, $redraft=false) 
     {
         switch(Utilities::scrub($request,'type')) {
             case 'draftFromModel':
@@ -30,7 +30,7 @@ class DraftController
                 return $this->createFromModel($request, $response, $args);
                 break;
             case 'redraftFromModel':
-                return $this->recreateFromModel($request, $response, $args);
+                return $this->createFromModel($request, $response, $args, true);
                 break;
             default: 
                 // Not a supported way to create draft
@@ -42,12 +42,8 @@ class DraftController
         }
     } 
 
-    public function createFromModel($request, $response, $args, $handle='') 
+    public function createFromModel($request, $response, $args, $redraft=false) 
     {
-        // New draft or in-place update/redraft ?
-        if ($handle !== '') $redraft = true;
-        else $redraft = false;
-
         // Get a user instance from the container
         $user = clone $this->container->get('User');
         $user->loadFromId($request->getAttribute("jwt")->user);
