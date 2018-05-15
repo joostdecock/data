@@ -307,11 +307,17 @@ class Draft
      * @param array $gist The gist submitted from the frontend
      * @param User $user The user object     
      * @param Model $model The model object     
-     * 
-     * @return int The id of the newly created draft
+     * @param string $handle If set, the draft with this handle will be overwritten, 
+     * rather than a new one created (for redraft/update of drafts)
+     *
+     * @return int The id of the created/updated draft
      */
-    public function create($gist, $user, $model) 
+    public function create($gist, $user, $model, $handle='') 
     {
+        // New draft or in-place update/redraft ?
+        if ($handle !== '') $redraft = true;
+        else $redraft = false;
+
         $data = [];
         // Passing model measurements to core
         $measurements = $gist['model']['measurements'];
@@ -331,9 +337,13 @@ class Draft
             $data[$key] = $val;
         }
 
-        // Get the HandleKit to create the handle
-        $handleKit = $this->container->get('HandleKit');
-        $this->setHandle($handleKit->create('draft'));
+        if($redraft) {
+            $this->setHandle($handle);
+        } else {
+            // Get the HandleKit to create the handle
+            $handleKit = $this->container->get('HandleKit');
+            $this->setHandle($handleKit->create('draft'));
+        }
         
         // Pass units, handle and model name to core
         $u = strtolower($gist['units']);
@@ -382,46 +392,51 @@ class Draft
         $this->setModel($model->getId());
         $this->setPattern($gist['pattern']);
 
-        // Store in database
-        $db = $this->container->get('db');
-        $sql = "INSERT into `drafts`(
-            `user`,
-            `pattern`,
-            `name`,
-            `model`,
-            `handle`,
-            `data`,
-            `svg`,
-            `compared`,
-            `notes`,
-            `created`
-             ) VALUES (
-            ".$db->quote($this->getUser()).",
-            ".$db->quote($this->getPattern()).",
-            ".$db->quote('Draft '.$this->getHandle()).",
-            ".$db->quote($this->getModel()).",
-            ".$db->quote($this->getHandle()).",
-            ".$db->quote($this->getDataAsJson()).",
-            ".$db->quote($this->getSvg()).",
-            ".$db->quote($this->getCompared()).",
-            ".$db->quote($this->container['settings']['app']['motd']).",
-            '".date('Y-m-d H:i:s')."'
-            );";
-        $db->exec($sql);
-        // Retrieve draft ID
-        $id = $db->lastInsertId();
-        
-        // Set draft name to 'pattern for model'
-        $sql = "UPDATE `drafts` SET `name` = ".$db->quote('Draft '.$this->getHandle())." WHERE `drafts`.`id` = '$id';";
-        $db->exec($sql);
-        $db = null;
+        if($redraft) {
+            $this->save();
+            $id = $this->getId();
+        } else {
+            // Store in database
+            $db = $this->container->get('db');
+            $sql = "INSERT into `drafts`(
+                `user`,
+                `pattern`,
+                `name`,
+                `model`,
+                `handle`,
+                `data`,
+                `svg`,
+                `compared`,
+                `notes`,
+                `created`
+                 ) VALUES (
+                ".$db->quote($this->getUser()).",
+                ".$db->quote($this->getPattern()).",
+                ".$db->quote('Draft '.$this->getHandle()).",
+                ".$db->quote($this->getModel()).",
+                ".$db->quote($this->getHandle()).",
+                ".$db->quote($this->getDataAsJson()).",
+                ".$db->quote($this->getSvg()).",
+                ".$db->quote($this->getCompared()).",
+                ".$db->quote($this->container['settings']['app']['motd']).",
+                '".date('Y-m-d H:i:s')."'
+                );";
+            $db->exec($sql);
+            // Retrieve draft ID
+            $id = $db->lastInsertId();
+            
+            // Set draft name to handle (language agnostic)
+            $sql = "UPDATE `drafts` SET `name` = ".$db->quote($this->getHandle())." WHERE `drafts`.`id` = '$id';";
+            $db->exec($sql);
+            $db = null;
+        }
 
         // Update instance from database
         $this->loadFromId($id);
 
         // Store on disk
         $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
-        mkdir($dir, 0755, true);
+        if(!$redraft) mkdir($dir, 0755, true);
         $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
         fwrite($handle, $this->getSvg());
         fclose($handle);
@@ -441,7 +456,7 @@ class Draft
      * 
      * @return int The id of the newly created model
      */
-    public function recreate($in, $user, $model) 
+    public function REMOVEMErecreate($in, $user, $model) 
     {
         // Passing model measurements to core
         foreach($model->getData()->measurements as $key => $val) {

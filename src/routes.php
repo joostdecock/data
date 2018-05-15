@@ -150,9 +150,6 @@ $app->delete('/model/{handle}', 'ModelController:remove');
 // Create draft
 $app->post('/draft', 'DraftController:create');
 
-// Recreate draft
-$app->post('/redraft', 'DraftController:recreate');
-
 // Load draft data
 $app->get('/draft/{handle}', 'DraftController:load');
 

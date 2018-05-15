@@ -29,6 +29,9 @@ class DraftController
             case 'forkFromModel':
                 return $this->createFromModel($request, $response, $args);
                 break;
+            case 'redraftFromModel':
+                return $this->recreateFromModel($request, $response, $args);
+                break;
             default: 
                 // Not a supported way to create draft
                 return Utilities::prepResponse($response, [
@@ -39,8 +42,12 @@ class DraftController
         }
     } 
 
-    public function createFromModel($request, $response, $args, $recreate=false) 
+    public function createFromModel($request, $response, $args, $handle='') 
     {
+        // New draft or in-place update/redraft ?
+        if ($handle !== '') $redraft = true;
+        else $redraft = false;
+
         // Get a user instance from the container
         $user = clone $this->container->get('User');
         $user->loadFromId($request->getAttribute("jwt")->user);
@@ -58,11 +65,27 @@ class DraftController
             ], 400, $this->container['settings']['app']['origin']);
         }
          
-        // Get a draft instance from the container and create the draft
+        // Get a draft instance from the container
         $draft = $this->container->get('Draft');
-        $draft->create($gist, $user, $model);
-        // Add badge if needed
-        if($user->addBadge('draft')) $user->save();
+
+        if($redraft) {
+            $draft->loadFromHandle($gist['draftOptions']['redraft']);
+            if ($draft->getUser() != $user->getId()) {
+                return Utilities::prepResponse($response, [
+                    'result' => 'error', 
+                    'reason' => 'draft_not_yours', 
+                ], 400, $this->container['settings']['app']['origin']);
+            }
+            // Recreate draft
+            $draft->create($gist, $user, $model, $draft->getHandle());
+        } else {
+            // Create draft
+            $draft->create($gist, $user, $model);
+            // Add badge if needed
+            if(isset($gist['draftOptions']['fork'])) $badge = 'fork';
+            else $badge = 'draft';
+            if($user->addBadge($badge)) $user->save();
+        }
 
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
@@ -71,23 +94,30 @@ class DraftController
     }
     
     /** Recreate draft */
-    public function recreate($request, $response, $args) 
+    public function REMOVEMErecreateFromModel($request, $response, $args) 
     {
-        // Handle request
-        $in = new \stdClass();
-        $in->handle = Utilities::scrub($request,'draft');
-        
-        // Get ID from authentication middleware
-        $in->id = $request->getAttribute("jwt")->user;
+        // Get a user instance from the container
+        $user = clone $this->container->get('User');
+        $user->loadFromId($request->getAttribute("jwt")->user);
+
+        // Load the gist
+        $gist = Utilities::loadGist($request);
+        // Get a model instance from the container and load the model
+        $model = clone $this->container->get('Model');
+        $model->loadFromHandle($gist['model']['handle']);
+        if($model->getUser() != $user->getId() && !$model->getShared()) {
+            // Not a model that belongs to the user, or shared model
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'model_not_yours', 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
         
         // Get a draft instance from the container and load data
         $draft = $this->container->get('Draft');
-        $draft->loadFromHandle($in->handle);
+        $draft->loadFromHandle($gist['draftOptions']['redraft']);
          
-        if ($draft->getUser() != $in->id) {
-            // Get a logger instance from the container
-            $logger = $this->container->get('logger');
-            $logger->info("Draft recreation blocked: User ".$in->id." does not own draft ".$in->handle);
+        if ($draft->getUser() != $user->getId()) {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'draft_not_yours', 
