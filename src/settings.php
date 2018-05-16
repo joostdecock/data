@@ -49,7 +49,9 @@ return [
             'secret' => getenv("JWT_SECRET"),
             'lifetime' => "1 month",
             "error" => function ($request, $response, $arguments) {
-                echo file_get_contents(dirname(__DIR__).'/templates/index.html');
+                return $response
+                    ->withHeader('Access-Control-Allow-Origin', getenv('ORIGIN'))
+                    ->write(file_get_contents(dirname(__DIR__).'/templates/index.html'));
             }
         ],
         
