@@ -38,6 +38,9 @@ class User
     /** @var bool $modelConsent Whether the user has given their consent to store their model data */
     private $modelConsent;
 
+    /** @var bool $objectsToOpenData Whether the user has excercised their right to object and we should not publish their anonimyzed data */
+    private $objectsToOpenData;
+
     /** @var string $created Time when the accout was created */
     private $created;
 
@@ -91,6 +94,7 @@ class User
         'status',
         'profileConsent',
         'modelConsent',
+        'objectsToOpenData',
         'created',
         'migrated',
         'login',
@@ -181,6 +185,11 @@ class User
     public function getModelConsent() 
     {
         return $this->modelConsent;
+    } 
+
+    public function getObjectsToOpenData() 
+    {
+        return $this->objectsToOpenData;
     } 
 
     public function getRole() 
@@ -317,6 +326,11 @@ class User
     public function setModelConsent($val) 
     {
         $this->modelConsent = $val;
+    } 
+
+    public function setObjectsToOpenData($val) 
+    {
+        $this->objectsToOpenData = $val;
     } 
 
     public function setRole($role) 
@@ -628,11 +642,13 @@ class User
                    `email` = ".$db->quote(Utilities::encrypt($this->getEmail(), $nonce)).",
                 `username` = ".$db->quote($this->getUsername()).",
                   `status` = ".$db->quote($this->getStatus()).",
-         `profileConsent` = ".$db->quote($this->getProfileConsent()).",
+          `profileConsent` = ".$db->quote($this->getProfileConsent()).",
+            `modelConsent` = ".$db->quote($this->getModelConsent()).",
+       `objectsToOpenData` = ".$db->quote($this->getObjectsToOpenData()).",
                    `login` = ".$db->quote($this->getLogin()).",
                     `role` = ".$db->quote($this->getRole()).",
                   `locale` = ".$db->quote($this->getLocale()).",
-            `patronSince` = ".$db->quote($this->getPatronSince()).",
+             `patronSince` = ".$db->quote($this->getPatronSince()).",
                   `patron` = ".$db->quote($this->getPatronTier()).",
                    `units` = ".$db->quote($this->getUnits()).",
                    `theme` = ".$db->quote($this->getTheme()).",
@@ -763,6 +779,26 @@ class User
         $this->data->unsetNode("badges.$badge");
     }
     
+
+    /** 
+     * Removes all data covered by model consent. (models + drafts)
+     */
+    public function removeModelData()
+    {
+        $model = $this->container->get('Model');
+        foreach($this->getModels() as $handle => $data)  {
+            $model->loadFromHandle($handle);
+            $model->remove($this);
+        }
+        $draft = $this->container->get('Draft');
+        foreach($this->getDrafts() as $handle => $data)  {
+            $draft->loadFromHandle($handle);
+            $draft->remove($this);
+        }
+        
+        return true;
+    }
+
     /**
      * Exports user data to disk (for download by user)
      *

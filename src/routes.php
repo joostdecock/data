@@ -66,6 +66,11 @@
     // Create account from confirmation / Consent for data processing given
     $app->post('/newuser', 'UserController:createAccount');
 
+    // Recover user password
+    $app->post('/recover', 'UserController:recover');
+    
+    // Reset user password
+    $app->post('/reset/{hash}', 'UserController:reset');
 
 
 // Status
@@ -83,11 +88,7 @@ $app->post('/resend', 'UserController:resend');
 // Confirm user email change
 $app->get('/confirm/{handle}/{token}', 'UserController:confirm');
 
-// Recover user password
-$app->post('/recover', 'UserController:recover');
 
-// Reset user password
-$app->post('/reset', 'UserController:reset');
 
 // Download draft is anonymous coz no ajax
 $app->get('/download/{handle}/{format}', 'DraftController:download');

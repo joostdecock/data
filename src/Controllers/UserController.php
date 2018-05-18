@@ -67,6 +67,9 @@ class UserController
                 $initial = Utilities::encrypt($val['initial'], $nonce);
                 $json = JSON_encode($data, JSON_UNESCAPED_SLASHES);
                 $data = Utilities::encrypt($json, $nonce);
+                $twitter = Utilities::encrypt($twitter, $nonce);
+                $instagram = Utilities::encrypt($instagram, $nonce);
+                $github = Utilities::encrypt($github, $nonce);
                 $ehash = hash('sha256', strtolower(trim($val['email'])));
                 $sql = "UPDATE `users` SET 
                     `units` = ".$db->quote($units).",
@@ -501,116 +504,112 @@ class UserController
     }
 
     /** User password reset */
-    public function reset($request, $response, $args) {
-        // Handle request data 
-        $data = $request->getParsedBody();
-        $reset_data = [ 
-            'password' => Utilities::scrub($request, 'reset-password'), 
-            'handle' => Utilities::scrub($request, 'reset-handle'), 
-            'token' => Utilities::scrub($request, 'reset-token'), 
-        ];
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        // Get a user instance from the container
-        $user = clone $this->container->get('User');
-        $user->loadFromHandle($reset_data['handle']);
-        if($user->getId() === null) {
-            $logger->info("Reset blocked: No user with handle ".$reset_data['token']);
-
+    public function reset($request, $response, $args) 
+    {
+        // Get hash from API endpoint 
+        $hash = filter_var($args['hash'], FILTER_SANITIZE_STRING);
+        // Do we have a pending confirmation for this hash?
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->loadFromHash($hash);
+        if ($confirmation->getId() == '') { 
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'reset_failed', 
-                'message' => 'reset/failed',
+                'reason' => 'no_such_pending_confirmation', 
+            ], 404, $this->container['settings']['app']['origin']);
+        }
+
+        // Load the user from the container
+        $user = clone $this->container->get('User');
+        $user->loadFromUsername($confirmation->data->getNode('username'));
+        if($user->getId() === null) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_user', 
             ], 400, $this->container['settings']['app']['origin']);
         }
 
         if($user->getStatus() === 'blocked') {
-            $logger->info("Reset blocked: User ".$user->getId()." is blocked");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
-                'message' => 'reset/blocked',
             ], 400, $this->container['settings']['app']['origin']);
         }
 
         if($user->getStatus() === 'inactive') {
-            $logger->info("Reset blocked: User ".$user->getId()." is inactive");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_inactive', 
-                'message' => 'reset/inactive',
             ], 400, $this->container['settings']['app']['origin']);
         }
 
-        $user->setPassword($reset_data['password']);
+        // Remove confirmation
+        $confirmation->remove();
+
+        // Log login
+        $user->setLogin();
         $user->save();
-
-        $logger->info("Reset: Password reset for user ".$user->getId());
-
+        
+        // Get the token kit from the container
+        $TokenKit = $this->container->get('TokenKit');
+        
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'reason' => 'password_reset', 
-            'message' => 'reset/success',
+            'token' => $TokenKit->create($user->getId()),
         ], 200, $this->container['settings']['app']['origin']);
     }
 
     /** User password recovery */
-    public function recover($request, $response, $args) {
-        // Handle request data 
-        $data = $request->getParsedBody();
-        $recover_data = [ 'email' => Utilities::scrub($request, 'recover-email', 'email') ];
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
+    public function recover($request, $response, $args) 
+    {
+        $input = Utilities::scrub($request, 'username');
         
         // Get a user instance from the container
         $user = clone $this->container->get('User');
-        $user->loadFromEmail($recover_data['email']);
-
+        $user->loadFromUsername($input);
+        if($user->getId() == '') $user->loadFromEmail($input);
+        
         if($user->getId() == '') {
-            $logger->info("Recover blocked: No user with address ".$recover_data['email']);
-
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'recover_failed', 
-                'message' => 'recover/failed',
+                'reason' => 'no_such_user', 
             ], 400, $this->container['settings']['app']['origin']);
         }
 
         if($user->getStatus() === 'blocked') {
-            $logger->info("Recover blocked: User ".$user->getId()." is blocked");
             
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_blocked', 
-                'message' => 'recover/blocked',
             ], 400, $this->container['settings']['app']['origin']);
         }
 
         if($user->getStatus() === 'inactive') {
-            $logger->info("Recover blocked: User ".$user->getId()." is inactive");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_inactive', 
-                'message' => 'recover/inactive',
             ], 400, $this->container['settings']['app']['origin']);
         }
 
-        $logger->info("Recover: User ".$user->getId());
+        // Create task to send out an email
+        $hash = Utilities::getToken('recoverPassword'.$user->getEmail());
+        $taskData = new \stdClass();
+        $taskData->email = $user->getEmail();
+        $taskData->username = $user->getUsername();
+        $taskData->hash = $hash;
+        $taskData->user = $user->getId();
+        $taskData->locale = $user->getLocale();
+        
+        // Queue signup email
+        $task = clone $this->container->get('Task');
+        $task->create('recoverPassword', $taskData);
 
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->recover($user);
+        // Create confirmation
+        $confirmation = clone $this->container->get('Confirmation');
+        $confirmation->create($taskData);
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'recover_initiated', 
-            'message' => 'recover/sent',
         ], 200, $this->container['settings']['app']['origin']);
     }
 
@@ -726,7 +725,8 @@ class UserController
                 'locale' => $user->getLocale(), 
                 'consent' => [
                     'profile' => $user->getProfileConsent(), 
-                    'model' => $user->getModelConsent() 
+                    'model' => $user->getModelConsent(),
+                    'objectsToOpenData' => $user->getObjectsToOpenData() 
                 ],
                 'social' => $user->getSocial(),
                 'status' => $user->getStatus(), 
@@ -758,6 +758,9 @@ class UserController
         $in->instagram = Utilities::scrub($request,'instagram');
         $in->github = Utilities::scrub($request,'github');
         $in->locale = Utilities::scrub($request,'locale');
+        $in->profileConsent = Utilities::scrub($request,'profileConsent', 'bool');
+        $in->modelConsent = Utilities::scrub($request,'modelConsent', 'bool');
+        $in->objectsToOpenData = Utilities::scrub($request,'objectsToOpenData', 'bool');
         $in->currentPassword = Utilities::scrub($request,'currentPassword');
         $in->newPassword = Utilities::scrub($request,'newPassword');
         (Utilities::scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
@@ -859,6 +862,25 @@ class UserController
             $update = true;
         }
 
+        // Handle consent
+        foreach(['profileConsent', 'modelConsent', 'objectsToOpenData'] as $field) {
+            if(($in->{$field} === false || $in->{$field} === true) && $user->{'get'.ucfirst($field)}() != $in->{$field}) {
+                if($field === 'profileConsent' && $in->{$field} === false) {
+                    // No profile consent, remove all data
+                    $user->remove();
+                    return Utilities::prepResponse($response, [
+                        'result' => 'ok', 
+                        'reason' => 'account_removed',
+                    ], 200, $this->container['settings']['app']['origin']);
+                } else if($field === 'modelConsent' && $in->{$field} === false) {
+                    // No mode consent, remove relevant data
+                    $user->removeModelData();
+                } 
+                $user->{'set'.ucfirst($field)}($in->{$field});
+                $update = true;
+            }
+        }
+
         // Save changes 
         if($update) {
             $user->save();
@@ -866,6 +888,11 @@ class UserController
             return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'reason' => 'account_updated',
+                'dbg' => [
+                    'profile' => $profileConsent,
+                    'model' => $modelConsent,
+                    'object' => $objectsToOpenData,
+        ]
             ], 200, $this->container['settings']['app']['origin']);
 
         }
@@ -873,6 +900,11 @@ class UserController
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'no_changes_made',
+                'dbg' => [
+                    'profile' => $profileConsent,
+                    'model' => $modelConsent,
+                    'object' => $objectsToOpenData,
+        ]
         ], 200, $this->container['settings']['app']['origin']);
     }
     

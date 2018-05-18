@@ -80,6 +80,14 @@ class Utilities
                     return false;
                 }
             break;
+            case 'bool':
+                if(isset($request->getParsedBody()[$key])) {
+                    if($request->getParsedBody()[$key] === false || $request->getParsedBody()[$key] === true) {
+                        return $request->getParsedBody()[$key];
+                    }
+                }
+                return null;
+            break;
             default:
                 $filter = FILTER_SANITIZE_STRING;
         }

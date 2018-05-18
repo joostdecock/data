@@ -90,14 +90,7 @@ class CommentController
     /** Get page comments */
     public function pageComments($request, $response, $args) 
     {
-        // Handle request
-        $in = new \stdClass();
-        $in->page = '/'.filter_var($args['page'], FILTER_SANITIZE_STRING);
-        
-        // Strip trailing slashes
-        if(substr($in->page,-1) == '/') $in->page = substr($in->page,0,-1);
-        
-        $comments = $this->loadPageComments($in->page);
+        $comments = $this->loadPageComments('/'.filter_var($args['page'], FILTER_SANITIZE_STRING));
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 

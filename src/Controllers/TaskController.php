@@ -70,4 +70,10 @@ class TaskController
     {
         return $this->container->get('MailKit')->emailChange($task->getData());
     }
+    
+    /** Runs an recoverPassword task */
+    private function runTask__recoverPassword($task) 
+    {
+        return $this->container->get('MailKit')->recoverPassword($task->getData());
+    }
 }

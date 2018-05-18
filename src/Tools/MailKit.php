@@ -47,7 +47,7 @@ class MailKit
         
         $data = Yaml::parse(file_get_contents($file));
         foreach($data as $key => $value) {
-            $data[$key] = str_replate(['DONE', 'TODO'], ['',''], $value)
+            $data[$key] = str_replace(['DONE', 'TODO'], ['',''], $value);
         }
         
         return $data;
@@ -182,7 +182,7 @@ class MailKit
      * $data->username => The user's username
      * $data->hash => The hash to retrieve the confirmation
      */
-    public function recover($data) 
+    public function recoverPassword($data) 
     {
         // Load language file and replace tokens
         $i18n = [];
@@ -197,10 +197,10 @@ class MailKit
         else $lang = '/'.$data->locale;
 
         // Add remaining tokens
-        $i18n['LINK'] = $this->container['settings']['app']['site'].$lang.'/email/confirm/'.$data->hash;
+        $i18n['LINK'] = $this->container['settings']['app']['site'].$lang.'/account/recover/'.$data->hash;
         $i18n['OPENING_LINE'] = $i18n['itSeemsYouForgotYourPassword'];
         $i18n['HIDDEN'] = $i18n['itSeemsYouForgotYourPassword'];
-        $i18n['WHY'] = $i18n['whyEmailChange'];
+        $i18n['WHY'] = $i18n['whyRecover'];
 
         // Load email template and replace tokens       
         $search = [];
@@ -217,7 +217,6 @@ class MailKit
             ->setBody($txt)
             ->addPart($html, 'text/html')
         ;
-        $mailer->send($message);
 
         return $mailer->send($message);
     }
