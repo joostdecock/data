@@ -44,6 +44,9 @@ class User
     /** @var string $created Time when the accout was created */
     private $created;
 
+    /** @var string $migrated If migrated, time when the accout on makemypattern.com was created */
+    private $migrated;
+
     /** @var string $login Time of the last login */
     private $login;
 
@@ -150,6 +153,11 @@ class User
     public function getCreated() 
     {
         return $this->created;
+    } 
+
+    public function getMigrated() 
+    {
+        return $this->migrated;
     } 
 
     public function getHandle() 
@@ -724,6 +732,7 @@ class User
         if(!$result) return false;
         else {
             foreach($result as $key => $val) {
+                $val->username = $this->getUsername();
                 $comments[$val->id] = $val;
             }
         } 
@@ -736,10 +745,11 @@ class User
      *
      * @param $all bool Set this to true to also include svg/compare in the return
      */
-    public function getDrafts($all=false) 
+    public function getDrafts($all=false, $shared=false) 
     {
         $db = $this->container->get('db');
         $sql = "SELECT * from `drafts` WHERE `user` =".$db->quote($this->getId());
+        if($shared) $sql .= " AND `shared` = 1";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_OBJ);
         $db = null;
         
@@ -751,10 +761,25 @@ class User
                     unset($val->compared);
                 }
                 $val->data = json_decode($val->data);
+                $val->dlroot = $this->container['settings']['app']['data_api']
+                .$this->container['settings']['app']['static_path']
+                ."/users/"
+                .substr($this->getHandle(),0,1)
+                .'/'
+                .$this->getHandle()
+                .'/drafts/'.$val->handle.'/';
                 $drafts[$val->handle] = $val;
             }
         } 
         return $drafts;
+    }
+
+    /**
+     * Loads all shared drafts for a given user id
+     */
+    public function getSharedDrafts() 
+    {
+        return $this->getDrafts(false, true);
     }
 
     /** Adds a badge to the user */

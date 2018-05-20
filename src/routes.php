@@ -131,7 +131,7 @@ $app->put('/account', 'UserController:update');
 $app->delete('/account', 'UserController:remove');
 
 // Load user profile data
-$app->get('/profile/{handle}', 'UserController:profile');
+$app->get('/profile/{username}', 'UserController:profile');
 
 // Load user role
 $app->get('/role', 'UserController:role');

@@ -763,6 +763,7 @@ class UserController
         $in->objectsToOpenData = Utilities::scrub($request,'objectsToOpenData', 'bool');
         $in->currentPassword = Utilities::scrub($request,'currentPassword');
         $in->newPassword = Utilities::scrub($request,'newPassword');
+        $in->bio = Utilities::scrub($request,'bio');
         (Utilities::scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
         (Utilities::scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
 
@@ -881,6 +882,12 @@ class UserController
             }
         }
 
+        // Handle bio change
+        if($in->bio !== false && $user->data->getNode('bio') != $in->bio) {
+            $user->data->setNode('bio', $in->bio); 
+            $update = true;
+        }
+
         // Save changes 
         if($update) {
             $user->save();
@@ -888,11 +895,6 @@ class UserController
             return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'reason' => 'account_updated',
-                'dbg' => [
-                    'profile' => $profileConsent,
-                    'model' => $modelConsent,
-                    'object' => $objectsToOpenData,
-        ]
             ], 200, $this->container['settings']['app']['origin']);
 
         }
@@ -900,11 +902,6 @@ class UserController
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'reason' => 'no_changes_made',
-                'dbg' => [
-                    'profile' => $profileConsent,
-                    'model' => $modelConsent,
-                    'object' => $objectsToOpenData,
-        ]
         ], 200, $this->container['settings']['app']['origin']);
     }
     
@@ -917,7 +914,14 @@ class UserController
         
         // Get a user instance from the container and load user data
         $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->handle);
+        $user->loadFromUsername(filter_var($args['username'], FILTER_SANITIZE_STRING));
+
+        if($user->getId() === false) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error',
+                'reason' => 'no_such_user'
+            ], 400, $this->container['settings']['app']['origin']);
+        }
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
@@ -926,11 +930,17 @@ class UserController
             'profile' => [
                 'username' => $user->getUsername(), 
                 'handle' => $user->getHandle(), 
+                'bio' => $user->data->getNode('bio'), 
+                'social' => $user->getSocial(),
+                'badges' => $user->data->getNode('badges'),
+                'patron' => $user->getPatronTier(),
                 'status' => $user->getStatus(), 
                 'created' => $user->getCreated(), 
+                'migrated' => $user->getMigrated(),
                 'pictureSrc' => $avatarKit->getWebDir($user->getHandle(), 'user').'/'.$user->getPicture(), 
             ],
-            'drafts' => $user->getDrafts(),
+            'drafts' => $user->getSharedDrafts(),
+            'comments' => $user->getComments(),
         ];
         $data = $user->getData();
         if(isset($data->badges)) $return['badges'] = $data->badges;
