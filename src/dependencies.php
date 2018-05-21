@@ -24,7 +24,7 @@ $container['db'] = function ($c) {
     // We use a sqlite DB for unit tests
     if($db['type'] == 'sqlite') $pdo = new PDO("sqlite:" . $db['database']);
     else {
-        $pdo = new PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'], $db['user'], $db['password']);
+        $pdo = new PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'].";charset=UTF8mb4", $db['user'], $db['password']);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
     }

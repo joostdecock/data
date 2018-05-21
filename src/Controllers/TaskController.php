@@ -76,4 +76,16 @@ class TaskController
     {
         return $this->container->get('MailKit')->recoverPassword($task->getData());
     }
+    
+    /** Runs a commentReply task */
+    private function runTask__commentReply($task) 
+    {
+        return $this->container->get('MailKit')->commentReply($task->getData());
+    }
+    
+    /** Runs a commentProfile task */
+    private function runTask__commentProfile($task) 
+    {
+        return $this->container->get('MailKit')->commentProfile($task->getData());
+    }
 }

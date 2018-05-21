@@ -926,11 +926,13 @@ class UserController
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
 
+        $bio = $user->data->getNode('bio');
+        if($bio === false) $bio = '';
         $return = [
             'profile' => [
                 'username' => $user->getUsername(), 
                 'handle' => $user->getHandle(), 
-                'bio' => $user->data->getNode('bio'), 
+                'bio' => $bio, 
                 'social' => $user->getSocial(),
                 'badges' => $user->data->getNode('badges'),
                 'patron' => $user->getPatronTier(),

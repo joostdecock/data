@@ -44,60 +44,120 @@ class CommentController
         $comment = $this->container->get('Comment');
         $comment->setPage($in->page);
         $comment->setComment($in->comment);
+        $userUpdated = false;
         if($in->parent) {
             $comment->setParent($in->parent);
-            $user->addBadge('replied');
+            $userUpdated = $user->addBadge('replied');
         } else {
-            $user->addBadge('commented');
+            $userUpdated = $user->addBadge('commented');
         }
         $comment->create($user);
-        $user->save();
+        if($userUpdated) $user->save();
 
         // Notify if needed
-        if($in->parent) {
-            // Load parent comment
-            $parentComment = clone $this->container->get('Comment');
-            $parentComment->load($in->parent);
-            // Don't notify when replying to own comment
-            if($parentComment->getUser() != $user->getId()) {
-                // Load parent author
-                $parentAuthor = clone $this->container->get('User');
-                $parentAuthor->loadFromId($parentComment->getUser());
-                // Send email 
-                $mailKit = $this->container->get('MailKit');
-                $mailKit->commentNotify($user, $comment, $parentAuthor, $parentComment);
-            }
-        }
-        if(substr($in->page,0,7) == '/users/') {
-            // Comment on profile page. Notify owner
-            $handle = substr($in->page,7);
-            if($handle != $user->getHandle()) {
-                // Get a user instance from the container
-                $profile = clone $this->container->get('User');
-                $profile->loadFromHandle($handle);
-                if(!isset($mailkit)) $mailKit = $this->container->get('MailKit');
-                $mailKit->profileCommentNotify($user, $comment, $profile);
-            }
-        } else $handle = false;
+        if($in->parent) $this->replyNotify($user, $comment); // Reply comment
+        if(substr($in->page,0,7) == '/users/') $this->profileNotify($user, $comment, substr($in->page,7)); // Profile page comment
+        if(substr($in->page,3,7) == '/users/') $this->profileNotify($user, $comment, substr($in->page,10)); // Profile page comment (not English)
 
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'message' => 'comment/created',
             'id' => $comment->getId(),
         ], 200, $this->container['settings']['app']['origin']);
+    }
+
+    private function profileNotify($user, $comment, $username) 
+    {
+        if($username == $user->getUsername()) return false;
+        
+        // Get a user instance from the container
+        $profile = clone $this->container->get('User');
+        $profile->loadFromUsername($username);
+        
+        // Queue email 
+        $in->hash = Utilities::getToken('commentReply'.$in->email);
+        $taskData = new \stdClass();
+        $taskData->email = $profile->getEmail();
+        $taskData->locale = $profile->getLocale();
+        $taskData->author = $user->getUsername();
+        $taskData->comment = $comment->getComment();
+        $taskData->commentId = $comment->getId();
+        $taskData->commentLink = $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId();
+        $task = clone $this->container->get('Task');
+
+        return $task->create('commentProfile', $taskData);
+    }
+
+    private function replyNotify($user, $comment) 
+    {
+        // Load parent comment
+        $parentComment = clone $this->container->get('Comment');
+        $parentComment->load($parentId);
+
+        // Don't notify when reply to own comment
+        if($parentComment->getUser() === $user->getId()) return true;
+        
+        // Load parent author
+        $parentAuthor = clone $this->container->get('User');
+        $parentAuthor->loadFromId($parentComment->getUser());
+
+        // Queue email 
+        $in->hash = Utilities::getToken('commentReply'.$in->email);
+        $taskData = new \stdClass();
+        $taskData->email = $parentAuthor->getEmail();
+        $taskData->locale = $parentAuthor->getLocale();
+        $taskData->author = $user->getUsername();
+        $taskData->comment = $comment->getComment();
+        $taskData->commentId = $comment->getId();
+        $taskData->commentLink = $this->container['settings']['app']['site'].$comment->getPage().'#comment-'.$comment->getId();
+        $taskData->parentComment = $parentComment->getComment();
+        $taskData->parentCommentLink = $this->container['settings']['app']['site'].$parentComment->getPage().'#comment-'.$parentComment->getId();
+        $task = clone $this->container->get('Task');
+        
+        return $task->create('commentReply', $taskData);
     }
 
     /** Get page comments */
     public function pageComments($request, $response, $args) 
     {
-        $comments = $this->loadPageComments('/'.filter_var($args['page'], FILTER_SANITIZE_STRING));
-        
+        $comments = $this->commentsAsThread($this->loadPageComments('/'.filter_var($args['page'], FILTER_SANITIZE_STRING)));
+
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
             'count' => count($comments),
             'comments' => $comments,
         ], 200, $this->container['settings']['app']['origin']);
     }
+
+    private function commentsAsThread($comments)
+    {
+        $thread = [];
+        $map = [];
+        foreach ($comments as $comment) {
+            $comment->replies = [];
+            $id = $comment->id;
+            $parentId = $comment->parent;
+            if (isset($map[$parentId])) { 
+                $map[$parentId]->replies[$id] = $comment;
+                $map[$id] =& $map[$parentId]->replies[$id];
+            } elseif ($parentId == 0) {
+                $thread[$id] = $comment;
+                $map[$id] =& $thread[$id];
+            }
+        }
+        unset($results, $comment, $id, $parentId);
+
+        foreach ( $thread as $id => &$comment ) {
+            $parentId = $comment->parent;
+            if ( isset($map[$parentId] ) ) {
+                $map[$parentId]->replies[$id] = $comment; 
+                unset($thread[$id]);
+            }
+        }
+        unset($map, $id, $comment, $parentId);
+        arsort($thread);
+
+        return $thread;
+}
 
     /** Get recent comments */
     public function recentComments($request, $response, $args) 
@@ -255,8 +315,8 @@ class CommentController
             `comments`.`parent`,
             `users`.`username`,
             `users`.`picture`,
-            `users`.`data`,
-            `users`.`handle` as userhandle
+            `users`.`handle` as userhandle,
+            `users`.`patron`
             from `comments`,`users` 
             WHERE `comments`.`user` = `users`.`id` AND
             `comments`.`$key` =".$db->quote($val);
@@ -269,11 +329,6 @@ class CommentController
             $avatarKit = $this->container->get('AvatarKit');
             foreach($result as $key => $val) {
                 $val->picture = '/static'.$avatarKit->getDir($val->userhandle).'/'.$val->picture;
-                $data = json_decode($val->data);
-                if(isset($data->badges)) $val->badges = $data->badges;
-                if(isset($data->social)) $val->social = $data->social;
-                if(isset($data->patron)) $val->patron = $data->patron;
-                unset($val->data);
                 $comments[$val->id] = $val;
             }
         } 

@@ -261,12 +261,13 @@ class MailKit
      * $data->email => The user's email
      * $data->author => Username of the comment author
      * $data->comment => The reply comment
+     * $data->commentId => ID of the reply comment
      * $data->commentLink => Link to the reply comment
      * $data->parentComment => The parent comment
      * $data->parentCommentLink => Link to the parent comment
      *
      */
-    public function commentNotify($data)
+    public function commentReply($data)
     {
         // Load language file and replace tokens
         $i18n = [];
@@ -319,7 +320,7 @@ class MailKit
      * $data->commentLink => Link to the comment
      *
      */
-    public function profileCommentNotify($data)
+    public function commentProfile($data)
     {
         // Load language file and replace tokens
         $i18n = [];
