@@ -13,7 +13,7 @@ else
                 sed -i "s#'bail_enabled' => false#'bail_enabled' => true#g" src/settings.php
             fi
             mkdir build
-            mv src templates vendor public build/
+            mv src templates vendor public locales build/
             tar -czf freesewing.tgz build
             export SSHPASS=$FREESEWING_DATA_DEPLOY_PASS
             sshpass -e scp -o stricthostkeychecking=no freesewing.tgz travis@ana.decock.org:/fs/deploy/data/$TRAVIS_BRANCH/builds
