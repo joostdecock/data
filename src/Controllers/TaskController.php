@@ -106,4 +106,29 @@ class TaskController
     {
         return $this->container->get('MailKit')->userRemoved($task->getData());
     }
+
+    /** Runs a dataExport task */
+    private function runTask__dataExport($task) 
+    {
+        // Get a user instance from the container and load user data
+        $user = clone $this->container->get('User');
+        $user->loadFromId($task->getData()->getNode('user'));
+
+        // Queue email & export data
+        $taskData = new \stdClass();
+        $taskData->email = $user->getEmail();
+        $taskData->locale = $user->getLocale();
+        $taskData->hash = Utilities::getToken('dataExportEmail'.$user->getEmail());
+        $taskData->link = $this->container['settings']['app']['data_api'].$user->export();
+        $task = clone $this->container->get('Task');
+        $task->create('dataExportEmail', $taskData);
+
+        return true; 
+    }
+
+    /** Runs a dataExportEmail task */
+    private function runTask__dataExportEmail($task) 
+    {
+        return $this->container->get('MailKit')->dataExport($task->getData());
+    }
 }

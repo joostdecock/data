@@ -480,4 +480,46 @@ class MailKit
         return $mailer->send($message);
 
     }
+
+    /* User removed, goodbye E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     * $data->link => Download link
+     *
+     */
+    public function dataExport($data)
+    {
+        // Load language file and replace tokens
+        $i18n = [];
+        foreach($this->loadLanguage($data->locale) as $key => $val) {
+            $i18n[$key] = str_replace($search, $replace, $val);
+        }
+        
+        // Add remaining tokens
+        $i18n['LINK'] = $data->link;
+        $i18n['OPENING_LINE'] = $i18n['deliveryFromFreesewing'];
+        $i18n['HIDDEN'] = $i18n['hereIsYourData'];
+        $i18n['WHY'] = $i18n['whyExport'];
+
+        // Load email template and replace tokens       
+        $search = [];
+        foreach($i18n as $key => $val) $search[] = '__'.$key.'__';
+        $replace = array_values($i18n);
+        $html = str_replace($search, $replace, $this->loadTemplate('export', 'html'));
+        $txt  = str_replace($search, $replace, $this->loadTemplate('export',  'txt'));
+
+        // Send email via swiftmailer 
+        $mailer = $this->container->get('SwiftMailer');
+        $message = (new \Swift_Message('📦 ' 
+            .$i18n['hereIsYourData']))
+            ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+            ->setTo($data->email)
+            ->setBody($txt)
+            ->addPart($html, 'text/html')
+        ;
+
+        return $mailer->send($message);
+
+    }
 }

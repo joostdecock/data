@@ -373,8 +373,6 @@ class UserController
         }
 
         if($user->getStatus() === 'active') {
-            $logger->info("Resend blocked: User ".$user->getId()." is already active");
-            
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
                 'reason' => 'account_active', 
@@ -478,18 +476,10 @@ class UserController
             ], 400, $this->container['settings']['app']['origin']);
         }
 
-        if($user->getStatus() === 'blocked') {
+        if($user->getStatus() !== 'active') {
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
-                'reason' => 'account_blocked', 
-            ], 400, $this->container['settings']['app']['origin']);
-        }
-
-        if($user->getStatus() === 'inactive') {
-            return Utilities::prepResponse($response, [
-                'result' => 'error', 
-                'reason' => 'account_inactive', 
-                'message' => 'login/account-inactive',
+                'reason' => 'account_'.$user->getStatus(), 
             ], 400, $this->container['settings']['app']['origin']);
         }
 
@@ -685,6 +675,14 @@ class UserController
         // Get a user instance from the container
         $user = clone $this->container->get('User');
         $user->loadFromId($in->id);
+
+        if($user->getStatus() !== 'active') {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_'.$user->getStatus(), 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+
         if($user->isPatron()) $patron = $user->getPatronTier();
         else $patron = 0;
         
@@ -720,6 +718,13 @@ class UserController
         // Get a user instance from the container and load user data
         $user = clone $this->container->get('User');
         $user->loadFromId($id);
+
+        if($user->getStatus() !== 'active') {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_'.$user->getStatus(), 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
 
         // Get the AvatarKit to create the avatar
         $avatarKit = $this->container->get('AvatarKit');
@@ -1000,18 +1005,13 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
-        // No profile consent given, queue email
+        // Queue goodbye email
         $hash = Utilities::getToken('userRemoved'.$user->getEmail());
         $taskData = new \stdClass();
         $taskData->email = $user->getEmail();
         $taskData->locale = $user->getLocale();
         $task = clone $this->container->get('Task');
         $task->create('userRemoved', $taskData);
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        
-        $logger->info("User removed: ".$user->getId()." (".$user->getEmail().")is no more");
         
         $user->remove();
         
@@ -1021,8 +1021,8 @@ class UserController
         ], 200, $this->container['settings']['app']['origin']);
     } 
 
-    /** Export user data */
-    public function export($request, $response, $args) 
+    /** Freeze account */
+    public function freeze($request, $response, $args)
     {
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
@@ -1031,18 +1031,46 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
-        $logger->info("Exporting user data for: ".$user->getId()." (".$user->getEmail().")");
         
-        $zip = $user->export();
+        $user->setStatus('frozen');
+        $user->save();
         
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
-            'archive' => $zip, 
+            'reason' => 'account_frozen', 
         ], 200, $this->container['settings']['app']['origin']);
-    } 
-    
+        
+    }
+
+    /** Queue export of user data */
+    public function queueExport($request, $response, $args) 
+    {
+        // Get ID from authentication middleware
+        $id = $request->getAttribute("jwt")->user;
+        
+        // Get a user instance from the container and load user data
+        $user = clone $this->container->get('User');
+        $user->loadFromId($id);
+
+        if($user->getStatus() !== 'active') {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'account_'.$user->getStatus(), 
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+
+        // Queue export task
+        $taskData = new \stdClass();
+        $taskData->user = $user->getId();
+        $task = clone $this->container->get('Task');
+        $task->create('dataExport', $taskData);
+
+        return Utilities::prepResponse($response, [
+            'result' => 'ok',
+            'reason' => 'export_queued'
+        ], 200, $this->container['settings']['app']['origin']);
+    }
+
     public function role($request, $response, $args) 
     {
         // Get ID from authentication middleware

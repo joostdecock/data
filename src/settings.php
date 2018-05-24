@@ -115,7 +115,7 @@ return [
             'core_api' => getenv('CORE_API'),
             'site' => getenv('SITE'),
             'origin' => getenv('ORIGIN'),
-            'user_status' => ['active', 'inactive', 'blocked'],
+            'user_status' => ['active', 'inactive', 'blocked', 'frozen'],
             'user_role' => ['user', 'moderator', 'admin'],
             'handle_type' => ['user', 'model', 'draft'],
             'static_path' => '/static',

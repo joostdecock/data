@@ -127,6 +127,9 @@ $app->get('/account', 'UserController:load');
 // Update user account
 $app->put('/account', 'UserController:update');
 
+// Freeze user account
+$app->put('/account/freeze', 'UserController:freeze');
+
 // Delete user account
 $app->delete('/account', 'UserController:remove');
 
@@ -170,7 +173,7 @@ $app->post('/comment', 'CommentController:create');
 $app->delete('/comment/{id}', 'CommentController:remove');
 
 // Export data
-$app->get('/export', 'UserController:export');
+$app->get('/export', 'UserController:queueExport');
 
 // Export model data
 $app->get('/export/model/{handle}', 'ModelController:export');
