@@ -2,9 +2,12 @@ ahoyPatron: Ahoy Patron!
 allTheBest: 'All the best,'
 authorCommentedOnYourProfilePage: '{author} commented on your profile page.'
 authorPostedAReply: '{author} posted a reply to your comment:'
+betterToAsk: It's always better to ask than to assume.
 canWeRemainFriends: Can we remain friends?
 chatOnGitter: Chat on Gitter
 confirmEmailAddress: Confirm E-mail address
+consentGiven: Thanks for giving your consent
+consentReminder: 'This is merely a reminder. You can revoke your consent at any time <a href=''https://freesewing.org/account/consent''>in your account settings</a>.'
 credits: Made by Joost De Cock & contributors with the financial support of our patrons ❤️
 founderAndMaintainer: Founder and maintainer of the freesewing project
 freesewing: Freesewing
@@ -16,6 +19,7 @@ iRespectYourDecisionToLeave: 'I respect your decision to leave, and won''t bothe
 ifThatDoesntWorkCopyPaste: 'If that doesn''t work, you can copy and paste the link in your browser.'
 instagram: Instagram
 itSeemsYouForgotYourPassword: It seems your forgot your password.
+modelConsentGiven: You've given us permission to process your model data.
 newComment: New comment
 noWorriesClickLinkRegainAccess: 'No worries, simply click the link below to regain access to your account:'
 noteCurrentAddressInCc: 'Note that your current address ({oldAddress}) is in CC.'
@@ -23,6 +27,7 @@ onceYouConfirmNewAddress: 'Once you confirm {newAddress} as your new address, we
 orReplyOnline: 'Or, you can reply online'
 pleaseConfirmChangedEmail: 'Please confirm your new E-mail address ({newAddress}) by clicking the link below:'
 pleaseConfirmEmail: Please confirm your E-mail address
+profileConsentGiven: You've given us permission to process your profile data.
 psWhyLeave: 'PS: If you''d like to share why you''re leaving, you can reply to this message.'
 questionsJustReply: "If you have any questions, just reply to this E-mail. Always happy to help out. \U0001F642"
 regainAccessToYourAccount: "\U0001F511 Regain access to your freesewing account"
@@ -50,6 +55,7 @@ txt-patron8-1: 'Thank you so much for joining the freesewing patrons, as a Capta
 website: Website
 welcomeAboard: "\U0001F6A2 Welcome aboard \U0001F389"
 whyCommentReply: You received this E-mail because somebody replied to one of your comments on freesewing.org.
+whyConsent: You received this E-mail because you gave your consent to process your personal data on freesewing.org.
 whyEmailChange: You received this E-mail because you changed the E-mail address associated with your account on freesewing.org
 whyGoodbye: You received this E-mail as a final farewell after you removed your account on freesewing.org.
 whyPatron: You received this E-mail because you just became a Patron of freesewing.org
@@ -58,10 +64,3 @@ whyRecover: You receieved this E-mail because we received a password reset reque
 whySignup: You received this E-mail because you just signed up for an account on freesewing.org
 wowYouAreAwesome: 'Wow, you are awesome ❤️'
 yourOriginalComment: 'Your original comment:'
-consentGiven: Thanks for giving your consent
-profileConsentGiven: "You've given us permission to process your profile data."
-modelConsentGiven: "You've given us permission to process your model data."
-consentReminder: "This is merely a reminder. You can revoke your consent at any time <a href='https://freesewing.org/account/consent'>in your account settings</a>."
-whyConsent: You received this E-mail because you gave your consent to process your personal data on freesewing.org.
-betterToAsk: "It's always better to ask than to assume."
-

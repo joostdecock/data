@@ -2,9 +2,12 @@ ahoyPatron: Ahoy Sponsor!
 allTheBest: 'Vaarwel,'
 authorCommentedOnYourProfilePage: '{author} heeft een commentaar gepost op je profiel pagina.'
 authorPostedAReply: '{author} heeft een antwoord gepost op je commentaar:'
+betterToAsk: Altijd best om het gewoon even te vragen.
 canWeRemainFriends: Kunnen we vrienden blijven?
 chatOnGitter: Chat via Gitter
 confirmEmailAddress: Bevestig E-mail adres
+consentGiven: Alvast bedankt om je toestemming te geven
+consentReminder: 'Dit is louter een herinnering. Je kan je toestemming op elk ogenblik herzien <a href=''https://freesewing.org/nl/account/consent''>in je profiel instellingen</a>.'
 credits: Een project van Joost De Cock & vrijwillige medewerkers met de financiële steun van onze sponsors ❤️
 founderAndMaintainer: Oprichter en beheerder van het freesewing project
 freesewing: Freesewing DONE
@@ -16,6 +19,7 @@ iRespectYourDecisionToLeave: 'Ik respecteer je beslissing om ons te verlaten, en
 ifThatDoesntWorkCopyPaste: Als dat niet lukt kan je de link kopiëren en plakken in de adresbalk van je browser.
 instagram: Instagram DONE
 itSeemsYouForgotYourPassword: Het lijkt erop dat je je wachtwoord vergeten bent.
+modelConsentGiven: Je hebt ons de toestemming gegeven om je model gegevens te verwerken.
 newComment: Neuwe commentaar
 noWorriesClickLinkRegainAccess: 'Geen nood, klik op de link hieronder om terug toegang te krijgen tot je account.'
 noteCurrentAddressInCc: 'Merk op dat je huidige adres ({oldAddress}) in kopij staat van dit bericht.'
@@ -23,6 +27,7 @@ onceYouConfirmNewAddress: 'Eens je {newAddress} bevestigd als je nieuw adres, zu
 orReplyOnline: 'Of, je kan online antwoorden'
 pleaseConfirmChangedEmail: 'Gelieve je E-mail adres ({newAddress}) te bevestigen door op onderstaande link te klikken:'
 pleaseConfirmEmail: Gelieve je E-mail adres te bevestigen
+profileConsentGiven: Je hebt ons de toestemming gegeven om je profiel gegevens te verwerken.
 psWhyLeave: 'PS: Als je wil vertellen waarom je ons verlaat kan je dat doen door deze E-mail te beantwoorden.'
 questionsJustReply: "Als je nog vragen hebt, stuur dan een antwoord op deze E-mail. Aan de andere kant kan je altijd een luisterend oor vinden. \U0001F642"
 regainAccessToYourAccount: "\U0001F511 Herstel toegang tot je freesewing account"
@@ -50,6 +55,7 @@ txt-patron8-1: Super bedankt om een sponsor te worden van freesewing. Als Captai
 website: Website DONE
 welcomeAboard: "\U0001F6A2 Welkom aan boord \U0001F389"
 whyCommentReply: Je ontving dit bericht omdat iemand heeft geantwoord op je commentaar op freesewing.org.
+whyConsent: Je ontving dit bericht omdat je je toestemming hebt gegeven om je persoonlijke gegevens te laten verwerken door freesewing.org.
 whyEmailChange: Je ontving dit bericht omdat je het E-mail adres gelinkt aan jouw account op freesewing.org hebt gewijzigd.
 whyGoodbye: Je ontving dit bericht als laatste afscheid nadat je je account verwijderde op freesewing.org.
 whyPatron: Je ontving dit bericht omdat je pas sponsor bent geworden van freesewing.org.
@@ -58,10 +64,3 @@ whyRecover: Je ontving dit bericht omdat we een verzoek tot wachtwoord herstel h
 whySignup: Je ontving deze E-mail omdat je je net hebt ingeschreven op freesewing.org.
 wowYouAreAwesome: 'Wauw, jij bent de allerbeste ❤️'
 yourOriginalComment: 'Jouw originele commentaar:'
-consentGiven: Alvast bedankt om je toestemming te geven
-profileConsentGiven: Je hebt ons de toestemming gegeven om je profiel gegevens te verwerken.
-modelConsentGiven: Je hebt ons de toestemming gegeven om je model gegevens te verwerken.
-consentReminder: "Dit is louter een herinnering. Je kan je toestemming op elk ogenblik herzien <a href='https://freesewing.org/nl/account/consent'>in je profiel instellingen</a>."
-whyConsent: Je ontving dit bericht omdat je je toestemming hebt gegeven om je persoonlijke gegevens te laten verwerken door freesewing.org.
-betterToAsk: "Altijd best om het gewoon even te vragen."
-    
