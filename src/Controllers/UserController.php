@@ -256,8 +256,9 @@ class UserController
     /** Create account from confirmation, consent for data processing given */
     public function createAccount($request, $response, $args) 
     {
-        // Get hash from POST data 
+        // Get hash and locale from POST data 
         $hash = Utilities::scrub($request, 'hash');
+        $locale = Utilities::scrub($request, 'locale');
         // Do we have a pending confirmation for this hash?
         $confirmation = clone $this->container->get('Confirmation');
         $confirmation->loadFromHash($hash);
@@ -286,10 +287,20 @@ class UserController
         ); 
         // Create username from email address
         $user->setUsername($this->suggestUsername($confirmation->data->getNode('email')));
+        // Set locale
+        $user->setLocale($locale);
         $user->save();
 
         // Remove confirmation
         $confirmation->remove();
+
+        // Create task to send out an email reminder about consent
+        $hash = Utilities::getToken('profileConsentGiven'.$user->getEmail());
+        $taskData = new \stdClass();
+        $taskData->email = $user->getEmail();
+        $taskData->locale = $user->getLocale();
+        $task = clone $this->container->get('Task');
+        $task->create('profileConsentGiven', $taskData);
 
         // Get the token kit from the container
         $TokenKit = $this->container->get('TokenKit');
@@ -866,16 +877,36 @@ class UserController
         // Handle consent
         foreach(['profileConsent', 'modelConsent', 'objectsToOpenData'] as $field) {
             if(($in->{$field} === false || $in->{$field} === true) && $user->{'get'.ucfirst($field)}() != $in->{$field}) {
-                if($field === 'profileConsent' && $in->{$field} === false) {
-                    // No profile consent, remove all data
-                    $user->remove();
-                    return Utilities::prepResponse($response, [
-                        'result' => 'ok', 
-                        'reason' => 'account_removed',
-                    ], 200, $this->container['settings']['app']['origin']);
-                } else if($field === 'modelConsent' && $in->{$field} === false) {
-                    // No mode consent, remove relevant data
-                    $user->removeModelData();
+                if($field === 'profileConsent') {
+                   if($in->{$field} === false) {
+                        // No profile consent, remove all data
+                        $user->remove();
+                        return Utilities::prepResponse($response, [
+                            'result' => 'ok', 
+                            'reason' => 'account_removed',
+                        ], 200, $this->container['settings']['app']['origin']);
+                   } else if($in->{$field} === true) {
+                        // Profile consent given, queue email
+                        $hash = Utilities::getToken('profileConsentGiven'.$user->getEmail());
+                        $taskData = new \stdClass();
+                        $taskData->email = $user->getEmail();
+                        $taskData->locale = $user->getLocale();
+                        $task = clone $this->container->get('Task');
+                        $task->create('profileConsentGiven', $taskData);
+                   }
+                } else if($field === 'modelConsent') {
+                    if($in->{$field} === false) {
+                        // No mode consent, remove relevant data
+                        $user->removeModelData();
+                    } else if($in->{$field} === true) {
+                        // Model consent given, queue email
+                        $hash = Utilities::getToken('modelConsentGiven'.$user->getEmail());
+                        $taskData = new \stdClass();
+                        $taskData->email = $user->getEmail();
+                        $taskData->locale = $user->getLocale();
+                        $task = clone $this->container->get('Task');
+                        $task->create('modelConsentGiven', $taskData);
+                    }
                 } 
                 $user->{'set'.ucfirst($field)}($in->{$field});
                 $update = true;

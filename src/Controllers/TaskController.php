@@ -88,4 +88,16 @@ class TaskController
     {
         return $this->container->get('MailKit')->commentProfile($task->getData());
     }
+    
+    /** Runs a profileConsentGiven task */
+    private function runTask__profileConsentGiven($task) 
+    {
+        return $this->container->get('MailKit')->profileConsentGiven($task->getData());
+    }
+
+    /** Runs a modelConsentGiven task */
+    private function runTask__modelConsentGiven($task) 
+    {
+        return $this->container->get('MailKit')->modelConsentGiven($task->getData());
+    }
 }

@@ -58,3 +58,10 @@ whyRecover: You receieved this E-mail because we received a password reset reque
 whySignup: You received this E-mail because you just signed up for an account on freesewing.org
 wowYouAreAwesome: 'Wow, you are awesome ❤️'
 yourOriginalComment: 'Your original comment:'
+consentGiven: Thanks for giving your consent
+profileConsentGiven: "You've given us permission to process your profile data."
+modelConsentGiven: "You've given us permission to process your model data."
+consentReminder: "This is merely a reminder. You can revoke your consent at any time <a href='https://freesewing.org/account/consent'>in your account settings</a>."
+whyConsent: You received this E-mail because you gave your consent to process your personal data on freesewing.org.
+betterToAsk: "It's always better to ask than to assume."
+

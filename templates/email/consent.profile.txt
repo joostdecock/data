@@ -1,0 +1,8 @@
+__consentGiven__
+
+__profileConsentGiven__
+                                                                
+__consentReminder__
+
+__questionsJustReply__
+

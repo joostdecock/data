@@ -49,12 +49,19 @@ txt-patron4-3: Intussen heb ik je alvast toegevoegd aan onze lijst van sponsors 
 txt-patron8-1: Super bedankt om een sponsor te worden van freesewing. Als Captain zelf! Dit is schitterend nieuws.
 website: Website DONE
 welcomeAboard: "\U0001F6A2 Welkom aan boord \U0001F389"
-whyCommentReply: Je ontving deze E-mail omdat iemand heeft geantwoord op je commentaar op freesewing.org.
-whyEmailChange: Je ontving deze E-mail omdat je het E-mail adres gelinkt aan jouw account op freesewing.org hebt gewijzigd.
+whyCommentReply: Je ontving dit bericht omdat iemand heeft geantwoord op je commentaar op freesewing.org.
+whyEmailChange: Je ontving dit bericht omdat je het E-mail adres gelinkt aan jouw account op freesewing.org hebt gewijzigd.
 whyGoodbye: Je ontving dit bericht als laatste afscheid nadat je je account verwijderde op freesewing.org.
-whyPatron: Je ontving deze E-mail omdat je pas sponsor bent geworden van freesewing.org.
+whyPatron: Je ontving dit bericht omdat je pas sponsor bent geworden van freesewing.org.
 whyProfileComment: Je ontving dit bericht omdat iemand een commentaar heeft gepost op je profielpagina op freesewing.org.
-whyRecover: Je ontving deze E-mail omdat we een verzoek tot wachtwoord herstel hebben ontvangen voor de freesewing.org account dit is gelinkt aan dit E-mail adres.
+whyRecover: Je ontving dit bericht omdat we een verzoek tot wachtwoord herstel hebben ontvangen voor de freesewing.org account dit is gelinkt aan dit E-mail adres.
 whySignup: Je ontving deze E-mail omdat je je net hebt ingeschreven op freesewing.org.
 wowYouAreAwesome: 'Wauw, jij bent de allerbeste ❤️'
 yourOriginalComment: 'Jouw originele commentaar:'
+consentGiven: Alvast bedankt om je toestemming te geven
+profileConsentGiven: Je hebt ons de toestemming gegeven om je profiel gegevens te verwerken.
+modelConsentGiven: Je hebt ons de toestemming gegeven om je model gegevens te verwerken.
+consentReminder: "Dit is louter een herinnering. Je kan je toestemming op elk ogenblik herzien <a href='https://freesewing.org/nl/account/consent'>in je profiel instellingen</a>."
+whyConsent: Je ontving dit bericht omdat je je toestemming hebt gegeven om je persoonlijke gegevens te laten verwerken door freesewing.org.
+betterToAsk: "Altijd best om het gewoon even te vragen."
+    

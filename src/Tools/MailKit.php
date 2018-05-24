@@ -362,4 +362,83 @@ class MailKit
         return $mailer->send($message);
 
     }
+
+    /* Profile consent given reminder E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     *
+     */
+    public function profileConsentGiven($data)
+    {
+        // Load language file and replace tokens
+        $i18n = [];
+        foreach($this->loadLanguage($data->locale) as $key => $val) {
+            $i18n[$key] = str_replace($search, $replace, $val);
+        }
+        
+        // Add remaining tokens
+        $i18n['OPENING_LINE'] = $i18n['betterToAsk'];
+        $i18n['HIDDEN'] = $i18n['consentGiven'];
+        $i18n['WHY'] = $i18n['whyConsent'];
+
+        // Load email template and replace tokens       
+        $search = [];
+        foreach($i18n as $key => $val) $search[] = '__'.$key.'__';
+        $replace = array_values($i18n);
+        $html = str_replace($search, $replace, $this->loadTemplate('consent.profile', 'html'));
+        $txt  = str_replace($search, $replace, $this->loadTemplate('consent.profile',  'txt'));
+
+        // Send email via swiftmailer 
+        $mailer = $this->container->get('SwiftMailer');
+        $message = (new \Swift_Message('🙌 ' 
+            .$i18n['consentGiven']))
+            ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+            ->setTo($data->email)
+            ->setBody($txt)
+            ->addPart($html, 'text/html')
+        ;
+
+        return $mailer->send($message);
+    }
+
+    /* Model consent given reminder E-mail, expects the following data:
+     *
+     * $data->locale => language
+     * $data->email => The user's email
+     *
+     */
+    public function modelConsentGiven($data)
+    {
+        // Load language file and replace tokens
+        $i18n = [];
+        foreach($this->loadLanguage($data->locale) as $key => $val) {
+            $i18n[$key] = str_replace($search, $replace, $val);
+        }
+        
+        // Add remaining tokens
+        $i18n['OPENING_LINE'] = $i18n['betterToAsk'];
+        $i18n['HIDDEN'] = $i18n['consentGiven'];
+        $i18n['WHY'] = $i18n['whyConsent'];
+
+        // Load email template and replace tokens       
+        $search = [];
+        foreach($i18n as $key => $val) $search[] = '__'.$key.'__';
+        $replace = array_values($i18n);
+        $html = str_replace($search, $replace, $this->loadTemplate('consent.model', 'html'));
+        $txt  = str_replace($search, $replace, $this->loadTemplate('consent.model',  'txt'));
+
+        // Send email via swiftmailer 
+        $mailer = $this->container->get('SwiftMailer');
+        $message = (new \Swift_Message('🙌 ' 
+            .$i18n['consentGiven']))
+            ->setFrom([$this->container['settings']['swiftmailer']['from'] => $i18n['senderName']])
+            ->setTo($data->email)
+            ->setBody($txt)
+            ->addPart($html, 'text/html')
+        ;
+
+        return $mailer->send($message);
+
+    }
 }
