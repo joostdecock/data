@@ -100,4 +100,10 @@ class TaskController
     {
         return $this->container->get('MailKit')->modelConsentGiven($task->getData());
     }
+
+    /** Runs a userRemoved task */
+    private function runTask__userRemoved($task) 
+    {
+        return $this->container->get('MailKit')->userRemoved($task->getData());
+    }
 }

@@ -879,6 +879,13 @@ class UserController
             if(($in->{$field} === false || $in->{$field} === true) && $user->{'get'.ucfirst($field)}() != $in->{$field}) {
                 if($field === 'profileConsent') {
                    if($in->{$field} === false) {
+                        // No profile consent given, queue goodbye email
+                        $hash = Utilities::getToken('userRemoved'.$user->getEmail());
+                        $taskData = new \stdClass();
+                        $taskData->email = $user->getEmail();
+                        $taskData->locale = $user->getLocale();
+                        $task = clone $this->container->get('Task');
+                        $task->create('userRemoved', $taskData);
                         // No profile consent, remove all data
                         $user->remove();
                         return Utilities::prepResponse($response, [
@@ -993,9 +1000,13 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromId($id);
 
-        // Send email 
-        $mailKit = $this->container->get('MailKit');
-        $mailKit->goodbye($user);
+        // No profile consent given, queue email
+        $hash = Utilities::getToken('userRemoved'.$user->getEmail());
+        $taskData = new \stdClass();
+        $taskData->email = $user->getEmail();
+        $taskData->locale = $user->getLocale();
+        $task = clone $this->container->get('Task');
+        $task->create('userRemoved', $taskData);
         
         // Get a logger instance from the container
         $logger = $this->container->get('logger');
