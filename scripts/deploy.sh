@@ -18,10 +18,6 @@ else
             export SSHPASS=$FREESEWING_DATA_DEPLOY_PASS
             sshpass -e scp -o stricthostkeychecking=no freesewing.tgz travis@ana.decock.org:/fs/deploy/data/$TRAVIS_BRANCH/builds
             sshpass -e ssh -o stricthostkeychecking=no travis@ana.decock.org "cd /fs/deploy/data/$TRAVIS_BRANCH/builds ; tar -xzf freesewing.tgz ; rm freesewing.tgz ; rm -rf previous ; mv current previous ; mv build current ; cd current/public/static ; ln -s /fs/storage/data/$TRAVIS_BRANCH/users ; ln -s /fs/storage/data/$TRAVIS_BRANCH/export "
-            if [ "$TRAVIS_BRANCH" = "v2" ]; then
-                echo "Setting up v2 shadow environment"
-                sshpass -e ssh -o stricthostkeychecking=no travis@ana.decock.org "cd /home/travis/deploy ; ./deploy.sh "
-            fi
             echo "All done.";
         else
             echo "Build on PHP version $TRAVIS_PHP_VERSION, not deploying.";
