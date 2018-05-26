@@ -25,6 +25,8 @@ class UserController
     /** Migrate user accounts to encrypted DB scheme */
     public function migrate($request, $response, $args) 
     {
+        die('This endpoint is disabled');
+
         $db = $this->container->get('db');
         $sql = "SELECT `id`, `email`, `initial`, `username`, `pepper`, `data` FROM `users` WHERE `ehash` IS NULL OR `ehash` = '' LIMIT 1000";
         $result = $db->query($sql)->fetchAll(\PDO::FETCH_ASSOC);
@@ -762,26 +764,23 @@ class UserController
     public function update($request, $response, $args) 
     {
         $update = false; 
-        
+
         // Handle request
         $in = new \stdClass();
         $in->email = Utilities::scrub($request,'email','email');
         $in->username = Utilities::scrub($request,'username', 'username');
-        $in->address = Utilities::scrub($request,'address');
-        $in->birthmonth = Utilities::scrub($request,'birthday-month');
-        $in->birthday = Utilities::scrub($request,'birthday-day');
         $in->twitter = Utilities::scrub($request,'twitter');
         $in->instagram = Utilities::scrub($request,'instagram');
         $in->github = Utilities::scrub($request,'github');
         $in->locale = Utilities::scrub($request,'locale');
+        $in->units = Utilities::scrub($request,'units');
+        $in->theme = Utilities::scrub($request,'theme');
         $in->profileConsent = Utilities::scrub($request,'profileConsent', 'bool');
         $in->modelConsent = Utilities::scrub($request,'modelConsent', 'bool');
         $in->objectsToOpenData = Utilities::scrub($request,'objectsToOpenData', 'bool');
         $in->currentPassword = Utilities::scrub($request,'currentPassword');
         $in->newPassword = Utilities::scrub($request,'newPassword');
         $in->bio = Utilities::scrub($request,'bio');
-        (Utilities::scrub($request,'units') == 'imperial') ? $in->units = 'imperial' : $in->units = 'metric';
-        (Utilities::scrub($request,'theme') == 'paperless') ? $in->theme = 'paperless' : $in->theme = 'classic';
 
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
@@ -938,6 +937,16 @@ class UserController
             return Utilities::prepResponse($response, [
                 'result' => 'ok', 
                 'reason' => 'account_updated',
+                'dbg' => [
+                    'theme' => $in,
+                    'locale' => $in->locale,
+                    'units' => $in->units,
+                ],
+                'usr' => [
+                    'theme' => $user->getTheme(),
+                    'locale' => $user->getLocale(),
+                    'units' => $user->getUnits(),
+                ]
             ], 200, $this->container['settings']['app']['origin']);
 
         }
