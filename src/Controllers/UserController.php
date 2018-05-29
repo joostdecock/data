@@ -1097,4 +1097,44 @@ class UserController
         );
     } 
 
+
+    /** Admin login as user */
+    public function loginAs($request, $response, $args) 
+    {
+        // Get a user instance from the container, load from middleware ID
+        $admin = clone $this->container->get('User');
+        $admin->loadFromId($request->getAttribute("jwt")->user);
+        
+        if($admin->getRole() !== 'admin') {   
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'admins_only', 
+                'role' => $admin->getRole(),
+                'id' => $request->getAttribute("jwt")
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+
+        
+        // Get a user instance from the container
+        $user = clone $this->container->get('User');
+        $user->loadFromUsername(Utilities::scrub($request, 'user')); 
+
+        // Does the user exist?
+        if($user->getId() === null) {
+            return Utilities::prepResponse($response, [
+                'result' => 'error', 
+                'reason' => 'no_such_user', 
+                'id' => $user->getId()
+            ], 400, $this->container['settings']['app']['origin']);
+        }
+         
+        // Login as user
+        $tokenKit = $this->container->get('TokenKit');
+        
+        return Utilities::prepResponse($response, [
+            'result' => 'ok', 
+            'token' => $this->container->get('TokenKit')->create($user->getId()),
+            'user' => $user->getUsername()
+        ], 200, $this->container['settings']['app']['origin']);
+    }
 }

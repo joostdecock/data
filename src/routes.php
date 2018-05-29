@@ -111,15 +111,15 @@ $app->get('/comments/recent/{count}', 'CommentController:recentComments');
 // Load patron list
 $app->get('/patrons/list', 'UserController:patronList');
 
+// User login
+$app->post('/login', 'UserController:login');
+
 /************************/
 /* Authenticated routes */
 /************************/
 
 // Check for authenticated user
 $app->get('/auth', 'UserController:auth');
-
-// User login
-$app->post('/login', 'UserController:login');
 
 // Load user account data
 $app->get('/account', 'UserController:load');
@@ -188,6 +188,8 @@ $app->post('/tools/tile', 'ToolsController:tile');
 /* Admin routes */
 /****************/
 
+// Admin login as user
+$app->post('/admin/login/as', 'UserController:loginAs');
 
 // Add badge to user profile
 $app->post('/admin/user/{handle}/badge/{badge}', 'AdminController:userAddBadge');
