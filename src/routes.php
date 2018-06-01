@@ -192,10 +192,10 @@ $app->post('/tools/tile', 'ToolsController:tile');
 $app->post('/admin/login/as', 'UserController:loginAs');
 
 // Add badge to user profile
-$app->post('/admin/user/{handle}/badge/{badge}', 'AdminController:userAddBadge');
+$app->post('/admin/user/{username}/badge/{badge}', 'AdminController:userAddBadge');
 
 // Remove badge from user profile
-$app->delete('/admin/user/{handle}/badge/{badge}', 'AdminController:userRemoveBadge');
+$app->delete('/admin/user/{username}/badge/{badge}', 'AdminController:userRemoveBadge');
 
 // Set new user password (by admin)
 $app->put('/admin/user/{handle}/password', 'AdminController:userSetPassword');
@@ -207,7 +207,7 @@ $app->put('/admin/user/{handle}/patron/{tier}', 'AdminController:userSetPatronTi
 $app->get('/admin/user/{handle}/email/patron', 'AdminController:userSendPatronEmail');
 
 // Load user account
-$app->get('/admin/user/{handle}', 'AdminController:userLoad');
+$app->get('/admin/user/{username}', 'AdminController:userLoad');
 
 // Find users 
 $app->get('/admin/find/users/{filter}', 'AdminController:userFind');

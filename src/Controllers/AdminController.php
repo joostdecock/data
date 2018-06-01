@@ -27,6 +27,11 @@ class AdminController
         return filter_var($args['handle'], FILTER_SANITIZE_STRING);
     }
 
+    private function getUsername($args)
+    {
+        return filter_var($args['username'], FILTER_SANITIZE_STRING);
+    }
+
     /** Set password (by admin) */
     public function userSetPassword($request, $response, $args) 
     {
@@ -167,14 +172,11 @@ class AdminController
 
         // Handle request
         $in = new \stdClass();
-        $in->userHandle = $this->getUserHandle($args);
+        $in->username = $this->getUsername($args);
         $in->badge = filter_var($args['badge'], FILTER_SANITIZE_STRING);
         
         // Get ID from authentication middleware
         $in->id = $request->getAttribute("jwt")->user;
-        
-        // Get a logger instance from the container
-        $logger = $this->container->get('logger');
         
         // Get a user instance from the container
         $admin = clone $this->container->get('User');
@@ -182,7 +184,6 @@ class AdminController
 
         // Is user an admin?
         if($admin->getRole() != 'admin') {
-            $logger->info("Failed to $verb badge: User ".$admin->getId()." is not an admin");
 
             return Utilities::prepResponse($response, [
                 'result' => 'error', 
@@ -192,13 +193,11 @@ class AdminController
 
         // Load account
         $user = clone $this->container->get('User');
-        $user->loadFromHandle($in->userHandle);
-
+        $user->loadFromUsername($in->username);
         // Add badge and save
         if($remove) $user->removeBadge($in->badge);
         else $user->addBadge($in->badge);
         $user->save();
-        $logger->info("Badge ".$in->badge." $verb"."ed to user ".$user->getId());
 
         return Utilities::prepResponse($response, [
             'result' => 'ok', 
@@ -300,7 +299,7 @@ class AdminController
     public function userLoad($request, $response, $args) 
     {
         // Handle request data 
-        $handle = filter_var($args['handle'], FILTER_SANITIZE_STRING);
+        $username = filter_var($args['username'], FILTER_SANITIZE_STRING);
         
         // Get ID from authentication middleware
         $id = $request->getAttribute("jwt")->user;
@@ -310,7 +309,7 @@ class AdminController
 
         // Get a user instance from the container and load user data
         $user = clone $this->container->get('User');
-        $user->loadFromHandle($handle);
+        $user->loadFromUsername($username);
         
         // Is user an admin?
         if($admin->getRole() != 'admin') {
@@ -364,7 +363,7 @@ class AdminController
             $filter = filter_var($args['filter'], FILTER_SANITIZE_STRING);
 
             $sql = "SELECT `users`.`id` from `users` WHERE 
-                `users`.`uhash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
+                `users`.`username` LIKE ".$db->quote('%'.$filter.'%')."
                 OR `users`.`ehash` = ".$db->quote(hash('sha256',strtolower(trim($filter))))."
                 OR `users`.`id` = ".$db->quote(trim($filter))."
                 OR `users`.`handle` LIKE ".$db->quote("%$filter%")."
