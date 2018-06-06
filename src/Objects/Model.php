@@ -348,7 +348,7 @@ class Model
         // Create random directory
         if(!$token) $token = sha1(print_r($this,1).time());
         $dir = $this->container['settings']['storage']['static_path']."/export/$token";
-        mkdir($dir);
+        mkdir($dir, 0755, true);
 
         // Export as CSV
         $fp = fopen("$dir/".$this->getHandle().'.csv', 'w');

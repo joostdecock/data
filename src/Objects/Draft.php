@@ -430,7 +430,7 @@ class Draft
 
         // Store on disk
         $dir = $this->container['settings']['storage']['static_path']."/users/".substr($user->getHandle(),0,1).'/'.$user->getHandle().'/drafts/'.$this->getHandle();
-        if(!$redraft) mkdir($dir, 0755, true);
+        mkdir($dir, 0755, true);
         $handle = fopen($dir.'/'.$this->getHandle().'.svg', 'w');
         fwrite($handle, $this->getSvg());
         fclose($handle);

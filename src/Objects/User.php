@@ -836,7 +836,7 @@ class User
         // Copy user disk data to random directory
         if(!$token) $token = sha1(print_r($this,1).time());
         $dir = $this->container['settings']['storage']['static_path']."/export";
-        if(!is_dir($dir)) $cmd = mkdir($dir);
+        if(!is_dir($dir)) $cmd = mkdir($dir, 0755, true);
         if(is_dir("$dir/$token")) `rm -rf $dir/$token`;
         if(is_dir("$dir/".$this->getHandle())) shell_exec("rm -rf $dir/".$this->getHandle());
         $cmd = "cp --recursive ".$this->container['settings']['storage']['static_path']."/users/".substr($this->getHandle(),0,1).'/'.$this->getHandle()." $dir ; mv $dir/".$this->getHandle()." $dir/$token";
@@ -929,7 +929,7 @@ class User
         // Export comments
         $comments = $this->getComments();
         if(is_array($comments)) {
-            mkdir("$dir/$token/comments");
+            mkdir("$dir/$token/comments", 0755, true);
             foreach($comments as $comment) {
                 $file = "$dir/$token/comments/comment-".$comment->id.'.md';
                 $commentData = "---\n";
