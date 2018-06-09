@@ -968,7 +968,7 @@ class UserController
         $user = clone $this->container->get('User');
         $user->loadFromUsername(filter_var($args['username'], FILTER_SANITIZE_STRING));
 
-        if($user->getId() === false) {
+        if($user->getId() === false || $user->getId() === null) {
             return Utilities::prepResponse($response, [
                 'result' => 'error',
                 'reason' => 'no_such_user'
