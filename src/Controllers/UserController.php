@@ -550,6 +550,7 @@ class UserController
 
         // Log login
         $user->setLogin();
+        $user->setPassword($request->getParsedBody()['password']);
         $user->save();
         
         // Get the token kit from the container
