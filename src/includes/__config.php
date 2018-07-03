@@ -211,6 +211,21 @@ function __requiredMeasurements()
     10 => 'shoulderToElbow',
     11 => 'naturalWaist',
   ),
+  'penelope' => 
+  array (
+    0 => 'naturalWaist',
+    1 => 'hipsCircumference',
+    2 => 'seatCircumference',
+    3 => 'naturalWaistToHip',
+    4 => 'naturalWaistToSeat',
+    5 => 'naturalWaistToKnee',
+  ),
+  'sandy' => 
+  array (
+    0 => 'naturalWaistToHip',
+    1 => 'hipsCircumference',
+    2 => 'naturalWaist',
+  ),
 );
 }
 
@@ -242,6 +257,7 @@ function __allMeasurements()
   'highBust' => 'highBust',
   'bustSpan' => 'bustSpan',
   'highPointShoulderToBust' => 'highPointShoulderToBust',
+  'naturalWaistToKnee' => 'naturalWaistToKnee',
 );
 }
 
@@ -279,6 +295,7 @@ function __noBreastsMeasurements()
   'seatDepth' => 'seatDepth',
   'naturalWaistToFloor' => 'naturalWaistToFloor',
   'naturalWaistToSeat' => 'naturalWaistToSeat',
+  'naturalWaistToKnee' => 'naturalWaistToKnee',
 );
 }
 
@@ -304,6 +321,8 @@ function __patternsToClassNames()
   'florent' => 'FlorentFlatCap',
   'huey' => 'HueyHoodie',
   'jaeger' => 'JaegerJacket',
+  'penelope' => 'PenelopePencilSkirt',
+  'sandy' => 'SandySkirt',
 );
 }
 
@@ -2230,7 +2249,7 @@ function __patterns()
         'max' => 20,
         'default' => 5,
       ),
-      'frontDrop' => 
+      'necklineDrop' => 
       array (
         'title' => 'Neckline drop',
         'description' => 'The amount the front neckline is lowered. Negative values raise the neckline.',
@@ -2338,16 +2357,6 @@ function __patterns()
         'max' => 45,
         'default' => 30,
       ),
-      'acrossBackFactor' => 
-      array (
-        'title' => 'Across back factor',
-        'description' => 'Controls your across back width as a factor of your shoulder to shoulder measurement.',
-        'group' => 'advanced',
-        'type' => 'percent',
-        'min' => 93,
-        'max' => 99,
-        'default' => 96,
-      ),
     ),
     'optiongroups' => 
     array (
@@ -2366,7 +2375,7 @@ function __patterns()
       ),
       'style' => 
       array (
-        0 => 'frontDrop',
+        0 => 'necklineDrop',
         1 => 'frontStyle',
         2 => 'hemStyle',
         3 => 'hemRadius',
@@ -2378,10 +2387,6 @@ function __patterns()
         1 => 'shoulderInset',
         2 => 'backInset',
         3 => 'frontInset',
-      ),
-      'advanced' => 
-      array (
-        0 => 'acrossBackFactor',
       ),
     ),
   ),
@@ -3831,6 +3836,388 @@ function __patterns()
         4 => 'armholeDepthFactor',
         5 => 'sleevecapHeightFactor',
         6 => 'acrossBackFactor',
+      ),
+    ),
+  ),
+  'penelope' => 
+  array (
+    'info' => 
+    array (
+      'name' => 'Penelope Pencil Skirt',
+      'description' => 'Penelope is a simple pencil skirt pattern',
+      'handle' => 'penelope',
+      'level' => 3,
+      'tags' => 
+      array (
+        0 => 'womenswear',
+        1 => 'skirt',
+      ),
+      'class' => 'PenelopePencilSkirt',
+    ),
+    'languages' => 
+    array (
+      'en' => 'English',
+    ),
+    'parts' => 
+    array (
+      'front' => 'Front part',
+      'back' => 'Back part',
+      'waistBand' => 'Waist band',
+    ),
+    'measurements' => 
+    array (
+      'naturalWaist' => 670,
+      'hipsCircumference' => 800,
+      'seatCircumference' => 920,
+      'naturalWaistToHip' => 130,
+      'naturalWaistToSeat' => 240,
+      'naturalWaistToKnee' => 520,
+    ),
+    'options' => 
+    array (
+      'lengthBonus' => 
+      array (
+        'title' => 'Length bonus',
+        'description' => 'Additional length of the skirt',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => -100,
+        'max' => 100,
+        'default' => 0,
+      ),
+      'hemBonus' => 
+      array (
+        'title' => 'Hem bonus',
+        'description' => 'Additional width at the hem',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => -35,
+        'max' => 0,
+        'default' => 0,
+      ),
+      'backVent' => 
+      array (
+        'title' => 'Back vent',
+        'description' => 'Vent at the back seam',
+        'group' => 'style',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          '1' => 'Yes',
+          '0' => 'No',
+        ),
+        'default' => 0,
+      ),
+      'backVentLength' => 
+      array (
+        'title' => 'Vertical size of the vent',
+        'description' => 'Vertical size of the vent',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => 50,
+        'max' => 900,
+        'default' => 200,
+        'dependsOn' => 'backVent',
+        'onlyOn' => 
+        array (
+          0 => 1,
+        ),
+      ),
+      'waistBand' => 
+      array (
+        'title' => 'Waist band',
+        'description' => 'Waist Band',
+        'group' => 'style',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          'no' => 'No',
+          'yes' => 'Yes',
+        ),
+        'default' => 'yes',
+      ),
+      'waistBandWidth' => 
+      array (
+        'title' => 'Waist band height',
+        'description' => 'Waist Band height',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => 10,
+        'max' => 100,
+        'default' => 25,
+        'dependsOn' => 'waistBand',
+        'onlyOn' => 
+        array (
+          0 => 'yes',
+        ),
+      ),
+      'zipperLocation' => 
+      array (
+        'title' => 'Zipper placement',
+        'description' => 'Zipper placement',
+        'group' => 'style',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          'side' => 'Side seam',
+          'back' => 'Back seam',
+        ),
+        'default' => 'back',
+        'dependsOn' => 'backVent',
+        'onlyOn' => 
+        array (
+          0 => 0,
+        ),
+      ),
+      'nrOfDarts' => 
+      array (
+        'title' => 'Number of darts',
+        'description' => 'Number of darts on each part',
+        'group' => 'style',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          '2' => 2,
+          '1' => 1,
+        ),
+        'default' => 2,
+      ),
+      'seatEase' => 
+      array (
+        'title' => 'Seat ease',
+        'description' => 'The amount of ease at the largest part of your bum',
+        'group' => 'ease',
+        'type' => 'measure',
+        'min' => 0,
+        'max' => 60,
+        'default' => 30,
+      ),
+      'waistEase' => 
+      array (
+        'title' => 'Waist ease',
+        'description' => 'The amount of ease at the waist',
+        'group' => 'ease',
+        'type' => 'measure',
+        'min' => 0,
+        'max' => 60,
+        'default' => 10,
+      ),
+      'waistSideSeamRaise' => 
+      array (
+        'title' => 'Waist Side Seam Raise',
+        'description' => 'Raise of the waist at the side seam',
+        'group' => 'fit',
+        'type' => 'measure',
+        'min' => 0,
+        'max' => 45,
+        'default' => 0,
+      ),
+      'backDartDepthFactor' => 
+      array (
+        'title' => 'Back Dart Depth Factor',
+        'description' => 'The Depth of the back dart as a percentage of the Waist to Hip measurement',
+        'group' => 'fit',
+        'type' => 'percent',
+        'min' => 35,
+        'max' => 70,
+        'default' => 50,
+      ),
+      'frontDartDepthFactor' => 
+      array (
+        'title' => 'Front Dart Depth Factor',
+        'description' => 'The Depth of the front dart as a percentage of the Waist to Hip measurement',
+        'group' => 'fit',
+        'type' => 'percent',
+        'min' => 30,
+        'max' => 65,
+        'default' => 45,
+      ),
+      'dartToSideSeamFactor' => 
+      array (
+        'title' => 'Dart to Side Seam Factor',
+        'description' => 'Shifts the intake from the darts to the side seam and visa versa',
+        'group' => 'fit',
+        'type' => 'percent',
+        'min' => 30,
+        'max' => 70,
+        'default' => 50,
+      ),
+    ),
+    'optiongroups' => 
+    array (
+      'style' => 
+      array (
+        0 => 'lengthBonus',
+        1 => 'hemBonus',
+        2 => 'backVent',
+        3 => 'backVentLength',
+        4 => 'waistBand',
+        5 => 'waistBandWidth',
+        6 => 'zipperLocation',
+        7 => 'nrOfDarts',
+      ),
+      'ease' => 
+      array (
+        0 => 'seatEase',
+        1 => 'waistEase',
+      ),
+      'fit' => 
+      array (
+        0 => 'waistSideSeamRaise',
+        1 => 'backDartDepthFactor',
+        2 => 'frontDartDepthFactor',
+        3 => 'dartToSideSeamFactor',
+      ),
+    ),
+  ),
+  'sandy' => 
+  array (
+    'info' => 
+    array (
+      'name' => 'Sandy Skirt',
+      'description' => 'Sandy is an adaptable patter for circle skirts',
+      'handle' => 'sandy',
+      'tags' => 
+      array (
+        0 => 'womenswear',
+        1 => 'skirt',
+      ),
+      'class' => 'SandySkirt',
+    ),
+    'parts' => 
+    array (
+      'skirt' => 'Skirt',
+      'curvedWaistband' => 'Curved waistband',
+      'straightWaistband' => 'Straight waistband',
+    ),
+    'languages' => 
+    array (
+      'en' => 'English',
+    ),
+    'measurements' => 
+    array (
+      'naturalWaistToHip' => 130,
+      'hipsCircumference' => 803,
+      'naturalWaist' => 670,
+    ),
+    'options' => 
+    array (
+      'waistbandPosition' => 
+      array (
+        'title' => 'Waistband position',
+        'description' => 'Where the waistband sits. 0% makes it sit on the natural waist, 100% makes it sit on the hips',
+        'group' => 'fit',
+        'type' => 'percent',
+        'min' => 0,
+        'max' => 100,
+        'default' => 50,
+      ),
+      'length' => 
+      array (
+        'title' => 'Skirt length',
+        'description' => 'The length of the skirt',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => 200,
+        'max' => 2000,
+        'default' => 400,
+      ),
+      'circlePercent' => 
+      array (
+        'title' => 'Circle percent',
+        'description' => 'The percent of a circle skirt. 100% makes a full circle skirt, 50% makes a half circle skirt',
+        'group' => 'style',
+        'type' => 'percent',
+        'min' => 20,
+        'max' => 100,
+        'default' => 50,
+      ),
+      'waistbandWidth' => 
+      array (
+        'title' => 'Waistband width',
+        'description' => 'The width of the waistband',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => 10,
+        'max' => 100,
+        'default' => 40,
+      ),
+      'waistbandShape' => 
+      array (
+        'title' => 'Waistband shape',
+        'description' => 'The shape of the waistband. Straight makes things easier, but a rounded waistband adapts to your body if you have a fair difference between waist and hips circumferences',
+        'group' => 'style',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          0 => 'Straight',
+          1 => 'Curved',
+        ),
+        'default' => 1,
+      ),
+      'waistbandOverlap' => 
+      array (
+        'title' => 'Waistband overlap',
+        'description' => 'The length of the overlap between the ends of the waistband, to allow a button. 0 means no overlap, for example to place a zipper that goes all the way to the top of the waistband',
+        'group' => 'style',
+        'type' => 'measure',
+        'min' => 0,
+        'max' => 100,
+        'default' => 20,
+      ),
+      'extraWaist' => 
+      array (
+        'title' => 'Extra waist',
+        'description' => 'The percent by which the top of the skirt is longer than the bottom of the waistband. Give a value higher than 0 to pleat the skirt',
+        'group' => 'style',
+        'type' => 'percent',
+        'min' => 0,
+        'max' => 200,
+        'default' => 0,
+      ),
+      'seamlessFullCircle' => 
+      array (
+        'title' => 'Seamless full circle',
+        'description' => 'Select \'yes\' for a seamless circle, which is cut on a double fold. Since it has no openings, you\'ll need an elastic waistband. This produces a full circle ignoring the \'circle percent\' option',
+        'group' => 'sewing',
+        'type' => 'chooseOne',
+        'options' => 
+        array (
+          0 => 'No',
+          1 => 'Yes',
+        ),
+        'default' => 0,
+      ),
+      'hemWidth' => 
+      array (
+        'title' => 'Hem width',
+        'description' => 'The width of the hem',
+        'group' => 'sewing',
+        'type' => 'measure',
+        'min' => 0,
+        'max' => 100,
+        'default' => 30,
+      ),
+    ),
+    'optiongroups' => 
+    array (
+      'fit' => 
+      array (
+        0 => 'waistbandPosition',
+      ),
+      'style' => 
+      array (
+        0 => 'length',
+        1 => 'circlePercent',
+        2 => 'waistbandWidth',
+        3 => 'waistbandShape',
+        4 => 'waistbandOverlap',
+        5 => 'extraWaist',
+      ),
+      'sewing' => 
+      array (
+        0 => 'seamlessFullCircle',
+        1 => 'hemWidth',
       ),
     ),
   ),
