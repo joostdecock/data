@@ -1,3 +1,7 @@
+# DEPRECATED: Please see freesewing/backend instead
+
+FreeSewing v2 and up are maintained in the [backend](https://github.com/freesewing/backend) repository.
+
 <a href="https://freesewing.org/"><img src="https://freesewing.org/img/logo/logo-black.svg" align="right" width=200 /></a>
 
 # Freesewing data
